@@ -15,6 +15,13 @@ services:
             - ".:/home/app/application:cached"
             - "${COMPOSER_CACHE_DIR:-~/.cache/composer}:/home/app/.composer/cache"
 
+    cron:
+        build: infrastructure/docker/services/cron
+        depends_on:
+            - postgres
+        volumes:
+            - ".:/home/app/application:cached"
+
     postgres:
         build: 'infrastructure/docker/services/postgres'
         environment:
