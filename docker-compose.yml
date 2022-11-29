@@ -1,21 +1,25 @@
-version: '3'
-
-services:
-###> doctrine/doctrine-bundle ###
-  database:
-    image: postgres:${POSTGRES_VERSION:-14}-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
-    volumes:
-      - db-data:/var/lib/postgresql/data:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/db/data:/var/lib/postgresql/data:rw
-###< doctrine/doctrine-bundle ###
+version: '3.7'
 
 volumes:
-###> doctrine/doctrine-bundle ###
-  db-data:
-###< doctrine/doctrine-bundle ###
+    postgres-data: {}
+
+services:
+    frontend:
+        build:
+            context: 'infrastructure/docker/services/frontend'
+            args:
+                - USER_ID=${UID:-1000}
+        depends_on:
+            - postgres
+        volumes:
+            - ".:/home/app/application:cached"
+            - "${COMPOSER_CACHE_DIR:-~/.cache/composer}:/home/app/.composer/cache"
+
+    postgres:
+        build: 'infrastructure/docker/services/postgres'
+        environment:
+            POSTGRES_PASSWORD: qotd
+            POSTGRES_USER: qotd
+            POSTGRES_DB: qotd
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
