@@ -38,4 +38,14 @@ class QotdRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    public function findLast(): ?Qotd
+    {
+        return $this->createQueryBuilder('q')
+            ->orderBy('q.date', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 }

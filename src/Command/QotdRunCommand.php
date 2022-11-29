@@ -97,7 +97,7 @@ class QotdRunCommand extends Command
             if (!$dryRun) {
                 $this->botClient->chatPostMessage([
                     'channel' => $this->channelIdForSummary,
-                    'text' => sprintf('%s\'s best message was: %s', $input->getArgument('date'), $bestMessage['permalink']),
+                    'text' => sprintf('%s\'s QOTD was: %s', $input->getArgument('date'), $bestMessage['permalink']),
                 ]);
 
                 $this->qotdRepository->save(new Qotd(
