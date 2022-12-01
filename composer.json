@@ -2,7 +2,6 @@
     "name": "jolicode/qotd",
     "type": "project",
     "license": "MIT",
-    "minimum-stability": "rc",
     "prefer-stable": true,
     "require": {
         "php": ">=8.1",
