@@ -6,6 +6,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
+/**
+ * Validates the challenge request.
+ *
+ * @see https://api.slack.com/events/url_verification
+ */
 class ChallengeSubscriber implements EventSubscriberInterface
 {
     public function verifyChallenge(RequestEvent $event): void
