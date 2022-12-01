@@ -53,11 +53,13 @@ class QotdRunCommand extends Command
 
         $io->comment(sprintf('Looking between %s and %s', $lowerDate->format('Y-m-d H:i:s'), $upperDate->format('Y-m-d H:i:s')));
 
-        $qotd = $this->qotdRepository->findOneBy(['date' => $date]);
-        if ($qotd) {
-            $io->error(sprintf('Qotd for %s already exists', $date->format('Y-m-d')));
+        if (!$dryRun) {
+            $qotd = $this->qotdRepository->findOneBy(['date' => $date]);
+            if ($qotd) {
+                $io->error(sprintf('Qotd for %s already exists', $date->format('Y-m-d')));
 
-            return Command::FAILURE;
+                return Command::FAILURE;
+            }
         }
 
         $messages = $this->userClient->searchMessages([
@@ -70,8 +72,7 @@ class QotdRunCommand extends Command
         $bestScore = 0;
 
         foreach ($messages as $message) {
-            $messageCreatedAt = new \DateTimeImmutable('@' . $message['ts']);
-            if ($messageCreatedAt < $lowerDate || $messageCreatedAt > $upperDate) {
+            if (!$this->canUseMessage($message, $lowerDate, $upperDate)) {
                 continue;
             }
 
@@ -91,24 +92,50 @@ class QotdRunCommand extends Command
             }
         }
 
-        if ($bestMessage) {
-            $io->comment('Best message: ' . $bestMessage['permalink']);
+        if (!$bestMessage) {
+            $io->comment('No QOTD found.');
 
-            if (!$dryRun) {
-                $this->botClient->chatPostMessage([
-                    'channel' => $this->channelIdForSummary,
-                    'text' => sprintf('%s\'s QOTD was: %s', $input->getArgument('date'), $bestMessage['permalink']),
-                ]);
+            return Command::SUCCESS;
+        }
 
-                $this->qotdRepository->save(new Qotd(
-                    date: $date,
-                    permalink: $bestMessage['permalink'],
-                    message: $bestMessage['text'],
-                    username: $bestMessage['username'],
-                ), true);
-            }
+        $io->comment('Best message: ' . $bestMessage['permalink']);
+
+        if (!$dryRun) {
+            $this->botClient->chatPostMessage([
+                'channel' => $this->channelIdForSummary,
+                'text' => sprintf('%s\'s QOTD was: %s', $input->getArgument('date'), $bestMessage['permalink']),
+            ]);
+
+            $this->qotdRepository->save(new Qotd(
+                date: $date,
+                permalink: $bestMessage['permalink'],
+                message: $bestMessage['text'],
+                username: $bestMessage['username'],
+            ), true);
         }
 
         return Command::SUCCESS;
+    }
+
+    private function canUseMessage(array $message, \DateTimeImmutable $lowerDate, \DateTimeImmutable $upperDate): bool
+    {
+        $messageCreatedAt = new \DateTimeImmutable('@' . $message['ts']);
+        if ($messageCreatedAt < $lowerDate || $messageCreatedAt > $upperDate) {
+            return false;
+        }
+
+        $channel = $message['channel'];
+
+        if ($channel['is_group']) {
+            return false;
+        }
+        if ($channel['is_im']) {
+            return false;
+        }
+        if ($channel['is_private']) {
+            return false;
+        }
+
+        return true;
     }
 }
