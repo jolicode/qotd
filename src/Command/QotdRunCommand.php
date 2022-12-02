@@ -5,6 +5,8 @@ namespace App\Command;
 use App\Entity\Qotd;
 use App\Repository\QotdRepository;
 use JoliCode\Slack\Client;
+use JoliCode\Slack\Exception\SlackErrorResponse;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -30,6 +32,8 @@ class QotdRunCommand extends Command
         #[Autowire('%env(SLACK_REACTION_TO_SEARCH)%')]
         private readonly string $reactionToSearch,
         private readonly QotdRepository $qotdRepository,
+        private readonly LoggerInterface $logger,
+
     ) {
         parent::__construct();
     }
@@ -76,10 +80,20 @@ class QotdRunCommand extends Command
                 continue;
             }
 
-            $reactions = $this->botClient->reactionsGet([
-                'channel' => $message['channel']['id'],
-                'timestamp' => $message['ts'],
-            ])->message->reactions;
+            try {
+                $reactions = $this->botClient->reactionsGet([
+                    'channel' => $message['channel']['id'],
+                    'timestamp' => $message['ts'],
+                ])->message->reactions;
+            } catch (SlackErrorResponse $e) {
+                $this->logger->error('Cannot get reactions.', [
+                    'channel' => $message['channel']['id'],
+                    'timestamp' => $message['ts'],
+                    'exception' => $e,
+                ]);
+
+                continue;
+            }
 
             foreach ($reactions as $reaction) {
                 if ($reaction->name !== $this->reactionToSearch) {
