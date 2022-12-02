@@ -14,9 +14,10 @@ Dont forget to customize the file with your own values.
 
 ### Install the PHP application
 
+    docker-compose build frontend # this is a dependency for cron container
     docker-compose up -d
-    docker-compose run --user=app frontend composer install
-    docker-compose run --user=app frontend bin/db
+    docker-compose run --user=app --rm frontend composer install
+    docker-compose run --user=app --rm frontend bin/db
     # configure remaining parameters in .env.local
     # Enjoy
 
