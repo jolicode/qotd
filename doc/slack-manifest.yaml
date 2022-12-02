@@ -1,0 +1,26 @@
+display_information:
+  name: QOTD
+features:
+  bot_user:
+    display_name: QOTD
+    always_online: false
+  slash_commands:
+    - command: /qotd
+      url: https://FIXME/command/qotd
+      description: Get the QOTD
+      usage_hint: /qotd [date]
+      should_escape: false
+oauth_config:
+  scopes:
+    user:
+      - reactions:read
+      - search:read
+      - chat:write
+    bot:
+      - chat:write
+      - reactions:read
+      - commands
+settings:
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
