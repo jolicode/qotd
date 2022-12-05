@@ -20,5 +20,16 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    JoliCode\Slack\Client.bot:
+        class: JoliCode\Slack\Client
+        factory: ['JoliCode\Slack\ClientFactory', 'create']
+        arguments:
+            $token: '%env(SLACK_BOT_TOKEN)%'
+
+    JoliCode\Slack\Client.user:
+        class: JoliCode\Slack\Client
+        factory: ['JoliCode\Slack\ClientFactory', 'create']
+        arguments:
+            $token: '%env(SLACK_USER_TOKEN)%'
+
+
