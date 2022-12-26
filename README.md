@@ -21,12 +21,6 @@ Dont forget to customize the file with your own values.
     # configure remaining parameters in .env.local
     # Enjoy
 
-## Test
-
-    # Only for the first time
-    symfony run bin/db --env=test
-    symfony php bin/phpunit
-
 ## Usage
 
 In slack you have one commands
