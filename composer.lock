@@ -4630,16 +4630,16 @@
         },
         {
             "name": "symfony/http-client-contracts",
-            "version": "v3.1.1",
+            "version": "v3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-client-contracts.git",
-                "reference": "fd038f08c623ab5d22b26e9ba35afe8c79071800"
+                "reference": "c5f587eb445224ddfeb05b5ee703476742d730bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-client-contracts/zipball/fd038f08c623ab5d22b26e9ba35afe8c79071800",
-                "reference": "fd038f08c623ab5d22b26e9ba35afe8c79071800",
+                "url": "https://api.github.com/repos/symfony/http-client-contracts/zipball/c5f587eb445224ddfeb05b5ee703476742d730bf",
+                "reference": "c5f587eb445224ddfeb05b5ee703476742d730bf",
                 "shasum": ""
             },
             "require": {
@@ -4651,7 +4651,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "3.1-dev"
+                    "dev-main": "3.3-dev"
                 },
                 "thanks": {
                     "name": "symfony/contracts",
@@ -4691,7 +4691,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/http-client-contracts/tree/v3.1.1"
+                "source": "https://github.com/symfony/http-client-contracts/tree/v3.2.0"
             },
             "funding": [
                 {
@@ -4707,7 +4707,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-04-22T07:30:54+00:00"
+            "time": "2022-11-25T10:21:52+00:00"
         },
         {
             "name": "symfony/http-foundation",
@@ -5763,16 +5763,16 @@
         },
         {
             "name": "symfony/property-access",
-            "version": "v6.2.0",
+            "version": "v6.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/property-access.git",
-                "reference": "ed937ca8e103fdcefb43020c8784f87d3e5d09c3"
+                "reference": "9c267d87dd665d5d33e897290bbb9f64ae905b94"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/property-access/zipball/ed937ca8e103fdcefb43020c8784f87d3e5d09c3",
-                "reference": "ed937ca8e103fdcefb43020c8784f87d3e5d09c3",
+                "url": "https://api.github.com/repos/symfony/property-access/zipball/9c267d87dd665d5d33e897290bbb9f64ae905b94",
+                "reference": "9c267d87dd665d5d33e897290bbb9f64ae905b94",
                 "shasum": ""
             },
             "require": {
@@ -5823,7 +5823,7 @@
                 "reflection"
             ],
             "support": {
-                "source": "https://github.com/symfony/property-access/tree/v6.2.0"
+                "source": "https://github.com/symfony/property-access/tree/v6.2.3"
             },
             "funding": [
                 {
@@ -5839,20 +5839,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-10-28T16:24:13+00:00"
+            "time": "2022-12-23T08:18:26+00:00"
         },
         {
             "name": "symfony/property-info",
-            "version": "v6.2.0",
+            "version": "v6.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/property-info.git",
-                "reference": "ddfa5c49812d7bcfea21f9ad5341092daa82e4cc"
+                "reference": "b4cbbbcc8679460cfeb1d5bdcb8127a2e85c376c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/property-info/zipball/ddfa5c49812d7bcfea21f9ad5341092daa82e4cc",
-                "reference": "ddfa5c49812d7bcfea21f9ad5341092daa82e4cc",
+                "url": "https://api.github.com/repos/symfony/property-info/zipball/b4cbbbcc8679460cfeb1d5bdcb8127a2e85c376c",
+                "reference": "b4cbbbcc8679460cfeb1d5bdcb8127a2e85c376c",
                 "shasum": ""
             },
             "require": {
@@ -5865,7 +5865,7 @@
                 "symfony/dependency-injection": "<5.4"
             },
             "require-dev": {
-                "doctrine/annotations": "^1.10.4",
+                "doctrine/annotations": "^1.10.4|^2",
                 "phpdocumentor/reflection-docblock": "^5.2",
                 "phpstan/phpdoc-parser": "^1.0",
                 "symfony/cache": "^5.4|^6.0",
@@ -5912,7 +5912,7 @@
                 "validator"
             ],
             "support": {
-                "source": "https://github.com/symfony/property-info/tree/v6.2.0"
+                "source": "https://github.com/symfony/property-info/tree/v6.2.3"
             },
             "funding": [
                 {
@@ -5928,7 +5928,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-11-25T07:37:13+00:00"
+            "time": "2022-12-20T16:41:15+00:00"
         },
         {
             "name": "symfony/proxy-manager-bridge",
@@ -6162,16 +6162,16 @@
         },
         {
             "name": "symfony/security-bundle",
-            "version": "v6.2.2",
+            "version": "v6.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/security-bundle.git",
-                "reference": "e86c35e04717ab3d8b7f96dae9fd4144615c6603"
+                "reference": "313c1c65828b0524a5e5e590d667890d55964ebe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/security-bundle/zipball/e86c35e04717ab3d8b7f96dae9fd4144615c6603",
-                "reference": "e86c35e04717ab3d8b7f96dae9fd4144615c6603",
+                "url": "https://api.github.com/repos/symfony/security-bundle/zipball/313c1c65828b0524a5e5e590d667890d55964ebe",
+                "reference": "313c1c65828b0524a5e5e590d667890d55964ebe",
                 "shasum": ""
             },
             "require": {
@@ -6196,7 +6196,7 @@
                 "symfony/twig-bundle": "<5.4"
             },
             "require-dev": {
-                "doctrine/annotations": "^1.10.4",
+                "doctrine/annotations": "^1.10.4|^2",
                 "symfony/asset": "^5.4|^6.0",
                 "symfony/browser-kit": "^5.4|^6.0",
                 "symfony/console": "^5.4|^6.0",
@@ -6242,7 +6242,7 @@
             "description": "Provides a tight integration of the Security component into the Symfony full-stack framework",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/security-bundle/tree/v6.2.2"
+                "source": "https://github.com/symfony/security-bundle/tree/v6.2.3"
             },
             "funding": [
                 {
@@ -6258,7 +6258,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-12-14T16:11:27+00:00"
+            "time": "2022-12-21T09:01:37+00:00"
         },
         {
             "name": "symfony/security-core",
