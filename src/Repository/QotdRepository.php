@@ -3,8 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Qotd;
+use App\Repository\Model\QotdDirection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Knp\Component\Pager\PaginatorInterface;
 
 /**
  * @extends ServiceEntityRepository<Qotd>
@@ -16,23 +19,16 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class QotdRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly PaginatorInterface $paginator,
+    ) {
         parent::__construct($registry, Qotd::class);
     }
 
     public function save(Qotd $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
-    public function remove(Qotd $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
 
         if ($flush) {
             $this->getEntityManager()->flush();
@@ -47,5 +43,25 @@ class QotdRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult()
         ;
+    }
+
+    /**
+     * @return PaginationInterface<string, Qotd>
+     */
+    public function findForHomepage(int $page, QotdDirection $direction): PaginationInterface
+    {
+        $qb = $this->createQueryBuilder('q');
+
+        match ($direction) {
+            QotdDirection::Top => $qb->addOrderBy('q.vote', 'DESC')->addOrderBy('q.date', 'DESC'),
+            QotdDirection::Flop => $qb->addOrderBy('q.vote', 'ASC')->addOrderBy('q.date', 'DESC'),
+            QotdDirection::Latest => $qb->addOrderBy('q.date', 'DESC')->addOrderBy('q.vote', 'DESC'),
+        };
+
+        return $this->paginator->paginate(
+            $qb->getQuery(),
+            $page,
+            20,
+        );
     }
 }

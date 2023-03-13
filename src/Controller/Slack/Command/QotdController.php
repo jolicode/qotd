@@ -19,7 +19,7 @@ class QotdController extends AbstractController
     public function __invoke(Request $request): Response
     {
         try {
-            $date = new \DateTimeImmutable($request->request->get('text') ?: 'yesterday');
+            $date = new \DateTimeImmutable((string) $request->request->get('text') ?: 'yesterday');
         } catch (\Exception) {
             return new Response('The date is not valid.');
         }
