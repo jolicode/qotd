@@ -17,7 +17,7 @@
                     {{ qotd.date|format_date() }} by {{ qotd.username }}
                 </div>
                 <div class="mx-2">
-                    <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 permalink</a>
+                    <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
                 </div>
                 {% set can_vote = is_granted('QOTD_VOTE', qotd) %}
                 {% if can_vote %}
