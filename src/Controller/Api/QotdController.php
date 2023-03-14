@@ -17,6 +17,9 @@ class QotdController extends AbstractController
     #[Route('/api/qotds', methods: ['GET'])]
     public function __invoke(): Response
     {
-        return $this->json($this->qotdRepository->findLast());
+        return $this->json(
+            $this->qotdRepository->findLast(),
+            context: ['groups' => ['qotd:read']
+        ]);
     }
 }

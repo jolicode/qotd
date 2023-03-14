@@ -33,7 +33,6 @@ class QotdRunCommand extends Command
         private readonly string $reactionToSearch,
         private readonly QotdRepository $qotdRepository,
         private readonly LoggerInterface $logger,
-
     ) {
         parent::__construct();
     }

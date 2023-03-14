@@ -1,0 +1,6 @@
+knp_paginator:
+    page_range: 5
+    default_options:
+        page_name: page                 # page query parameter name
+    template:
+        pagination: '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig'     # sliding pagination controls template

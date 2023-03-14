@@ -19,6 +19,7 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/**/Model/'
 
     JoliCode\Slack\Client.bot:
         class: JoliCode\Slack\Client
