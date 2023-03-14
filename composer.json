@@ -14,6 +14,7 @@
         "jolicode/slack-php-api": "^4.5",
         "knplabs/knp-paginator-bundle": "^6.1",
         "knpuniversity/oauth2-client-bundle": "^2.13",
+        "league/commonmark": "^2.3",
         "league/oauth2-google": "^4.0",
         "nyholm/psr7": "^1.5",
         "phpdocumentor/reflection-docblock": "^5.3",
@@ -38,8 +39,10 @@
         "symfony/web-link": "6.2.*",
         "symfony/webpack-encore-bundle": "^1.16",
         "symfony/yaml": "6.2.*",
+        "twig/cache-extra": "^3.5",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/intl-extra": "^3.5",
+        "twig/markdown-extra": "^3.5",
         "twig/twig": "^2.12|^3.0"
     },
     "require-dev": {

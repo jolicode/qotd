@@ -9,12 +9,14 @@
 {% for qotd in pagination %}
     <div class="card mb-2">
         <div class="card-body">
-            {{ qotd.message }}
+            {{ qotd.message|replace_emoji|replace_username|markdown_to_html }}
         </div>
         <div class="card-footer text-muted">
             <div class="d-flex justify-content-between">
                 <div class="me-auto">
-                    {{ qotd.date|format_date() }} by {{ qotd.username }}
+                    {% cache qotd.id %}
+                        {{ qotd.date|format_date() }} by {{ qotd.username }}
+                    {% endcache %}
                 </div>
                 <div class="mx-2">
                     <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
