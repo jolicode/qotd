@@ -3,11 +3,14 @@
 namespace App\Repository;
 
 use App\Entity\Qotd;
+use App\Paginator\Mode\NativeQuery;
 use App\Repository\Model\QotdDirection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @extends ServiceEntityRepository<Qotd>
@@ -60,6 +63,31 @@ class QotdRepository extends ServiceEntityRepository
 
         return $this->paginator->paginate(
             $qb->getQuery(),
+            $page,
+            20,
+        );
+    }
+
+    /**
+     * @return PaginationInterface<string, Qotd>
+     */
+    public function findForHomepageNotVoted(int $page, UserInterface $user): PaginationInterface
+    {
+        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q', [], ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT);
+
+        $select = $rsm->generateSelectClause([
+            'q' => 'q',
+        ]);
+
+        $query = new NativeQuery(
+            "SELECT {$select} FROM qotd AS q WHERE NOT voter_ids::jsonb @> ?::jsonb",
+            [json_encode([$user->getUserIdentifier()])],
+            $rsm,
+        );
+
+        return $this->paginator->paginate(
+            $query,
             $page,
             20,
         );
