@@ -13,7 +13,7 @@ class AppFixtures extends Fixture
         $qotd = new Qotd(
             new \DateTimeImmutable(),
             'https://example.com',
-            <<<EOTXT
+            <<<'EOTXT'
                 Hello
 
                 :speak_no_evil: :+1:

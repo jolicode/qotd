@@ -20,7 +20,7 @@ class AppExtension extends AbstractExtension
 
     public function replaceEmoji(string $string): string
     {
-        $tr = static::$emojiTransliterator ??= EmojiTransliterator::create("emoji-slack", EmojiTransliterator::REVERSE);
+        $tr = static::$emojiTransliterator ??= EmojiTransliterator::create('emoji-slack', EmojiTransliterator::REVERSE);
 
         return $tr->transliterate($string);
     }

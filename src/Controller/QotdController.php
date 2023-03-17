@@ -28,9 +28,25 @@ class QotdController extends AbstractController
     #[Route('/flop', name: 'qotd_index_flop', defaults: ['direction' => QotdDirection::Flop->value])]
     public function index(Request $request, QotdDirection $direction): Response
     {
+        $page = max(1, $request->query->getInt('page', 1));
         $pagination = $this
             ->qotdRepository
-            ->findForHomepage(max(1, $request->query->getInt('page', 1)), $direction)
+            ->findForHomepage($page, $direction)
+        ;
+
+        return $this->render('qotd/index.html.twig', [
+            'pagination' => $pagination,
+            'direction' => $direction,
+        ]);
+    }
+
+    #[Route('/not-voted', name: 'qotd_index_not_voted', defaults: ['direction' => QotdDirection::NotVoted->value])]
+    public function notVoted(Request $request, QotdDirection $direction, #[CurrentUser] UserInterface $user): Response
+    {
+        $page = max(1, $request->query->getInt('page', 1));
+        $pagination = $this
+            ->qotdRepository
+            ->findForHomepageNotVoted($page, $user)
         ;
 
         return $this->render('qotd/index.html.twig', [
