@@ -42,6 +42,7 @@
         "symfony/yaml": "6.2.*",
         "twig/cache-extra": "^3.5",
         "twig/extra-bundle": "^2.12|^3.0",
+        "twig/html-extra": "^3.5",
         "twig/intl-extra": "^3.5",
         "twig/markdown-extra": "^3.5",
         "twig/twig": "^2.12|^3.0"

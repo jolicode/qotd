@@ -7,5 +7,12 @@ export const app = startStimulusApp(require.context(
     /\.[jt]sx?$/
 ));
 
+document.addEventListener("turbo:frame-missing", (event) => {
+    if (event.target.dataset.deleteIfMissing) {
+        event.target.remove();
+        event.preventDefault();
+    }
+});
+
 // register any custom, 3rd party controllers here
 // app.register('some_controller_name', SomeImportedController);

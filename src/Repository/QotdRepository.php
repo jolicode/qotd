@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Qotd;
 use App\Paginator\Mode\NativeQuery;
 use App\Repository\Model\QotdDirection;
+use App\Repository\Model\QotdVote;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -74,15 +75,18 @@ class QotdRepository extends ServiceEntityRepository
     public function findForHomepageNotVoted(int $page, UserInterface $user): PaginationInterface
     {
         $rsm = new ResultSetMappingBuilder($this->_em);
-        $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q', [], ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT);
+        $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q');
 
         $select = $rsm->generateSelectClause([
             'q' => 'q',
         ]);
 
         $query = new NativeQuery(
-            "SELECT {$select} FROM qotd AS q WHERE NOT voter_ids::jsonb @> ?::jsonb",
-            [json_encode([$user->getUserIdentifier()])],
+            "SELECT {$select} FROM qotd AS q WHERE coalesce(voter_ids->>:userId, :notVoted) = :notVoted",
+            [
+                'userId' => $user->getUserIdentifier(),
+                'notVoted' => QotdVote::Null->value,
+            ],
             $rsm,
         );
 

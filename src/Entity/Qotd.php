@@ -49,15 +49,29 @@ class Qotd
 
     public function applyVote(QotdVote $vote, UserInterface $user): void
     {
-        $this->vote += match ($vote) {
-            QotdVote::Up => 1,
-            QotdVote::Down => -1,
-        };
-        $this->voterIds[] = $user->getUserIdentifier();
+        if (\array_key_exists($user->getUserIdentifier(), $this->voterIds)) {
+            $this->vote -= QotdVote::from($this->voterIds[$user->getUserIdentifier()])->toInt();
+        }
+        $this->vote += $vote->toInt();
+        $this->voterIds[$user->getUserIdentifier()] = $vote->value;
     }
 
-    public function hasVoted(UserInterface $user): bool
+    public function hasVotedUp(UserInterface $user): bool
     {
-        return \in_array($user->getUserIdentifier(), $this->voterIds);
+        return QotdVote::Up === $this->getVote($user);
+    }
+
+    public function hasVotedDown(UserInterface $user): bool
+    {
+        return QotdVote::Down === $this->getVote($user);
+    }
+
+    public function getVote(UserInterface $user): QotdVote
+    {
+        if (!\array_key_exists($user->getUserIdentifier(), $this->voterIds)) {
+            return QotdVote::Null;
+        }
+
+        return QotdVote::from($this->voterIds[$user->getUserIdentifier()]);
     }
 }
