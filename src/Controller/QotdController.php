@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class QotdController extends AbstractController
 {
@@ -57,7 +56,7 @@ class QotdController extends AbstractController
 
     #[Route('/qotd/{id}/vote/up', name: 'qotd_vote_up', methods: ['POST'], defaults: ['vote' => QotdVote::Up->value])]
     #[Route('/qotd/{id}/vote/down', name: 'qotd_vote_down', methods: ['POST'], defaults: ['vote' => QotdVote::Down->value])]
-    #[IsGranted('QOTD_VOTE', subject: 'qotd')]
+    #[Route('/qotd/{id}/vote/null', name: 'qotd_vote_null', methods: ['POST'], defaults: ['vote' => QotdVote::Null->value])]
     public function vote(Request $request, Qotd $qotd, QotdVote $vote, #[CurrentUser] UserInterface $user): Response
     {
         if (!$this->isCsrfTokenValid('vote', (string) $request->request->get('token'))) {
@@ -70,5 +69,11 @@ class QotdController extends AbstractController
         $this->addFlash('success', 'Thanks for your vote!');
 
         return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('qotd_index'));
+    }
+
+    #[Route('/search', name: 'qotd_search', methods: ['GET'])]
+    public function search(): Response
+    {
+        return $this->render('qotd/search.html.twig');
     }
 }

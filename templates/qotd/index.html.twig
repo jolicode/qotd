@@ -5,48 +5,5 @@
 {% block title %}Latest QOTD{% endblock %}
 
 {% block body %}
-
-{% for qotd in pagination %}
-    <div class="card mb-2">
-        <div class="card-body">
-            {{ qotd.message|replace_emoji|replace_username|markdown_to_html }}
-        </div>
-        <div class="card-footer text-muted">
-            <div class="d-flex justify-content-between">
-                <div class="me-auto">
-                    {% cache qotd.id %}
-                        {{ qotd.date|format_date() }} by {{ qotd.username }}
-                    {% endcache %}
-                </div>
-                <div class="mx-2">
-                    <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
-                </div>
-                {% set can_vote = is_granted('QOTD_VOTE', qotd) %}
-                {% if can_vote %}
-                    <form action="{{ url('qotd_vote_down', { id: qotd.id }) }}" method="POST">
-                        <input type="hidden" name="page" value="{{ pagination.page }}">
-                        <input type="hidden" name="token" value="{{ csrf_token('vote') }}">
-                        <button type="submit" class="btn btn-sm">👎</button>
-                    </form>
-                {% endif %}
-                <div>
-                    <span class="badge bg-primary">
-                        {{ qotd.vote }}
-                    </span>
-                </div>
-                {% if can_vote %}
-                    <form action="{{ url('qotd_vote_up', { id: qotd.id }) }}" method="POST">
-                        <input type="hidden" name="page" value="{{ pagination.page }}">
-                        <input type="hidden" name="token" value="{{ csrf_token('vote') }}">
-                        <button type="submit" class="btn btn-sm">👍</button>
-                    </form>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-{% endfor %}
-
-<div class="navigation">
-    {{ knp_pagination_render(pagination) }}
-</div>
+    {{ include("qotd/_qotds.html.twig", { pagination }, with_context = false) }}
 {% endblock %}
