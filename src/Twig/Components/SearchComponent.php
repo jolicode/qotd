@@ -4,6 +4,7 @@ namespace App\Twig\Components;
 
 use App\Repository\QotdRepository;
 use Knp\Component\Pager\Pagination\PaginationInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
@@ -17,8 +18,10 @@ final class SearchComponent
     public ?string $query = '';
 
     public function __construct(
-        private QotdRepository $qotdRepository,
+        private readonly QotdRepository $qotdRepository,
+        private readonly RequestStack $requestStack,
     ) {
+        $this->query = $this->requestStack->getCurrentRequest()?->query->get('query', '') ?? '';
     }
 
     /**
