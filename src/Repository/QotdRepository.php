@@ -96,4 +96,25 @@ class QotdRepository extends ServiceEntityRepository
             20,
         );
     }
+
+    /**
+     * @return PaginationInterface<string, Qotd>
+     */
+    public function search(string $query): PaginationInterface
+    {
+        $query = $this
+            ->createQueryBuilder('q')
+            ->where('q.message LIKE :query')->setParameter('query', "%{$query}%")
+            ->addOrderBy('q.vote', 'DESC')
+            ->addOrderBy('q.date', 'DESC')
+            ->setMaxResults(20)
+            ->getQuery()
+        ;
+
+        return $this->paginator->paginate(
+            $query,
+            1,
+            20,
+        );
+    }
 }

@@ -1,0 +1,10 @@
+<div{{ attributes }}>
+    <form>
+        <div class="mb-3">
+            <label for="query" class="form-label d-none">Search</label>
+            <input type="search" name="query" data-model="query" class="form-control" id="query">
+        </div>
+    </form>
+
+    {{ include("qotd/_qotds.html.twig", { pagination: this.pagination, with_pagination: false }, with_context = false) }}
+</div>

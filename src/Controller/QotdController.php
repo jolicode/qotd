@@ -70,4 +70,10 @@ class QotdController extends AbstractController
 
         return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('qotd_index'));
     }
+
+    #[Route('/search', name: 'qotd_search', methods: ['GET'])]
+    public function search(): Response
+    {
+        return $this->render('qotd/search.html.twig');
+    }
 }
