@@ -3,12 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{% block title %}Welcome!{% endblock %}</title>
+        <title>{% block title %}QOTD{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
-
         {% block javascripts %}
             {{ encore_entry_script_tags('app') }}
         {% endblock %}
@@ -31,16 +30,19 @@
                             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                                     <li class="nav-item ">
-                                        <a class="nav-link {{ 'qotd_top' == active ? 'active' }}" href="{{ url('qotd_index_top') }}">Top 👍</a>
+                                        <a class="nav-link {{ 'qotd_top' == active ? 'active' }}" href="{{ url('qotd_index_top') }}">👍 Top</a>
                                     </li>
                                     <li class="nav-item ">
-                                        <a class="nav-link {{ 'qotd_flop' == active ? 'active' }}" href="{{ url('qotd_index_flop') }}">Flop 👎</a>
+                                        <a class="nav-link {{ 'qotd_flop' == active ? 'active' }}" href="{{ url('qotd_index_flop') }}">👎 Flop</a>
                                     </li>
                                     <li class="nav-item ">
-                                        <a class="nav-link {{ 'qotd_not_voted' == active ? 'active' }}" href="{{ url('qotd_index_not_voted') }}">Not voted yet</a>
+                                        <a class="nav-link {{ 'qotd_not_voted' == active ? 'active' }}" href="{{ url('qotd_index_not_voted') }}">🗳 Not voted yet</a>
                                     </li>
                                     <li class="nav-item ">
-                                        <a class="nav-link {{ 'qotd_search' == active ? 'active' }}" href="{{ url('qotd_search') }}">🔍Search</a>
+                                        <a class="nav-link {{ 'qotd_search' == active ? 'active' }}" href="{{ url('qotd_search') }}">🔍 Search</a>
+                                    </li>
+                                    <li class="nav-item ">
+                                        <a class="nav-link {{ 'hall_of_fame' == active ? 'active' }}" href="{{ url('hall_of_fame') }}">📆 Hall Of Fame</a>
                                     </li>
                                 </ul>
                                 {# <ul class="navbar-nav mb-2 mb-lg-0 d-flex">

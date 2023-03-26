@@ -1,0 +1,32 @@
+<turbo-frame id="qotd-{{ qotd.id }}" data-delete-if-missing="true">
+    <div class="card mb-2">
+        <div class="card-body">
+            {{ qotd.message|replace_emoji|replace_username|markdown_to_html }}
+        </div>
+        <div class="card-footer text-muted">
+            <div class="d-flex justify-content-between">
+                <div class="me-auto">
+                    {% cache qotd.id %}
+                        {{ qotd.date|format_date() }} by {{ qotd.username }}
+                    {% endcache %}
+                </div>
+                <div class="mx-1">
+                    <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
+                </div>
+                <form action="{{ url(qotd.hasVotedDown(app.user) ? 'qotd_vote_null' : 'qotd_vote_down', { id: qotd.id }) }}" method="POST" class="mx-1">
+                    <input type="hidden" name="token" value="{{ csrf_token('vote') }}">
+                    <button type="submit" class="{{ html_classes('btn', 'btn-sm', { 'btn-outline-primary': qotd.hasVotedDown(app.user) }) }}">👎</button>
+                </form>
+                <div class="mx-1">
+                    <span class="badge bg-primary">
+                        {{ qotd.vote }}
+                    </span>
+                </div>
+                <form action="{{ url(qotd.hasVotedUp(app.user) ? 'qotd_vote_null' : 'qotd_vote_up', { id: qotd.id }) }}" method="POST">
+                    <input type="hidden" name="token" value="{{ csrf_token('vote') }}">
+                    <button type="submit" class="{{ html_classes('btn', 'btn-sm', { 'btn-outline-primary': qotd.hasVotedUp(app.user) }) }}">👍</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</turbo-frame>

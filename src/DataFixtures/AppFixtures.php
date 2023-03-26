@@ -34,20 +34,31 @@ class AppFixtures extends Fixture
 
                 end
             EOTXT,
-            "rich-text@example.com",
+            'rich-text@example.com',
         );
         $manager->persist($qotd);
 
-        for ($i = 1; $i < 100; ++$i) {
+        for ($i = 1; $i < 1000; ++$i) {
             $qotd = new Qotd(
                 new \DateTimeImmutable("now -{$i} days"),
                 'https://example.com',
                 "Message {$i}",
                 "user-{$i}@example.com",
             );
-            $qotd->vote = $i;
+            $qotd->vote = random_int(0, 100);
             $manager->persist($qotd);
         }
+
+        // Add a gap between the first and the seconde QOTD
+        // to test the SQL queries about the stats
+        $qotd = new Qotd(
+            new \DateTimeImmutable('now -1500 days'),
+            'https://example.com',
+            "Message {$i}",
+            "user-{$i}@example.com",
+        );
+        $qotd->vote = random_int(0, 100);
+        $manager->persist($qotd);
 
         $manager->flush();
     }
