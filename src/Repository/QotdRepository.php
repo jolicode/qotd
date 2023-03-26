@@ -77,9 +77,7 @@ class QotdRepository extends ServiceEntityRepository
         $rsm = new ResultSetMappingBuilder($this->_em);
         $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q');
 
-        $select = $rsm->generateSelectClause([
-            'q' => 'q',
-        ]);
+        $select = $rsm->generateSelectClause();
 
         $query = new NativeQuery(
             "SELECT {$select} FROM qotd AS q WHERE coalesce(voter_ids->>:userId, :notVoted) = :notVoted",
@@ -116,5 +114,63 @@ class QotdRepository extends ServiceEntityRepository
             1,
             20,
         );
+    }
+
+    // Not used yet
+    // public function countOver(string $period)
+    // {
+    //     $sql = <<<'EOSQL'
+    //         SELECT date_trunc('week', date) AS period, COUNT(id) as count
+    //         FROM qotd
+    //         GROUP BY period
+    //         ORDER BY period
+    //     EOSQL;
+    // }
+
+    public function findBestsOver(string $period)
+    {
+        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q');
+        $rsm->addScalarResult('start_of_period', 'start_of_period', 'datetime_immutable');
+
+        $select = $rsm->generateSelectClause();
+
+        $sql = <<<EOSQL
+            WITH
+                date_boundary AS (
+                    SELECT
+                        min(date_trunc(:period, date)) AS startw,
+                        max(date_trunc(:period, date)) AS endw
+                    FROM qotd
+                ),
+                periods AS (
+                    SELECT generate_series(startw, endw, ('1 ' || :period)::interval) AS start_of_period
+                    FROM date_boundary
+                ),
+                qotd AS (
+                    SELECT
+                        p.start_of_period,
+                        q.*,
+                        rank() OVER w AS rank
+                    FROM periods p
+                        LEFT OUTER JOIN qotd q on date_trunc(:period, q.date) = p.start_of_period
+                    WINDOW w AS (
+                        PARTITION BY p.start_of_period ORDER BY q.vote DESC, q.date DESC
+                    )
+                )
+            SELECT start_of_period, {$select}
+            FROM qotd q
+            WHERE rank = 1
+            ORDER BY start_of_period DESC
+        EOSQL;
+
+        return $this
+            ->_em
+            ->createNativeQuery($sql, $rsm)
+            ->setParameters([
+                'period' => $period,
+            ])
+            ->getResult()
+        ;
     }
 }

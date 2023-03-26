@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% set active = 'hall_of_fame' %}
+
+{% block title %}Hall Of Fame{% endblock %}
+
+{% block body %}
+    <div class="mb-4">
+        {{ _self.bests_over_period(bests_over_years, 'year', 'y') }}
+    </div>
+    <div class="mb-4">
+        {{ _self.bests_over_period(bests_over_months, 'month', 'MMMM y') }}
+    </div>
+    <div>
+        {{ _self.bests_over_period(bests_over_weeks, 'week', "ww'th week of' y") }}
+    </div>
+{% endblock %}
+
+{% macro bests_over_period(bests_over_period, period, data_pattern) %}
+    <h2 class="text-center">QOTD of the {{ period }}</h2>
+    <div
+        {{ stimulus_controller('carousel', { options: {
+            navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+            },
+        }}) }}
+        class="swiper"
+    >
+        <div class="swiper-wrapper">
+            {% for data in bests_over_period %}
+                <div class="swiper-slide">
+                    {% set start_of_period = data.start_of_period %}
+                    {% set qotd = data.0 %}
+                    <div class="card mb-2">
+                        <div class="card-header text-muted">
+                            {{ start_of_period|format_date(pattern=data_pattern) }}
+                        </div>
+                        <div class="card-body">
+                            {% if qotd %}
+                                {{ include('qotd/_qotd.html.twig', { qotd }, with_context = false) }}
+                            {% else %}
+                                No QOTD for this period.
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        No QOTD found.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+    </div>
+{% endmacro %}

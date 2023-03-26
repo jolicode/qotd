@@ -1,4 +1,5 @@
 import { startStimulusApp } from '@symfony/stimulus-bridge';
+import Carousel from 'stimulus-carousel';
 
 // Registers Stimulus controllers from controllers.json and in the controllers/ directory
 export const app = startStimulusApp(require.context(
@@ -7,6 +8,8 @@ export const app = startStimulusApp(require.context(
     /\.[jt]sx?$/
 ));
 
+app.register('carousel', Carousel);
+
 document.addEventListener("turbo:frame-missing", (event) => {
     if (event.target.dataset.deleteIfMissing) {
         event.target.remove();
@@ -14,5 +17,3 @@ document.addEventListener("turbo:frame-missing", (event) => {
     }
 });
 
-// register any custom, 3rd party controllers here
-// app.register('some_controller_name', SomeImportedController);

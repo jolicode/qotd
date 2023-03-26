@@ -12,6 +12,7 @@
         "regenerator-runtime": "^0.13.9",
         "sass": "^1.59.2",
         "sass-loader": "^13.0.0",
+        "stimulus-carousel": "^5.0.1",
         "ts-loader": "^9.0.0",
         "typescript": "^4.9.5",
         "webpack": "^5.74.0",
