@@ -1,14 +1,14 @@
 <turbo-frame id="qotd-{{ qotd.id }}" data-delete-if-missing="true">
     <div class="card mb-2">
         <div class="card-body">
-            {{ qotd.message|replace_emoji|replace_username|markdown_to_html }}
+            {% cache "qotd-message-#{qotd.id}" %}
+                {{ qotd.message|replace_emoji|replace_username|markdown_to_html }}
+            {% endcache %}
         </div>
         <div class="card-footer text-muted">
             <div class="d-flex justify-content-between">
                 <div class="me-auto">
-                    {% cache qotd.id %}
-                        {{ qotd.date|format_date() }} by {{ qotd.username }}
-                    {% endcache %}
+                    {{ qotd.date|date('Y-m-d') }} by {{ qotd.username }}
                 </div>
                 <div class="mx-1">
                     <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
