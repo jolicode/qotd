@@ -1,4 +1,4 @@
-<turbo-frame id="qotd-{{ qotd.id }}" data-delete-if-missing="true">
+<turbo-frame id="qotd-{{ section ?? 'default' }}-{{ qotd.id }}" class="ts-qotd-{{ qotd.id }}" data-delete-if-missing="true">
     <div class="card mb-2">
         <div class="card-body">
             {% cache "qotd-message-#{qotd.id}" %}

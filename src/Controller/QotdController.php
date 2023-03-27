@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\UX\Turbo\TurboBundle;
 
 class QotdController extends AbstractController
 {
@@ -65,6 +66,14 @@ class QotdController extends AbstractController
 
         $qotd->applyVote($vote, $user);
         $this->em->flush();
+
+        if (TurboBundle::STREAM_FORMAT === $request->getPreferredFormat()) {
+            $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+
+            return $this->render('qotd/_qotd.stream.html.twig', [
+                'qotd' => $qotd,
+            ]);
+        }
 
         $this->addFlash('success', 'Thanks for your vote!');
 
