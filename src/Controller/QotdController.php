@@ -7,6 +7,8 @@ use App\Repository\Model\QotdDirection;
 use App\Repository\Model\QotdVote;
 use App\Repository\QotdRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -84,5 +86,11 @@ class QotdController extends AbstractController
     public function search(): Response
     {
         return $this->render('qotd/search.html.twig');
+    }
+
+    #[Route('/qotd/{id}', name: 'qotd_show', methods: ['GET'])]
+    #[Template('qotd/show.html.twig')]
+    public function show(#[MapEntity()] Qotd $qotd)
+    {
     }
 }

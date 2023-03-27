@@ -8,7 +8,9 @@
         <div class="card-footer text-muted">
             <div class="d-flex justify-content-between">
                 <div class="me-auto">
-                    {{ qotd.date|date('Y-m-d') }} by {{ qotd.username }}
+                    <a href="{{ url('qotd_show', { id: qotd.id }) }}" target="_top" class="text-reset">
+                        {{ qotd.date|date('Y-m-d') }} by {{ qotd.username }}
+                    </a>
                 </div>
                 <div class="mx-1">
                     <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
