@@ -2,7 +2,7 @@
 
 {% set active = direction.toTwigActiveSection %}
 
-{% block title %}Latest QOTD{% endblock %}
+{% block title %}{{ direction.toTitle }}{% endblock %}
 
 {% block body %}
     {{ include("qotd/_qotds.html.twig", { pagination }, with_context = false) }}
