@@ -18,4 +18,14 @@ enum QotdDirection: string
             self::NotVoted => 'qotd_not_voted',
         };
     }
+
+    public function toTitle(): string
+    {
+        return match ($this) {
+            self::Latest => 'Latest QOTD',
+            self::Top => 'Top QOTD',
+            self::Flop => 'Worst QOTD',
+            self::NotVoted => 'QOTD not voted yet',
+        };
+    }
 }

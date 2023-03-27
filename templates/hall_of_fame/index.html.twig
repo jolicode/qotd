@@ -24,6 +24,7 @@
                 nextEl: ".swiper-button-next",
                 prevEl: ".swiper-button-prev",
             },
+            autoHeight: true,
         }}) }}
         class="swiper"
     >
@@ -38,7 +39,7 @@
                         </div>
                         <div class="card-body">
                             {% if qotd %}
-                                {{ include('qotd/_qotd.html.twig', { qotd }, with_context = false) }}
+                                {{ include('qotd/_qotd.html.twig', { qotd, section: period }, with_context = false) }}
                             {% else %}
                                 No QOTD for this period.
                             {% endif %}

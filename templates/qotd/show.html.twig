@@ -1,0 +1,7 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}QOTD #{{ qotd.id }}{% endblock %}
+
+{% block body %}
+    {{ include("qotd/_qotd.html.twig", { qotd }, with_context = false) }}
+{% endblock %}

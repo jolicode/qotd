@@ -7,12 +7,15 @@ use App\Repository\Model\QotdDirection;
 use App\Repository\Model\QotdVote;
 use App\Repository\QotdRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\UX\Turbo\TurboBundle;
 
 class QotdController extends AbstractController
 {
@@ -66,6 +69,14 @@ class QotdController extends AbstractController
         $qotd->applyVote($vote, $user);
         $this->em->flush();
 
+        if (TurboBundle::STREAM_FORMAT === $request->getPreferredFormat()) {
+            $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+
+            return $this->render('qotd/_qotd.stream.html.twig', [
+                'qotd' => $qotd,
+            ]);
+        }
+
         $this->addFlash('success', 'Thanks for your vote!');
 
         return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('qotd_index'));
@@ -75,5 +86,17 @@ class QotdController extends AbstractController
     public function search(): Response
     {
         return $this->render('qotd/search.html.twig');
+    }
+
+    #[Route('/qotd/{id}', name: 'qotd_show', methods: ['GET'])]
+    #[Template('qotd/show.html.twig')]
+    public function show(#[MapEntity()] Qotd $qotd)
+    {
+    }
+
+    #[Route('/qotd/{id}/details', name: 'qotd_show_details', methods: ['GET'])]
+    #[Template('qotd/show_details.html.twig')]
+    public function show2(#[MapEntity()] Qotd $qotd)
+    {
     }
 }
