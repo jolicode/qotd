@@ -13,6 +13,9 @@
                     </a>
                 </div>
                 <div class="mx-1">
+                    <a href="{{ url('qotd_show_details', { id: qotd.id }) }}" class="text-reset" data-turbo-frame="modal"><i class="bi bi-info-circle"></i></a>
+                </div>
+                <div class="mx-1">
                     <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
                 </div>
                 <form action="{{ url(qotd.hasVotedDown(app.user) ? 'qotd_vote_null' : 'qotd_vote_down', { id: qotd.id }) }}" method="POST" class="mx-1">
