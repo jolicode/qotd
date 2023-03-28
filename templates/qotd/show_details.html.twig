@@ -6,41 +6,44 @@
     {{ include("qotd/_qotd.html.twig", { qotd }, with_context = false) }}
 {% endblock %}
 
-{% set has_modal = true %}
-{% block modal_title "QOTD Details" %}
-{% block modal_body %}
-    <table class="table table-striped table-sm">
-        <tr>
-            <th>ID</th>
-            <td>{{ qotd.id }}</td>
-        </tr>
-        <tr>
-            <th>Message</th>
-            <td>{{ qotd.message|replace_emoji|replace_username|markdown_to_html }}</td>
-        </tr>
-        <tr>
-            <th>Date</th>
-            <td>{{ qotd.date|date('Y-m-d') }}</td>
-        </tr>
-        <tr>
-            <th>Author</th>
-            <td>{{ qotd.username }}</td>
-        </tr>
-        <tr>
-            <th>Permalink (on this app)</th>
-            <td><a href="{{ url('qotd_show', {id: qotd.id}) }}">{{ url('qotd_show', {id: qotd.id}) }}</a></td>
-        </tr>
-        <tr>
-            <th>Permalink (on slack)</th>
-            <td><a href="{{ qotd.permalink }}">{{ qotd.permalink }}</a></td>
-        </tr>
-        <tr>
-            <th>Vote</th>
-            <td>{{ qotd.vote }}</td>
-        </tr>
-        <tr>
-            <th>Voters</th>
-            <td>{{ qotd.voterIds|keys|join(', ') }}</td>
-        </tr>
-    </table>
+{% block modal %}
+    {% embed "helper/modal.html.twig" %}
+        {% block modal_title "QOTD Details" %}
+        {% block modal_body %}
+            <table class="table table-striped table-sm">
+                <tr>
+                    <th>ID</th>
+                    <td>{{ qotd.id }}</td>
+                </tr>
+                <tr>
+                    <th>Message</th>
+                    <td>{{ qotd.message|replace_emoji|replace_username|markdown_to_html }}</td>
+                </tr>
+                <tr>
+                    <th>Date</th>
+                    <td>{{ qotd.date|date('Y-m-d') }}</td>
+                </tr>
+                <tr>
+                    <th>Author</th>
+                    <td>{{ qotd.username }}</td>
+                </tr>
+                <tr>
+                    <th>Permalink (on this app)</th>
+                    <td><a href="{{ url('qotd_show', {id: qotd.id}) }}">{{ url('qotd_show', {id: qotd.id}) }}</a></td>
+                </tr>
+                <tr>
+                    <th>Permalink (on slack)</th>
+                    <td><a href="{{ qotd.permalink }}">{{ qotd.permalink }}</a></td>
+                </tr>
+                <tr>
+                    <th>Vote</th>
+                    <td>{{ qotd.vote }}</td>
+                </tr>
+                <tr>
+                    <th>Voters</th>
+                    <td>{{ qotd.voterIds|keys|join(', ') }}</td>
+                </tr>
+            </table>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}
