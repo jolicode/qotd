@@ -1,5 +1,5 @@
 
-FROM qotd_frontend
+FROM qotd-frontend
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
