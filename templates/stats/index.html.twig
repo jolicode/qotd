@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% set active = "stats" %}
+
+{% block title %}Stats{% endblock %}
+
+{% block body %}
+    {{ render_chart(chart) }}
+{% endblock %}

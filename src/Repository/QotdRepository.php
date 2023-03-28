@@ -116,18 +116,31 @@ class QotdRepository extends ServiceEntityRepository
         );
     }
 
-    // Not used yet
-    // public function countOver(string $period)
-    // {
-    //     $sql = <<<'EOSQL'
-    //         SELECT date_trunc('week', date) AS period, COUNT(id) as count
-    //         FROM qotd
-    //         GROUP BY period
-    //         ORDER BY period
-    //     EOSQL;
-    // }
+    public function countOver(string $period): array
+    {
+        $sql = <<<'EOSQL'
+            SELECT date_trunc(:period, date) AS period, COUNT(id) as count, SUM(vote) as vote
+            FROM qotd
+            GROUP BY period
+            ORDER BY period
+        EOSQL;
 
-    public function findBestsOver(string $period)
+        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm->addScalarResult('period', 'period', 'datetime_immutable');
+        $rsm->addScalarResult('count', 'count', 'integer');
+        $rsm->addScalarResult('vote', 'vote', 'integer');
+
+        return $this
+            ->_em
+            ->createNativeQuery($sql, $rsm)
+            ->setParameters([
+                'period' => $period,
+            ])
+            ->getResult()
+        ;
+    }
+
+    public function findBestsOver(string $period): array
     {
         $rsm = new ResultSetMappingBuilder($this->_em);
         $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q');
