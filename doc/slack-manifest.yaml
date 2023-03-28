@@ -24,3 +24,8 @@ settings:
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false
+  event_subscriptions:
+    request_url: https://FIXME/webhook/slack
+    user_events:
+      - reaction_added
+      - reaction_removed

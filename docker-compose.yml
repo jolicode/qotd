@@ -16,7 +16,7 @@ services:
             - "${COMPOSER_CACHE_DIR:-~/.cache/composer}:/home/app/.composer/cache"
 
     cron:
-        build: infrastructure/docker/services/cron
+        build: 'infrastructure/docker/services/cron'
         depends_on:
             - postgres
         volumes:
@@ -29,4 +29,4 @@ services:
             POSTGRES_USER: qotd
             POSTGRES_DB: qotd
         volumes:
-            - postgres-data:/var/lib/postgresql/data
+            - 'postgres-data:/var/lib/postgresql/data'

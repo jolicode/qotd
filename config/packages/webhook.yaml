@@ -1,0 +1,5 @@
+framework:
+    webhook:
+        routing:
+            slack: # path: /webhook/slack
+                service: App\Webhook\SlackRequestParser

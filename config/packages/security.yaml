@@ -13,9 +13,9 @@ security:
         auth:
             pattern: ^/connect/google$
             security: false
-        main:
-            custom_authenticators:
-                - App\Security\GoogleAuthenticator
+#        main:
+#            custom_authenticators:
+#                - App\Security\GoogleAuthenticator
 
     access_control:
         - { path: ^/, roles: ROLE_USER }

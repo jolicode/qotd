@@ -10,7 +10,7 @@ To elect the best QOTD, the bot will search for message with the most reactions.
 
 Create a new slack application with the manifest located in `doc/slack-manifest.yaml`.
 
-Dont forget to customize the file with your own values.
+Don't forget to customize the file with your own values.
 
 ### Install the PHP application
 
@@ -18,12 +18,14 @@ Dont forget to customize the file with your own values.
     docker-compose up -d
     docker-compose run --user=app --rm frontend composer install
     docker-compose run --user=app --rm frontend bin/db
+    yarn install # to install all frontend stuff
+    yarn build # to build all frontend stuff
     # configure remaining parameters in .env.local
     # Enjoy
 
 ## Usage
 
-In slack you have one commands
+In slack you have one command
 
 * `/qotd [a date]` to find the QOTD of the day or of the given date;
 
