@@ -67,5 +67,12 @@
             {% block modal %}
             {% endblock %}
         </turbo-frame>
+        <div
+            id="toast-container"
+            class="toast-container position-fixed bottom-0 end-0 p-3"
+        >
+            <turbo-frame id="toasts">
+            </turbo-frame>
+        </div>
     </body>
 </html>
