@@ -96,7 +96,7 @@ class QotdController extends AbstractController
 
     #[Route('/qotd/{id}/details', name: 'qotd_show_details', methods: ['GET'])]
     #[Template('qotd/show_details.html.twig')]
-    public function show2(#[MapEntity()] Qotd $qotd)
+    public function showDetails(#[MapEntity()] Qotd $qotd)
     {
     }
 }
