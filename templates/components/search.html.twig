@@ -1,9 +1,13 @@
-
 <div {{ attributes.add(stimulus_controller('search')) }}>
     <form class="mb-3">
         <label for="query" class="form-label d-none">Search</label>
         <div class="input-group">
-            <span class="input-group-text">🔍</span>
+            <div class="input-group-text">
+                <span data-loading="addClass(visually-hidden)">🔍</span>
+                <div class="spinner-border spinner-border-sm text-primary" role="status" data-loading>
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
             <input
                 type="search"
                 name="query"
@@ -19,21 +23,23 @@
         </div>
     </form>
 
-    {% if query %}
-        {% for qotd in this.qotds %}
-            {{ include('qotd/_qotd.html.twig', { qotd }, with_context = false) }}
+    <div data-loading="addClass(opacity-50)">
+        {% if query %}
+            {% for qotd in this.qotds %}
+                {{ include('qotd/_qotd.html.twig', { qotd }, with_context = false) }}
+            {% else %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        This query did not match any QOTD
+                    </div>
+                </div>
+            {% endfor %}
         {% else %}
             <div class="card mb-2">
                 <div class="card-body">
-                    This query did not match any QOTD
+                    Please, type something to search
                 </div>
             </div>
-        {% endfor %}
-    {% else %}
-        <div class="card mb-2">
-            <div class="card-body">
-                Please, type something to search
-            </div>
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
 </div>
