@@ -5,5 +5,34 @@
 {% block title %}Stats{% endblock %}
 
 {% block body %}
-    {{ render_chart(chart) }}
+    <h2>Number of QOTD Vote over a period</h2>
+
+    <ul class="nav nav-tabs" id="countOver" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="week-tab" data-bs-toggle="tab" data-bs-target="#week-tab-pane" type="button" role="tab" aria-controls="week-tab-pane" aria-selected="false">
+                Weekly
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="month-tab" data-bs-toggle="tab" data-bs-target="#month-tab-pane" type="button" role="tab" aria-controls="month-tab-pane" aria-selected="true">
+                Monthly
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="year-tab" data-bs-toggle="tab" data-bs-target="#year-tab-pane" type="button" role="tab" aria-controls="year-tab-pane" aria-selected="false">
+                Yearly
+            </button>
+        </li>
+    </ul>
+    <div class="tab-content" id="countOverContent">
+        <div class="tab-pane fade" id="week-tab-pane" role="tabpanel" aria-labelledby="week-tab" tabindex="0">
+            {{ render_chart(countOverWeek) }}
+        </div>
+        <div class="tab-pane fade show active" id="month-tab-pane" role="tabpanel" aria-labelledby="month-tab" tabindex="0">
+            {{ render_chart(countOverMonth) }}
+        </div>
+        <div class="tab-pane fade" id="year-tab-pane" role="tabpanel" aria-labelledby="year-tab" tabindex="0">
+            {{ render_chart(countOverYear) }}
+        </div>
+    </div>
 {% endblock %}

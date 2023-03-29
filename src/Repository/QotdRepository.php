@@ -123,6 +123,7 @@ class QotdRepository extends ServiceEntityRepository
             FROM qotd
             GROUP BY period
             ORDER BY period
+            limit 100
         EOSQL;
 
         $rsm = new ResultSetMappingBuilder($this->_em);
@@ -175,6 +176,7 @@ class QotdRepository extends ServiceEntityRepository
             FROM qotd q
             WHERE rank = 1
             ORDER BY start_of_period DESC
+            LIMIT 20
         EOSQL;
 
         return $this
