@@ -38,15 +38,17 @@ class AppFixtures extends Fixture
         );
         $manager->persist($qotd);
 
+        $faker = \Faker\Factory::create();
+        $faker->seed(42);
+
         for ($i = 1; $i < 1000; ++$i) {
-            $userId = random_int(1, 20);
             $qotd = new Qotd(
                 new \DateTimeImmutable("now -{$i} days"),
-                'https://example.com',
-                "Message {$i}",
-                "user-{$userId}@example.com",
+                $faker->url(),
+                $faker->paragraph(3),
+                $faker->email(),
             );
-            $qotd->vote = random_int(0, 100);
+            $qotd->vote = $faker->numberBetween(0, 100);
             $manager->persist($qotd);
         }
 
