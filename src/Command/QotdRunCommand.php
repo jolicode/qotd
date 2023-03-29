@@ -4,8 +4,6 @@ namespace App\Command;
 
 use App\Entity\Qotd;
 use App\Repository\QotdRepository;
-use JoliCode\Slack\Client;
-use JoliCode\Slack\Exception\SlackErrorResponse;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -15,6 +13,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Target;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsCommand(
     name: 'qotd:run',
@@ -23,10 +24,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 class QotdRunCommand extends Command
 {
     public function __construct(
-        #[Autowire(service: Client::class . '.bot')]
-        private readonly Client $botClient,
-        #[Autowire(service: Client::class . '.user')]
-        private readonly Client $userClient,
+        #[Target('slack.bot.client')]
+        private readonly HttpClientInterface $botClient,
+        #[Target('slack.user.client')]
+        private readonly HttpClientInterface $userClient,
         #[Autowire('%env(SLACK_CHANNEL_ID_FOR_SUMMARY)%')]
         private readonly string $channelIdForSummary,
         #[Autowire('%env(SLACK_REACTION_TO_SEARCH)%')]
@@ -65,11 +66,13 @@ class QotdRunCommand extends Command
             }
         }
 
-        $messages = $this->userClient->searchMessages([
-            'query' => "has::{$this->reactionToSearch}:",
-            'count' => 100,
-            'sort' => 'timestamp',
-        ])['messages']['matches'];
+        $messages = $this->userClient->request('GET', 'search.messages', [
+            'query' => [
+                'query' => "has::{$this->reactionToSearch}:",
+                'count' => 100,
+                'sort' => 'timestamp',
+            ],
+        ])->toArray()['messages']['matches'];
 
         $bestMessage = null;
         $bestScore = 0;
@@ -80,11 +83,13 @@ class QotdRunCommand extends Command
             }
 
             try {
-                $reactions = $this->botClient->reactionsGet([
-                    'channel' => $message['channel']['id'],
-                    'timestamp' => $message['ts'],
-                ])->message->reactions;
-            } catch (SlackErrorResponse $e) {
+                $reactions = $this->botClient->request('GET', 'reactions.get', [
+                    'query' => [
+                        'channel' => $message['channel']['id'],
+                        'timestamp' => $message['ts'],
+                    ],
+                ])->toArray()['message']['reactions'];
+            } catch (HttpExceptionInterface $e) {
                 $this->logger->error('Cannot get reactions.', [
                     'channel' => $message['channel']['id'],
                     'timestamp' => $message['ts'],
@@ -95,11 +100,11 @@ class QotdRunCommand extends Command
             }
 
             foreach ($reactions as $reaction) {
-                if ($reaction->name !== $this->reactionToSearch) {
+                if ($reaction['name'] !== $this->reactionToSearch) {
                     continue;
                 }
-                if ($reaction->count > $bestScore) {
-                    $bestScore = $reaction->count;
+                if ($reaction['count'] > $bestScore) {
+                    $bestScore = $reaction['count'];
                     $bestMessage = $message;
                 }
             }
@@ -114,9 +119,11 @@ class QotdRunCommand extends Command
         $io->comment('Best message: ' . $bestMessage['permalink']);
 
         if (!$dryRun) {
-            $this->botClient->chatPostMessage([
-                'channel' => $this->channelIdForSummary,
-                'text' => sprintf('%s\'s QOTD was: %s', ucfirst($input->getArgument('date')), $bestMessage['permalink']),
+            $this->botClient->request('POST', 'chat.postMessage', [
+                'json' => [
+                    'channel' => $bestMessage['channel']['id'],
+                    'text' => sprintf('%s\'s QOTD was: %s', ucfirst($input->getArgument('date')), $bestMessage['permalink']),
+                ],
             ]);
 
             $this->qotdRepository->save(new Qotd(

@@ -1,0 +1,9 @@
+framework:
+    http_client:
+        scoped_clients:
+            slack.bot.client:
+                base_uri: https://slack.com/api/
+                auth_bearer: '%env(SLACK_BOT_TOKEN)%'
+            slack.user.client:
+                base_uri: https://slack.com/api/
+                auth_bearer: '%env(SLACK_USER_TOKEN)%'
