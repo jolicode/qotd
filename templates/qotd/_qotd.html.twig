@@ -1,9 +1,11 @@
+{% import "macros/qotd/message.html.twig" as qotd_macro %}
 <turbo-frame id="qotd-{{ section ?? 'default' }}-{{ qotd.id }}" class="ts-qotd-{{ qotd.id }}" data-delete-if-missing="true">
     <div class="card mb-2">
         <div class="card-body">
-            {% cache "qotd-message-#{qotd.id}" %}
-                {{ qotd.message|replace_emoji|replace_username|markdown_to_html }}
-            {% endcache %}
+            {{ qotd_macro.message(qotd) }}
+            {% for image in qotd.images %}
+                <img src="{{ asset("uploads/#{qotd.id}---#{image}") }}" alt="" />
+            {% endfor %}
         </div>
         <div class="card-footer text-muted">
             <div class="d-flex justify-content-between">

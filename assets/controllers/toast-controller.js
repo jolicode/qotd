@@ -13,5 +13,6 @@ export default class extends Controller {
 
     disconnect() {
         this.toast.hide();
+        this.element.remove();
     }
 }

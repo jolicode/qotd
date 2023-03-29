@@ -11,7 +11,6 @@
         "doctrine/doctrine-bundle": "^2.7",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.13",
-        "jolicode/slack-php-api": "^4.5",
         "knplabs/knp-paginator-bundle": "^6.1",
         "knpuniversity/oauth2-client-bundle": "^2.13",
         "league/commonmark": "^2.3",
@@ -52,6 +51,7 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.4",
+        "fakerphp/faker": "^1.21",
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "6.2.*",
         "symfony/css-selector": "6.2.*",

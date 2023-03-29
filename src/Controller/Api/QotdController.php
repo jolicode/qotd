@@ -19,7 +19,7 @@ class QotdController extends AbstractController
     {
         return $this->json(
             $this->qotdRepository->findLast(),
-            context: ['groups' => ['qotd:read']
-        ]);
+            context: ['groups' => ['qotd:read']],
+        );
     }
 }

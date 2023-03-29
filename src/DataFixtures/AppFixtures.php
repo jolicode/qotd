@@ -14,38 +14,41 @@ class AppFixtures extends Fixture
             new \DateTimeImmutable(),
             'https://example.com',
             <<<'EOTXT'
-                Hello
+                    Hello
 
-                :speak_no_evil: :+1:
+                    :speak_no_evil: :+1:
 
-                <https://joli-mapstr.vercel.app/> <https://joli-mapstr.vercel.app/>
+                    <https://joli-mapstr.vercel.app/> <https://joli-mapstr.vercel.app/>
 
-                <@UFV8NDFRS|Marion> <@UFV8NDFRS|Marion>
+                    <@UFV8NDFRS|Marion> <@UFV8NDFRS|Marion>
 
-                _foobar_
+                    _foobar_
 
-                ~foobar~
+                    ~foobar~
 
-                * list 1
-                * list 2
-                * list 3
+                    * list 1
+                    * list 2
+                    * list 3
 
-                > quote
+                    > quote
 
-                end
-            EOTXT,
+                    end
+                EOTXT,
             'rich-text@example.com',
         );
         $manager->persist($qotd);
 
+        $faker = \Faker\Factory::create();
+        $faker->seed(42);
+
         for ($i = 1; $i < 1000; ++$i) {
             $qotd = new Qotd(
                 new \DateTimeImmutable("now -{$i} days"),
-                'https://example.com',
-                "Message {$i}",
-                "user-{$i}@example.com",
+                $faker->url(),
+                $faker->paragraph(3),
+                $faker->email(),
             );
-            $qotd->vote = random_int(0, 100);
+            $qotd->vote = $faker->numberBetween(0, 100);
             $manager->persist($qotd);
         }
 
@@ -57,7 +60,6 @@ class AppFixtures extends Fixture
             "Message {$i}",
             "user-{$i}@example.com",
         );
-        $qotd->vote = random_int(0, 100);
         $manager->persist($qotd);
 
         $manager->flush();

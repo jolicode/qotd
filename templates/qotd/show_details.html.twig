@@ -8,7 +8,10 @@
 
 {% block modal %}
     {% embed "helper/modal.html.twig" %}
+        {% import "macros/qotd/message.html.twig" as qotd_macro %}
+
         {% block modal_title "QOTD Details" %}
+
         {% block modal_body %}
             <table class="table table-striped table-sm">
                 <tr>
@@ -16,8 +19,29 @@
                     <td>{{ qotd.id }}</td>
                 </tr>
                 <tr>
+                    <th>Raw Message</th>
+                    <td>
+                        <div class="overflow-x-scroll" style="max-width:calc(var(--bs-modal-width) - 10em)">
+                            <pre><code>{{ qotd.message|nl2br }}</code></pre>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
                     <th>Message</th>
-                    <td>{{ qotd.message|replace_emoji|replace_username|markdown_to_html }}</td>
+                    <td>{{ qotd_macro.message(qotd) }}</td>
+                </tr>
+                <tr>
+                    <th>Images</th>
+                    <th>
+                        {% for image in qotd.images %}
+                            {% set url = asset("uploads/#{qotd.id}---#{image}") %}
+                            <a href="{{ url }}" target="_blank">
+                                <img src="{{ url }}" alt="" style="max-width: 100px; max-height: 100px;">
+                            </a>
+                        {% else %}
+                            None
+                        {% endfor %}
+                    </th>
                 </tr>
                 <tr>
                     <th>Date</th>

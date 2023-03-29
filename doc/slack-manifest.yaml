@@ -15,11 +15,11 @@ oauth_config:
     user:
       - reactions:read
       - search:read
-      - chat:write
     bot:
       - chat:write
-      - reactions:read
       - commands
+      - reactions:read
+      - files:read
 settings:
   org_deploy_enabled: false
   socket_mode_enabled: false

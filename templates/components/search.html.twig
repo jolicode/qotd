@@ -1,11 +1,45 @@
-
 <div {{ attributes.add(stimulus_controller('search')) }}>
-    <form>
-        <div class="mb-3">
-            <label for="query" class="form-label d-none">Search</label>
-            <input type="search" name="query" data-model="query" class="form-control" id="query">
+    <form class="mb-3">
+        <label for="query" class="form-label d-none">Search</label>
+        <div class="input-group">
+            <div class="input-group-text">
+                <span data-loading="addClass(visually-hidden)">🔍</span>
+                <div class="spinner-border spinner-border-sm text-primary" role="status" data-loading>
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <input
+                type="search"
+                name="query"
+                data-model="query"
+                id="query"
+                class="form-control"
+                autocomplete="off"
+                placeholder="Search"
+            >
+            <button class="btn btn-primary">
+                Search
+            </button>
         </div>
     </form>
 
-    {{ include("qotd/_qotds.html.twig", { pagination: this.pagination, with_pagination: false }, with_context = false) }}
+    <div data-loading="addClass(opacity-50)">
+        {% if query %}
+            {% for qotd in this.qotds %}
+                {{ include('qotd/_qotd.html.twig', { qotd }, with_context = false) }}
+            {% else %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        This query did not match any QOTD
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    Please, type something to search
+                </div>
+            </div>
+        {% endif %}
+    </div>
 </div>

@@ -7,7 +7,11 @@ export default class extends Controller {
 
         this.component.on('render:finished', (component) => {
             const url = new URL(window.location);
-            url.searchParams.set("query", component.valueStore.data.query);
+            if (component.valueStore.data.query) {
+                url.searchParams.set("query", component.valueStore.data.query);
+            } else {
+                url.searchParams.delete("query");
+            }
             window.history.pushState({}, "", url);
         });
     }

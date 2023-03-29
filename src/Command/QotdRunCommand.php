@@ -4,9 +4,8 @@ namespace App\Command;
 
 use App\Entity\Qotd;
 use App\Repository\QotdRepository;
-use JoliCode\Slack\Client;
-use JoliCode\Slack\Exception\SlackErrorResponse;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,6 +14,12 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Target;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsCommand(
     name: 'qotd:run',
@@ -23,16 +28,23 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 class QotdRunCommand extends Command
 {
     public function __construct(
-        #[Autowire(service: Client::class . '.bot')]
-        private readonly Client $botClient,
-        #[Autowire(service: Client::class . '.user')]
-        private readonly Client $userClient,
+        #[Target('slack.bot.client')]
+        private readonly HttpClientInterface $botClient,
+        #[Autowire('%env(SLACK_BOT_TOKEN)%')]
+        private readonly string $slackBotToken,
+        #[Target('slack.user.client')]
+        private readonly HttpClientInterface $userClient,
         #[Autowire('%env(SLACK_CHANNEL_ID_FOR_SUMMARY)%')]
         private readonly string $channelIdForSummary,
         #[Autowire('%env(SLACK_REACTION_TO_SEARCH)%')]
         private readonly string $reactionToSearch,
         private readonly QotdRepository $qotdRepository,
-        private readonly LoggerInterface $logger,
+        #[Autowire('%upload_dir%')]
+        private readonly string $uploadDirectory,
+        private readonly SluggerInterface $slugger,
+        private readonly Filesystem $fs,
+        private readonly UrlGeneratorInterface $router,
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
         parent::__construct();
     }
@@ -42,6 +54,7 @@ class QotdRunCommand extends Command
         $this
             ->addArgument('date', InputArgument::OPTIONAL, 'date', 'yesterday')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Do not update the database, and do not post.')
+            ->addOption('force', null, InputOption::VALUE_NONE)
         ;
     }
 
@@ -56,7 +69,7 @@ class QotdRunCommand extends Command
 
         $io->comment(sprintf('Looking between %s and %s', $lowerDate->format('Y-m-d H:i:s'), $upperDate->format('Y-m-d H:i:s')));
 
-        if (!$dryRun) {
+        if (!$dryRun && !$input->getOption('force')) {
             $qotd = $this->qotdRepository->findOneBy(['date' => $date]);
             if ($qotd) {
                 $io->error(sprintf('Qotd for %s already exists', $date->format('Y-m-d')));
@@ -65,11 +78,13 @@ class QotdRunCommand extends Command
             }
         }
 
-        $messages = $this->userClient->searchMessages([
-            'query' => "has::{$this->reactionToSearch}:",
-            'count' => 100,
-            'sort' => 'timestamp',
-        ])['messages']['matches'];
+        $messages = $this->userClient->request('GET', 'search.messages', [
+            'query' => [
+                'query' => "has::{$this->reactionToSearch}:",
+                'count' => 100,
+                'sort' => 'timestamp',
+            ],
+        ])->toArray()['messages']['matches'];
 
         $bestMessage = null;
         $bestScore = 0;
@@ -80,11 +95,13 @@ class QotdRunCommand extends Command
             }
 
             try {
-                $reactions = $this->botClient->reactionsGet([
-                    'channel' => $message['channel']['id'],
-                    'timestamp' => $message['ts'],
-                ])->message->reactions;
-            } catch (SlackErrorResponse $e) {
+                $reactions = $this->botClient->request('GET', 'reactions.get', [
+                    'query' => [
+                        'channel' => $message['channel']['id'],
+                        'timestamp' => $message['ts'],
+                    ],
+                ])->toArray()['message']['reactions'] ?? []; // (race condition: reaction could have been removed)
+            } catch (HttpExceptionInterface $e) {
                 $this->logger->error('Cannot get reactions.', [
                     'channel' => $message['channel']['id'],
                     'timestamp' => $message['ts'],
@@ -95,11 +112,11 @@ class QotdRunCommand extends Command
             }
 
             foreach ($reactions as $reaction) {
-                if ($reaction->name !== $this->reactionToSearch) {
+                if ($reaction['name'] !== $this->reactionToSearch) {
                     continue;
                 }
-                if ($reaction->count > $bestScore) {
-                    $bestScore = $reaction->count;
+                if ($reaction['count'] > $bestScore) {
+                    $bestScore = $reaction['count'];
                     $bestMessage = $message;
                 }
             }
@@ -114,17 +131,43 @@ class QotdRunCommand extends Command
         $io->comment('Best message: ' . $bestMessage['permalink']);
 
         if (!$dryRun) {
-            $this->botClient->chatPostMessage([
-                'channel' => $this->channelIdForSummary,
-                'text' => sprintf('%s\'s QOTD was: %s', ucfirst($input->getArgument('date')), $bestMessage['permalink']),
-            ]);
-
-            $this->qotdRepository->save(new Qotd(
+            $qotd = new Qotd(
                 date: $date,
                 permalink: $bestMessage['permalink'],
                 message: $bestMessage['text'],
                 username: $bestMessage['username'],
-            ), true);
+            );
+
+            foreach ($bestMessage['files'] ?? [] as $file) {
+                if ('image' !== explode('/', $file['mimetype'])[0]) {
+                    continue;
+                }
+
+                $response = $this->botClient->request('GET', $file['url_private_download'], [
+                    'auth_bearer' => $this->slackBotToken,
+                ]);
+
+                $imageSuffix = sprintf('%s---%s', uuid_create(), $this->slugger->slug($file['name']));
+                $imagePath = sprintf('%s/%s---%s', $this->uploadDirectory, $qotd->id, $imageSuffix);
+
+                $this->fs->dumpFile($imagePath, $response->getContent());
+
+                $qotd->images[] = $imageSuffix;
+            }
+
+            $this->qotdRepository->save($qotd, true);
+
+            $this->botClient->request('POST', 'chat.postMessage', [
+                'json' => [
+                    'channel' => $bestMessage['channel']['id'],
+                    'text' => sprintf(
+                        "%s's QOTD was: %s\nYou can vote for it on %s",
+                        ucfirst($input->getArgument('date')),
+                        $bestMessage['permalink'],
+                        $this->router->generate('qotd_show', ['id' => $qotd->id], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ),
+                ],
+            ]);
         }
 
         return Command::SUCCESS;
