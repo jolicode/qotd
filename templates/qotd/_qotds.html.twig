@@ -8,8 +8,6 @@
     </div>
 {% endfor %}
 
-{% if with_pagination ?? true %}
-    <div class="navigation">
-        {{ knp_pagination_render(pagination) }}
-    </div>
-{% endif %}
+<div class="navigation">
+    {{ knp_pagination_render(pagination) }}
+</div>

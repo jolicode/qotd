@@ -19,5 +19,21 @@
         </div>
     </form>
 
-    {{ include("qotd/_qotds.html.twig", { pagination: this.pagination, with_pagination: false }, with_context = false) }}
+    {% if query %}
+        {% for qotd in this.qotds %}
+            {{ include('qotd/_qotd.html.twig', { qotd }, with_context = false) }}
+        {% else %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    This query did not match any QOTD
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card mb-2">
+            <div class="card-body">
+                Please, type something to search
+            </div>
+        </div>
+    {% endif %}
 </div>

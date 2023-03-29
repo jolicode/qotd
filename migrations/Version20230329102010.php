@@ -36,7 +36,6 @@ final class Version20230329102010 extends AbstractMigration
                 'id' => $row['id'],
             ]);
         }
-
     }
 
     public function down(Schema $schema): void

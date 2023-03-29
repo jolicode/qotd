@@ -98,22 +98,53 @@ class QotdRepository extends ServiceEntityRepository
     /**
      * @return PaginationInterface<string, Qotd>
      */
-    public function search(string $query): PaginationInterface
+    public function search(string $query): array
     {
-        $query = $this
-            ->createQueryBuilder('q')
-            ->where('q.message LIKE :query')->setParameter('query', "%{$query}%")
-            ->addOrderBy('q.vote', 'DESC')
-            ->addOrderBy('q.date', 'DESC')
-            ->setMaxResults(20)
-            ->getQuery()
+        if (!$query) {
+            return [];
+        }
+
+        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q');
+
+        $select = $rsm->generateSelectClause();
+
+        $sql = <<<EOSQL
+                SELECT {$select}
+                FROM qotd AS q
+                WHERE message_ts @@ websearch_to_tsquery(:query)
+                ORDER BY ts_rank(message_ts, websearch_to_tsquery(:query)) DESC
+                LIMIT 15
+            EOSQL;
+
+        $results = $this
+            ->_em
+            ->createNativeQuery($sql, $rsm)
+            ->execute([
+                'query' => $query,
+            ])
         ;
 
-        return $this->paginator->paginate(
-            $query,
-            1,
-            20,
-        );
+        if ($results) {
+            return $results;
+        }
+
+        $sql = <<<EOSQL
+                SELECT {$select}, word_similarity(message, :query) AS sml
+                FROM qotd AS q
+                WHERE q.message ~~* :query2
+                ORDER BY sml DESC, date DESC
+                LIMIT 15
+            EOSQL;
+
+        return $this
+            ->_em
+            ->createNativeQuery($sql, $rsm)
+            ->execute([
+                'query' => $query,
+                'query2' => "%{$query}%",
+            ])
+        ;
     }
 
     public function countMostQuotedUsers(): array
