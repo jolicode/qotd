@@ -16,6 +16,14 @@
                     <td>{{ qotd.id }}</td>
                 </tr>
                 <tr>
+                    <th>Raw Message</th>
+                    <td>
+                        <div class="overflow-x-scroll" style="max-width:calc(var(--bs-modal-width) - 10em)">
+                            <pre><code>{{ qotd.message|nl2br }}</code></pre>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
                     <th>Message</th>
                     <td>{{ qotd.message|replace_emoji|replace_username|markdown_to_html }}</td>
                 </tr>
