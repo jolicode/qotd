@@ -32,5 +32,3 @@ services:
         factory: ['JoliCode\Slack\ClientFactory', 'create']
         arguments:
             $token: '%env(SLACK_USER_TOKEN)%'
-
-

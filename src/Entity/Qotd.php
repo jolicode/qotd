@@ -22,10 +22,10 @@ class Qotd
     public int $vote = 0;
 
     /**
-     * @var string[]
+     * @var ?string[]
      */
-    #[ORM\Column(type: Types::JSON)]
-    public array $voterIds = [];
+    #[ORM\Column(type: Types::JSON, options: ['jsonb' => true], nullable: true)]
+    public ?array $voterIds = null;
 
     public function __construct(
         #[Groups(['qotd:read'])]
@@ -49,6 +49,10 @@ class Qotd
 
     public function applyVote(QotdVote $vote, UserInterface $user): void
     {
+        if (null === $this->voterIds) {
+            $this->voterIds = [];
+        }
+
         if (\array_key_exists($user->getUserIdentifier(), $this->voterIds)) {
             $this->vote -= QotdVote::from($this->voterIds[$user->getUserIdentifier()])->toInt();
         }
@@ -68,7 +72,7 @@ class Qotd
 
     public function getVote(UserInterface $user): QotdVote
     {
-        if (!\array_key_exists($user->getUserIdentifier(), $this->voterIds)) {
+        if (!$this->voterIds || !\array_key_exists($user->getUserIdentifier(), $this->voterIds)) {
             return QotdVote::Null;
         }
 

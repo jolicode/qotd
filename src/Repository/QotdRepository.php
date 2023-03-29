@@ -116,15 +116,126 @@ class QotdRepository extends ServiceEntityRepository
         );
     }
 
+    public function countMostQuotedUsers(): array
+    {
+        $sql = <<<'EOSQL'
+                WITH
+                    most_quoted_users AS (
+                        SELECT username, COUNT(username) AS count
+                        FROM qotd
+                        GROUP BY username
+                        ORDER BY count DESC, username ASC
+                        LIMIT 9
+                    ),
+                    others AS (
+                        SELECT 'other' AS username, COUNT(id) AS count
+                        FROM qotd q
+                            LEFT JOIN most_quoted_users m ON m.username = q.username
+                        WHERE m.username IS NULL
+                    )
+                SELECT *
+                FROM most_quoted_users
+                UNION
+                    SELECT *
+                    FROM others
+                ORDER BY count DESC, username ASC
+            EOSQL;
+
+        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm->addScalarResult('username', 'username', 'string');
+        $rsm->addScalarResult('count', 'count', 'integer');
+
+        return $this
+            ->_em
+            ->createNativeQuery($sql, $rsm)
+            ->getResult()
+        ;
+    }
+
+    public function countMostUpVotedUsers(): array
+    {
+        $sql = <<<'EOSQL'
+                WITH
+                    most_up_voted_users AS (
+                        SELECT username, SUM(vote) AS vote
+                        FROM qotd
+                        GROUP BY username
+                        ORDER BY vote DESC, username ASC
+                        LIMIT 9
+                    ),
+                    others AS (
+                        SELECT 'other' AS username, SUM(q.vote) AS vote
+                        FROM qotd q
+                            LEFT JOIN most_up_voted_users m ON m.username = q.username
+                        WHERE m.username IS NULL
+                    )
+                SELECT *
+                FROM most_up_voted_users
+                UNION
+                    SELECT *
+                    FROM others
+                ORDER BY vote DESC, username ASC
+            EOSQL;
+
+        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm->addScalarResult('username', 'username', 'string');
+        $rsm->addScalarResult('vote', 'vote', 'integer');
+
+        return $this
+            ->_em
+            ->createNativeQuery($sql, $rsm)
+            ->getResult()
+        ;
+    }
+
+    public function countBiggestVotingUsers(): array
+    {
+        $sql = <<<'EOSQL'
+                WITH
+                    biggest_voter_users AS (
+                        SELECT
+                            jsonb_object_keys(voter_ids) as voter_username,
+                            count(username) as vote
+                        FROM qotd
+                        WHERE voter_ids IS NOT NULL
+                        GROUP BY voter_username
+                        ORDER BY vote DESC, voter_username ASC
+                        LIMIT 9
+                    ),
+                    others AS (
+                        SELECT 'other' AS voter_username, SUM(q.vote) AS vote
+                        FROM qotd q
+                            LEFT JOIN biggest_voter_users b ON b.voter_username = q.username
+                        WHERE b.voter_username IS NULL
+                    )
+                SELECT *
+                FROM biggest_voter_users
+                UNION
+                    SELECT *
+                    FROM others
+                ORDER BY vote DESC, voter_username ASC
+            EOSQL;
+
+        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm->addScalarResult('voter_username', 'username', 'string');
+        $rsm->addScalarResult('vote', 'vote', 'integer');
+
+        return $this
+            ->_em
+            ->createNativeQuery($sql, $rsm)
+            ->getResult()
+        ;
+    }
+
     public function countOver(string $period): array
     {
         $sql = <<<'EOSQL'
-            SELECT date_trunc(:period, date) AS period, COUNT(id) as count, SUM(vote) as vote
-            FROM qotd
-            GROUP BY period
-            ORDER BY period
-            limit 100
-        EOSQL;
+                SELECT date_trunc(:period, date) AS period, COUNT(id) AS count, SUM(vote) AS vote
+                FROM qotd
+                GROUP BY period
+                ORDER BY period
+                limit 100
+            EOSQL;
 
         $rsm = new ResultSetMappingBuilder($this->_em);
         $rsm->addScalarResult('period', 'period', 'datetime_immutable');
@@ -150,34 +261,34 @@ class QotdRepository extends ServiceEntityRepository
         $select = $rsm->generateSelectClause();
 
         $sql = <<<EOSQL
-            WITH
-                date_boundary AS (
-                    SELECT
-                        min(date_trunc(:period, date)) AS startw,
-                        max(date_trunc(:period, date)) AS endw
-                    FROM qotd
-                ),
-                periods AS (
-                    SELECT generate_series(startw, endw, ('1 ' || :period)::interval) AS start_of_period
-                    FROM date_boundary
-                ),
-                qotd AS (
-                    SELECT
-                        p.start_of_period,
-                        q.*,
-                        rank() OVER w AS rank
-                    FROM periods p
-                        LEFT OUTER JOIN qotd q on date_trunc(:period, q.date) = p.start_of_period
-                    WINDOW w AS (
-                        PARTITION BY p.start_of_period ORDER BY q.vote DESC, q.date DESC
+                WITH
+                    date_boundary AS (
+                        SELECT
+                            min(date_trunc(:period, date)) AS startw,
+                            max(date_trunc(:period, date)) AS endw
+                        FROM qotd
+                    ),
+                    periods AS (
+                        SELECT generate_series(startw, endw, ('1 ' || :period)::interval) AS start_of_period
+                        FROM date_boundary
+                    ),
+                    qotd AS (
+                        SELECT
+                            p.start_of_period,
+                            q.*,
+                            rank() OVER w AS rank
+                        FROM periods p
+                            LEFT OUTER JOIN qotd q on date_trunc(:period, q.date) = p.start_of_period
+                        WINDOW w AS (
+                            PARTITION BY p.start_of_period ORDER BY q.vote DESC, q.date DESC
+                        )
                     )
-                )
-            SELECT start_of_period, {$select}
-            FROM qotd q
-            WHERE rank = 1
-            ORDER BY start_of_period DESC
-            LIMIT 20
-        EOSQL;
+                SELECT start_of_period, {$select}
+                FROM qotd q
+                WHERE rank = 1
+                ORDER BY start_of_period DESC
+                LIMIT 20
+            EOSQL;
 
         return $this
             ->_em
