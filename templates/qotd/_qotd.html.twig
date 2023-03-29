@@ -4,6 +4,9 @@
             {% cache "qotd-message-#{qotd.id}" %}
                 {{ qotd.message|replace_emoji|replace_username|markdown_to_html }}
             {% endcache %}
+            {% for image in qotd.images %}
+                <img src="{{ asset("uploads/#{qotd.id}---#{image}") }}" alt="" />
+            {% endfor %}
         </div>
         <div class="card-footer text-muted">
             <div class="d-flex justify-content-between">

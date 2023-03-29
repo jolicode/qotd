@@ -21,11 +21,13 @@ class Qotd
     #[ORM\Column(type: Types::INTEGER)]
     public int $vote = 0;
 
-    /**
-     * @var ?string[]
-     */
+    /** @var ?string[] */
     #[ORM\Column(type: Types::JSON, options: ['jsonb' => true], nullable: true)]
     public ?array $voterIds = null;
+
+    /** @var string[] */
+    #[ORM\Column(type: Types::JSON, options: ['jsonb' => true])]
+    public array $images = [];
 
     public function __construct(
         #[Groups(['qotd:read'])]
