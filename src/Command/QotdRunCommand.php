@@ -16,6 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -42,6 +43,7 @@ class QotdRunCommand extends Command
         private readonly string $uploadDirectory,
         private readonly SluggerInterface $slugger,
         private readonly Filesystem $fs,
+        private readonly UrlGeneratorInterface $router,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
         parent::__construct();
@@ -129,13 +131,6 @@ class QotdRunCommand extends Command
         $io->comment('Best message: ' . $bestMessage['permalink']);
 
         if (!$dryRun) {
-            $this->botClient->request('POST', 'chat.postMessage', [
-                'json' => [
-                    'channel' => $bestMessage['channel']['id'],
-                    'text' => sprintf('%s\'s QOTD was: %s', ucfirst($input->getArgument('date')), $bestMessage['permalink']),
-                ],
-            ]);
-
             $qotd = new Qotd(
                 date: $date,
                 permalink: $bestMessage['permalink'],
@@ -161,6 +156,18 @@ class QotdRunCommand extends Command
             }
 
             $this->qotdRepository->save($qotd, true);
+
+            $this->botClient->request('POST', 'chat.postMessage', [
+                'json' => [
+                    'channel' => $bestMessage['channel']['id'],
+                    'text' => sprintf(
+                        "%s's QOTD was: %s\nYou can vote for it on %s",
+                        ucfirst($input->getArgument('date')),
+                        $bestMessage['permalink'],
+                        $this->router->generate('qotd_show', ['id' => $qotd->id], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ),
+                ],
+            ]);
         }
 
         return Command::SUCCESS;
