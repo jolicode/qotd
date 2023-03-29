@@ -1,9 +1,21 @@
 
 <div {{ attributes.add(stimulus_controller('search')) }}>
-    <form>
-        <div class="mb-3">
-            <label for="query" class="form-label d-none">Search</label>
-            <input type="search" name="query" data-model="query" class="form-control" id="query">
+    <form class="mb-3">
+        <label for="query" class="form-label d-none">Search</label>
+        <div class="input-group">
+            <span class="input-group-text">🔍</span>
+            <input
+                type="search"
+                name="query"
+                data-model="query"
+                id="query"
+                class="form-control"
+                autocomplete="off"
+                placeholder="Search"
+            >
+            <button class="btn btn-primary">
+                Search
+            </button>
         </div>
     </form>
 
