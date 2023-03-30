@@ -16,6 +16,11 @@ class AppFixtures extends Fixture
             <<<'EOTXT'
                     Hello
 
+                    Message on line 1;
+                    Message on line 2;
+                    Message on line 3;
+                    Message on line 4;
+
                     :speak_no_evil: :+1:
 
                     <https://joli-mapstr.vercel.app/> <https://joli-mapstr.vercel.app/>
@@ -31,6 +36,13 @@ class AppFixtures extends Fixture
                     * list 3
 
                     > quote
+
+
+                    <script>alert('foo')</script>
+
+                    ```
+                    some code
+                    ```
 
                     end
                 EOTXT,
