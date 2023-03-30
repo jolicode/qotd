@@ -13,3 +13,6 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/**/Model/'
+
+    League\CommonMark\Extension\GithubFlavoredMarkdownExtension:
+        tags: [ twig.markdown.league_extension ]
