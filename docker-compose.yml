@@ -4,28 +4,24 @@ volumes:
     postgres-data: {}
 
 services:
-    frontend:
-        build:
-            context: 'infrastructure/docker/services/php'
-            target: frontend
+    frontend: &frontend
+        build: &build
+            dockerfile: 'infrastructure/docker/services/php/Dockerfile'
+            context: .
+            target: prod
             args:
                 - USER_ID=${UID:-1000}
         depends_on:
             - postgres
-        volumes:
-            - ".:/home/app/application:cached"
-            - "${COMPOSER_CACHE_DIR:-~/.cache/composer}:/home/app/.composer/cache"
+        environment:
+            - FRANKENPHP_CONFIG="worker /app/public/index.php"
+            - "APP_RUNTIME=Runtime\\FrankenPhpSymfony\\Runtime"
 
     cron:
+        <<: *frontend
         build:
-            context: 'infrastructure/docker/services/php'
+            <<: *build
             target: cron
-            args:
-                - USER_ID=${UID:-1000}
-        depends_on:
-            - postgres
-        volumes:
-            - ".:/home/app/application:cached"
 
     postgres:
         build: 'infrastructure/docker/services/postgres'

@@ -1,0 +1,7 @@
+/.env.local
+/.github/
+/doc/
+/docker-*
+/node_modules/
+/var/
+/vendor/
