@@ -159,7 +159,7 @@ class QotdRunCommand extends Command
 
             $this->botClient->request('POST', 'chat.postMessage', [
                 'json' => [
-                    'channel' => $bestMessage['channel']['id'],
+                    'channel' => $this->channelIdForSummary,
                     'text' => sprintf(
                         "%s's QOTD was: %s\nYou can vote for it on %s",
                         ucfirst($input->getArgument('date')),
