@@ -62,7 +62,7 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
     {
         $url = $this->getPreviousUrl($request, $firewallName);
 
-        return new RedirectResponse($url ?: $this->urlGenerator->generate('widget_home'));
+        return new RedirectResponse($url ?: $this->urlGenerator->generate('qotd_index'));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
