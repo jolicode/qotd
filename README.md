@@ -14,9 +14,26 @@ Dont forget to customize the file with your own values.
 
 ### Install the PHP application
 
+To make the available locally at the address [http://localhost:8000](http://localhost:8000), first create a `docker-compose.override.yml` file with the following content:
+
+```yaml
+version: '3.7'
+
+services:
+    frontend:
+        ports:
+            - "8000:80"
+```
+
+>*Note*: Override `APP_DEFAULT_URI` value in a `.env.local` file if you use another port or another domain.
+
+Then run the following commands:
+
     docker-compose build frontend # this is a dependency for cron container
     docker-compose up -d
     docker-compose run --user=app --rm frontend composer install
+    docker-compose run --user=app --rm frontend yarn
+    docker-compose run --user=app --rm frontend yarn build
     docker-compose run --user=app --rm frontend bin/db
     # configure remaining parameters in .env.local
     # Enjoy
