@@ -3,8 +3,8 @@
     <div class="card mb-2">
         <div class="card-body">
             {{ qotd_macro.message(qotd) }}
-            {% for image in qotd.images %}
-                <img src="{{ asset("uploads/#{qotd.id}---#{image}") }}" alt="" />
+            {% for imageUrl in qotd.imageUrls %}
+                <img src="{{ asset(imageUrl) }}" alt="" />
             {% endfor %}
         </div>
         <div class="card-footer text-muted">
