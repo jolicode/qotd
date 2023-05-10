@@ -1,6 +1,6 @@
 #syntax=docker/dockerfile:1.4
 
-FROM debian:11.0-slim
+FROM debian:11.7-slim as frontend
 
 ARG PHP_VERSION=8.2
 ARG USER_ID=1000
@@ -58,7 +58,7 @@ RUN phpenmod app-default \
     && phpenmod app-fpm
 
 # Build tools
-COPY --from=composer/composer:2.4.4-bin /composer /usr/bin/composer
+COPY --from=composer/composer:2.5.5-bin /composer /usr/bin/composer
 RUN mkdir -p "/home/app/.composer/cache" \
     && chown app: /home/app/.composer -R
 
@@ -76,3 +76,13 @@ VOLUME [ "/home/app/application" ]
 WORKDIR /home/app/application
 EXPOSE 80
 CMD ["runsvdir", "-P", "/etc/service"]
+
+FROM frontend as cron
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        cron \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+
+CMD ["cron", "-f"]

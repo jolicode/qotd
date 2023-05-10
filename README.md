@@ -29,7 +29,6 @@ services:
 
 Then run the following commands:
 
-    docker-compose build frontend # this is a dependency for cron container
     docker-compose up -d
     docker-compose run --user=app --rm frontend composer install
     docker-compose run --user=app --rm frontend yarn

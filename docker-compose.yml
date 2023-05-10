@@ -6,7 +6,8 @@ volumes:
 services:
     frontend:
         build:
-            context: 'infrastructure/docker/services/frontend'
+            context: 'infrastructure/docker/services/php'
+            target: frontend
             args:
                 - USER_ID=${UID:-1000}
         depends_on:
@@ -16,7 +17,11 @@ services:
             - "${COMPOSER_CACHE_DIR:-~/.cache/composer}:/home/app/.composer/cache"
 
     cron:
-        build: infrastructure/docker/services/cron
+        build:
+            context: 'infrastructure/docker/services/php'
+            target: cron
+            args:
+                - USER_ID=${UID:-1000}
         depends_on:
             - postgres
         volumes:
