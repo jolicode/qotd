@@ -2,6 +2,7 @@
 
 namespace App\Twig\Components;
 
+use App\Entity\Qotd;
 use App\Repository\QotdRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
@@ -20,7 +21,7 @@ final class SearchComponent
         private readonly QotdRepository $qotdRepository,
         private readonly RequestStack $requestStack,
     ) {
-        $this->query = $this->requestStack->getCurrentRequest()?->query->get('query', '') ?? '';
+        $this->query = (string) $this->requestStack->getCurrentRequest()?->query->get('query', '');
     }
 
     /**

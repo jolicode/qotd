@@ -84,6 +84,6 @@ class Qotd
     #[Groups(['qotd:read'])]
     public function getImageUrls(): array
     {
-        return array_map(fn(string $image) => sprintf('uploads/%s---%s', $this->id, $image), $this->images);
+        return array_map(fn (string $image) => sprintf('uploads/%s---%s', $this->id, $image), $this->images);
     }
 }

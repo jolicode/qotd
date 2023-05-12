@@ -10,5 +10,5 @@ parameters:
         analyse: []
     ignoreErrors:
         # - '{Property .* type has no value type specified in iterable type array\.}'
-        # - '{Method .* return type has no value type specified in iterable type array\.}'
-        # - '{Method .* has parameter .* with no value type specified in iterable type array\.}'
+        - '{Method .* return type has no value type specified in iterable type array\.}'
+        - '{Method .* has parameter .* with no value type specified in iterable type array\.}'

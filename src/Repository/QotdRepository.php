@@ -60,6 +60,7 @@ class QotdRepository extends ServiceEntityRepository
             QotdDirection::Top => $qb->addOrderBy('q.vote', 'DESC')->addOrderBy('q.date', 'DESC'),
             QotdDirection::Flop => $qb->addOrderBy('q.vote', 'ASC')->addOrderBy('q.date', 'DESC'),
             QotdDirection::Latest => $qb->addOrderBy('q.date', 'DESC')->addOrderBy('q.vote', 'DESC'),
+            default => throw new \InvalidArgumentException('Invalid direction'),
         };
 
         return $this->paginator->paginate(
@@ -95,9 +96,6 @@ class QotdRepository extends ServiceEntityRepository
         );
     }
 
-    /**
-     * @return PaginationInterface<string, Qotd>
-     */
     public function search(string $query): array
     {
         if (!$query) {
