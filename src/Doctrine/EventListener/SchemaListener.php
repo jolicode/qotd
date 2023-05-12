@@ -25,7 +25,7 @@ class SchemaListener implements EventSubscriberInterface
     public function onSchemaIndexDefinition(SchemaIndexDefinitionEventArgs $eventArgs): void
     {
         if ('qotd' === $eventArgs->getTable()
-            && \in_array($eventArgs->getTableIndex()['name'], ['qotd_message_trigram'   , 'qotd_message_ts'], true)
+            && \in_array($eventArgs->getTableIndex()['name'], ['qotd_message_trigram' , 'qotd_message_ts'], true)
         ) {
             $eventArgs->preventDefault();
         }
