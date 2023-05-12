@@ -16,6 +16,9 @@ security:
         main:
             custom_authenticators:
                 - App\Security\GoogleAuthenticator
+            # # Uncomment the next two line if you can not login with Google
+            #     - App\Security\YoloAuthenticator
+            # stateless: true
 
     access_control:
         - { path: ^/, roles: ROLE_USER }

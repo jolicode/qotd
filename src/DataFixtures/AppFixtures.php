@@ -69,8 +69,8 @@ class AppFixtures extends Fixture
         $qotd = new Qotd(
             new \DateTimeImmutable('now -1500 days'),
             'https://example.com',
-            "Message {$i}",
-            "user-{$i}@example.com",
+            'This is a very old QOTD',
+            'old@example.com',
         );
         $manager->persist($qotd);
 

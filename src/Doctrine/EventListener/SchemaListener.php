@@ -13,7 +13,7 @@ use Doctrine\DBAL\Events;
  */
 class SchemaListener implements EventSubscriberInterface
 {
-    public function onSchemaColumnDefinition(SchemaColumnDefinitionEventArgs $eventArgs)
+    public function onSchemaColumnDefinition(SchemaColumnDefinitionEventArgs $eventArgs): void
     {
         if ('qotd' === $eventArgs->getTable()) {
             if ('message_ts' === $eventArgs->getTableColumn()['field']) {
@@ -22,10 +22,10 @@ class SchemaListener implements EventSubscriberInterface
         }
     }
 
-    public function onSchemaIndexDefinition(SchemaIndexDefinitionEventArgs $eventArgs)
+    public function onSchemaIndexDefinition(SchemaIndexDefinitionEventArgs $eventArgs): void
     {
         if ('qotd' === $eventArgs->getTable()
-            && \in_array($eventArgs->getTableIndex()['name'], ['qotd_message_trigram', 'qotd_message_ts'], true)
+            && \in_array($eventArgs->getTableIndex()['name'], ['qotd_message_trigram' , 'qotd_message_ts'], true)
         ) {
             $eventArgs->preventDefault();
         }
