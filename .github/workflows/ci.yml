@@ -25,8 +25,17 @@ jobs:
       - name: Install Dependencies
         run: docker-compose run --rm --user=app frontend composer install
 
+      - name: Install Assets
+        run: docker-compose run --user=app --rm frontend yarn
+
+      - name: Build Assets
+        run: docker-compose run --user=app --rm frontend yarn build
+
       - name: Create Database
         run: docker-compose run --rm --user=app frontend bin/db --env=test
+
+      - name: Load Fixtures
+        run: docker-compose run --rm --user=app frontend bin/console doctrine:fixtures:load --env=test --no-interaction
 
       - name: Execute tests
         run: docker-compose run --rm --user=app frontend vendor/bin/simple-phpunit
@@ -50,7 +59,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Install missing extensions from the docker image
+        run: docker run --rm -v `pwd`:/app --workdir /app composer/composer composer require symfony/polyfill-intl-normalizer symfony/polyfill-intl-icu --ignore-platform-reqs
+
       - name: PHPStan
         uses: docker://oskarstark/phpstan-ga
         env:
           REQUIRE_DEV: true
+          CHECK_PLATFORM_REQUIREMENTS: false

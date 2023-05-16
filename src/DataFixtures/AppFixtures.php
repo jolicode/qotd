@@ -11,7 +11,7 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $qotd = new Qotd(
-            new \DateTimeImmutable(),
+            new \DateTimeImmutable('2023-05-12'),
             'https://example.com',
             <<<'EOTXT'
                     Hello
@@ -55,7 +55,7 @@ class AppFixtures extends Fixture
 
         for ($i = 1; $i < 1000; ++$i) {
             $qotd = new Qotd(
-                new \DateTimeImmutable("now -{$i} days"),
+                new \DateTimeImmutable("2023-05-12 -{$i} days"),
                 $faker->url(),
                 $faker->paragraph(3),
                 $faker->email(),
@@ -67,7 +67,7 @@ class AppFixtures extends Fixture
         // Add a gap between the first and the seconde QOTD
         // to test the SQL queries about the stats
         $qotd = new Qotd(
-            new \DateTimeImmutable('now -1500 days'),
+            new \DateTimeImmutable('2023-05-12 -1500 days'),
             'https://example.com',
             'This is a very old QOTD',
             'old@example.com',
