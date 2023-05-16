@@ -293,12 +293,12 @@ class QotdRepository extends ServiceEntityRepository
                 WITH
                     date_boundary AS (
                         SELECT
-                            min(date_trunc(:period, date)) AS startw,
-                            max(date_trunc(:period, date)) AS endw
+                            min(date_trunc(:period, date)) AS startp,
+                            max(date_trunc(:period, date)) AS endp
                         FROM qotd
                     ),
                     periods AS (
-                        SELECT generate_series(startw, endw, ('1 ' || :period)::interval) AS start_of_period
+                        SELECT generate_series(startp, endp, ('1 ' || :period)::interval) AS start_of_period
                         FROM date_boundary
                     ),
                     qotd AS (

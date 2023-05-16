@@ -16,7 +16,7 @@ security:
         main:
             custom_authenticators:
                 - App\Security\GoogleAuthenticator
-            # # Uncomment the next two line if you can not login with Google
+            # # Uncomment the next two line if you can not login with Google, and comment the previous one
             #     - App\Security\YoloAuthenticator
             # stateless: true
 
