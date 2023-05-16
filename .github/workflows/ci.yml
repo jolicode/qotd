@@ -26,10 +26,10 @@ jobs:
         run: docker-compose run --rm --user=app frontend composer install
 
       - name: Install Assets
-        run: docker-compose run --user=app --rm frontend yarn
+        run: docker-compose run --rm --user=app frontend yarn
 
       - name: Build Assets
-        run: docker-compose run --user=app --rm frontend yarn build
+        run: docker-compose run --rm --user=app frontend yarn build
 
       - name: Create Database
         run: docker-compose run --rm --user=app frontend bin/db --env=test
