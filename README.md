@@ -3,13 +3,13 @@
 This application contains a slack bot that post a quote of the day to a slack
 channel.
 
-The bot that check every morning for a new quote of the day and post it to the
+The bot looks every morning for a new quote of the day and post it to the
 channel of your choice.
 
 To elect the best QOTD, the bot will search for message with the most reactions.
 You can customize the searched reaction in the `.env` file.
 
-This application is fun project to learn how to use the following technologies:
+This application is a fun project to learn how to use the following technologies:
 
 * Symfony
 * Symfony UX and some third party UX components
