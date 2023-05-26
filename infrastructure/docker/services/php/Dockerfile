@@ -86,5 +86,6 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 COPY etc/cron.d/crontab /etc/cron.d/crontab
+RUN crontab /etc/cron.d/crontab
 
 CMD ["cron", "-f"]
