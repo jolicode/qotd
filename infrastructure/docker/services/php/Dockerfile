@@ -62,14 +62,6 @@ COPY --from=composer/composer:2.5.5-bin /composer /usr/bin/composer
 RUN mkdir -p "/home/app/.composer/cache" \
     && chown app: /home/app/.composer -R
 
-# Frontend build tools
-RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && \
-    apt-get install -y \
-        nodejs \
-    && npm install --global yarn \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
-
 # Rest
 ENV PHP_VERSION=${PHP_VERSION}
 VOLUME [ "/home/app/application" ]

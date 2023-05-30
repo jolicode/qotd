@@ -1,0 +1,12 @@
+.swiper-slide {
+    padding: 0 3em;
+}
+
+a {
+    /* Fix huge link in a link */
+    word-break: break-word;
+}
+
+.card img {
+    max-width: 100%;
+}
