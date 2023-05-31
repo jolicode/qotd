@@ -63,8 +63,7 @@ Then run the following commands:
 
     docker-compose up -d
     docker-compose run --rm --user=app frontend composer install
-    docker-compose run --rm --user=app frontend yarn
-    docker-compose run --rm --user=app frontend yarn build
+    docker-compose run --rm --user=app frontend bin/console asset-map:compile
     docker-compose run --rm --user=app frontend bin/db
     # If you want to load some fixtures
     # docker-compose run --rm --user=app frontend bin/console doctrine:fixtures:load  --no-interaction
