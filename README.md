@@ -80,6 +80,8 @@ services:
     frontend:
         volumes:
             - .:/app
+        ports:
+          - 8888:80
 ```
 
 ## Usage

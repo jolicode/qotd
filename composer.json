@@ -3,7 +3,6 @@
     "type": "project",
     "license": "MIT",
     "prefer-stable": true,
-    "minimum-stability": "RC",
     "require": {
         "php": ">=8.1",
         "ext-ctype": "*",
@@ -20,7 +19,7 @@
         "phpdocumentor/reflection-docblock": "^5.3",
         "phpstan/phpdoc-parser": "^1.21.3",
         "symfony/asset": "6.3.*",
-        "symfony/asset-mapper": "6.3.*@beta",
+        "symfony/asset-mapper": "6.3.*",
         "symfony/console": "6.3.*",
         "symfony/dotenv": "6.3.*",
         "symfony/expression-language": "6.3.*",
@@ -45,11 +44,11 @@
         "symfony/web-link": "6.3.*",
         "symfony/yaml": "6.3.*",
         "twig/cache-extra": "^3.6",
-        "twig/extra-bundle": "^2.12|^3.6",
+        "twig/extra-bundle": "^3.6",
         "twig/html-extra": "^3.6",
         "twig/intl-extra": "^3.6",
         "twig/markdown-extra": "^3.6",
-        "twig/twig": "^2.12|^3.6"
+        "twig/twig": "^3.6"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.4.4",
