@@ -14,10 +14,6 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 class YoloAuthenticator extends AbstractAuthenticator
 {
-    public function __construct(
-    ) {
-    }
-
     public function supports(Request $request): ?bool
     {
         return null;
