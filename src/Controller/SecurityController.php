@@ -18,7 +18,7 @@ class SecurityController extends AbstractController
         ;
     }
 
-     #[Route('/connect/google/check', name: 'connect_google_check')]
+    #[Route('/connect/google/check', name: 'connect_google_check')]
     public function connectCheckAction(): never
     {
         throw new \LogicException('This method must be blank - it will be intercepted by the Security layer.');
