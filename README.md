@@ -56,8 +56,9 @@ services:
             - "8000:80"
 ```
 
->*Note*: Override `APP_DEFAULT_URI` value in a `.env.local` file if you use
->another port or another domain.
+> [!NOTE]
+> Override `APP_DEFAULT_URI` value in a `.env.local` file if you use
+> another port or another domain.
 
 Then run the following commands:
 
