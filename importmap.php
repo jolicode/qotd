@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Returns the import map for this application.
+ * Returns the importmap for this application.
  *
  * - "path" is a path inside the asset mapper system. Use the
  *     "debug:asset-map" command to see the full list of paths.
  *
- * - "preload" set to true for any modules that are loaded on the initial
- *     page load to help the browser download them earlier.
+ * - "entrypoint" (JavaScript only) set to true for any module that will
+ *     be used as an "entrypoint" (and passed to the importmap() Twig function).
  *
  * The "importmap:require" command can be used to add new entries to this file.
  *
@@ -15,28 +15,52 @@
  */
 return [
     'app' => [
-        'path' => 'app.js',
-        'preload' => true,
-    ],
-    '@symfony/stimulus-bundle' => [
-        'path' => '@symfony/stimulus-bundle/loader.js',
-    ],
-    'stimulus-carousel' => [
-        'url' => 'https://cdn.jsdelivr.net/npm/stimulus-carousel@5.0.1/+esm',
+        'path' => './assets/app.js',
+        'entrypoint' => true,
     ],
     '@hotwired/stimulus' => [
-        'url' => 'https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.1/+esm',
+        'version' => '3.2.2',
     ],
-    'chart.js/auto' => [
-        'url' => 'https://cdn.jsdelivr.net/npm/chart.js@3.9.1/auto/+esm',
-    ],
-    '@hotwired/turbo' => [
-        'url' => 'https://cdn.jsdelivr.net/npm/@hotwired/turbo@7.3.0/+esm',
+    '@symfony/stimulus-bundle' => [
+        'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
     ],
     '@symfony/ux-live-component' => [
-        'path' => '@symfony/ux-live-component/live_controller.js',
+        'path' => './vendor/symfony/ux-live-component/assets/dist/live_controller.js',
+    ],
+    'chart.js/auto' => [
+        'version' => '3.9.1',
+    ],
+    '@hotwired/turbo' => [
+        'version' => '7.3.0',
+    ],
+    'stimulus-carousel' => [
+        'version' => '5.0.1',
+    ],
+    'swiper/bundle' => [
+        'version' => '8.4.7',
+    ],
+    'ssr-window' => [
+        'version' => '4.0.2',
+    ],
+    'dom7' => [
+        'version' => '4.0.6',
     ],
     'bootstrap' => [
-        'url' => 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/+esm',
+        'version' => '5.3.2',
+    ],
+    '@popperjs/core' => [
+        'version' => '2.11.8',
+    ],
+    'bootstrap/dist/css/bootstrap.min.css' => [
+        'version' => '5.3.2',
+        'type' => 'css',
+    ],
+    'bootstrap-icons/font/bootstrap-icons.css' => [
+        'version' => '1.11.2',
+        'type' => 'css',
+    ],
+    'swiper/swiper-bundle.min.css' => [
+        'version' => '11.0.5',
+        'type' => 'css',
     ],
 ];
