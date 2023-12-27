@@ -15,7 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Symfony\UX\Turbo\TurboBundle;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class QotdController extends AbstractController
 {
@@ -67,25 +68,49 @@ class QotdController extends AbstractController
         }
 
         $qotd->applyVote($vote, $user);
+
         $this->em->flush();
-
-        if (TurboBundle::STREAM_FORMAT === $request->getPreferredFormat()) {
-            $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
-
-            return $this->render('qotd/_qotd.stream.html.twig', [
-                'qotd' => $qotd,
-            ]);
-        }
 
         $this->addFlash('success', 'Thanks for your vote!');
 
-        return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('qotd_index'));
+        return $this->redirectToRoute('qotd_show', ['id' => $qotd->id]);
     }
 
     #[Route('/search', name: 'qotd_search', methods: ['GET'])]
     public function search(): Response
     {
         return $this->render('qotd/search.html.twig');
+    }
+
+    #[Route('/qotd/{id}/edit', name: 'qotd_show_edit', methods: ['GET', 'POST'])]
+    public function edit(
+        Request $request,
+        #[MapEntity()] Qotd $qotd,
+    ): Response {
+        $form = $this->createFormBuilder(
+            $qotd,
+            [
+                'action' => $this->generateUrl('qotd_show_edit', ['id' => $qotd->id]),
+            ])
+            ->add('message', null, [
+                'constraints' => [new NotBlank(), new Length(min: 10)],
+                'required' => false,
+            ])
+            ->getForm()
+        ;
+
+        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
+            $this->em->flush();
+
+            $this->addFlash('success', 'Your changes have been saved!');
+
+            return $this->redirectToRoute('qotd_show', ['id' => $qotd->id]);
+        }
+
+        return $this->render('qotd/edit.html.twig', [
+            'form' => $form,
+            'qotd' => $qotd,
+        ]);
     }
 
     #[Route('/qotd/{id}', name: 'qotd_show', methods: ['GET'])]

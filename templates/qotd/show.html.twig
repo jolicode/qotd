@@ -1,7 +1,21 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_with_frame.html.twig' %}
 
 {% block title %}QOTD #{{ qotd.id }}{% endblock %}
 
 {% block body %}
     {{ include("qotd/_qotd.html.twig", { qotd }, with_context = false) }}
 {% endblock %}
+
+{# We use this template as the "finish point" of diverse opeations, that may occurs in modals #}
+{# So we clean the template, then replace a potentials frame #}
+
+{% block modal '' %}
+
+{% block frames %}
+    <turbo-stream action="replace" target="qotd-{{ qotd.id }}">
+        <template>
+            {{ include("qotd/_qotd.html.twig", { qotd }, with_context = false) }}
+        </template>
+    </turbo-stream>
+{% endblock %}
+

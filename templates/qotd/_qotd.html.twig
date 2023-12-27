@@ -1,8 +1,8 @@
 {% import "macros/qotd/message.html.twig" as qotd_macro %}
+
 <turbo-frame
-    id="qotd-{{ section ?? 'default' }}-{{ qotd.id }}"
+    id="qotd-{{ qotd.id }}"
     class="ts-qotd-{{ qotd.id }}"
-    data-delete-if-missing="true"
     {{ tt('quote') }}
 >
     <div class="card mb-2">
@@ -21,6 +21,9 @@
                 </div>
                 <div class="mx-1">
                     <a href="{{ url('qotd_show_details', { id: qotd.id }) }}" class="text-reset" data-turbo-frame="modal"><i class="bi bi-info-circle"></i></a>
+                </div>
+                <div class="mx-1">
+                    <a href="{{ url('qotd_show_edit', { id: qotd.id }) }}" class="text-reset" data-turbo-frame="modal"><i class="bi bi-pencil"></i></a>
                 </div>
                 <div class="mx-1">
                     <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>

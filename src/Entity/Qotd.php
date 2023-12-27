@@ -40,7 +40,7 @@ class Qotd
 
         #[Groups(['qotd:read'])]
         #[ORM\Column(type: Types::TEXT)]
-        public readonly string $message,
+        public string $message,
 
         #[Groups(['qotd:read'])]
         #[ORM\Column(length: 255)]

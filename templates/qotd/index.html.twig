@@ -5,5 +5,17 @@
 {% block title %}{{ direction.toTitle }}{% endblock %}
 
 {% block body %}
-    {{ include("qotd/_qotds.html.twig", { pagination }, with_context = false) }}
+    {% for qotd in pagination %}
+        {{ include('qotd/_qotd.html.twig', { qotd }, with_context = false) }}
+    {% else %}
+        <div class="card mb-2">
+            <div class="card-body">
+                No QOTD found.
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="navigation">
+        {{ knp_pagination_render(pagination) }}
+    </div>
 {% endblock %}

@@ -3,6 +3,7 @@
 namespace App\Twig\Extension;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Intl\Transliterator\EmojiTransliterator;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -13,6 +14,7 @@ class AppExtension extends AbstractExtension
     private static EmojiTransliterator $emojiTransliterator;
 
     public function __construct(
+        private readonly RequestStack $requestStack,
         #[Autowire('%kernel.environment%')]
         private readonly string $env,
     ) {
@@ -21,6 +23,7 @@ class AppExtension extends AbstractExtension
     public function getFunctions(): iterable
     {
         yield new TwigFunction('tt', $this->whenTest(...));
+        yield new TwigFunction('get_turbo_frame', $this->getTurboFrame(...));
     }
 
     public function getFilters(): iterable
@@ -48,5 +51,12 @@ class AppExtension extends AbstractExtension
         }
 
         return sprintf('data-test=%s', $name);
+    }
+
+    public function getTurboFrame(): ?string
+    {
+        $request = $this->requestStack->getCurrentRequest();
+
+        return $request?->headers->get('Turbo-Frame') ?? null;
     }
 }

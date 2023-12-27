@@ -61,10 +61,12 @@
                 {% block body %}{% endblock %}
             </div>
         </main>
-        <turbo-frame id="modal">
-            {% block modal %}
-            {% endblock %}
-        </turbo-frame>
+        <div {{ stimulus_controller('modal') }}>
+            <turbo-frame id="modal" {{ stimulus_target('modal', 'frame') }} />
+            <template {{ stimulus_target('modal', 'loadingTemplate') }}>
+                <twig:LoadingModal />
+            </template>
+        </div>
         <div
             id="toast-container"
             class="toast-container position-fixed bottom-0 end-0 p-3"
