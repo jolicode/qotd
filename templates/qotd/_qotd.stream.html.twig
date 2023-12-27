@@ -6,9 +6,8 @@
 
 <turbo-stream action="append" target="toasts">
     <template>
-        {% embed 'helper/notification.html.twig' %}
-            {% block title '✅ Saved!' %}
-            {% block body 'Thanks for your vote!' %}
-        {% endembed %}
+        <twig:Notification title="✅ Saved!">
+            Thanks for your vote!
+        </twig:Notification>
     </template>
 </turbo-stream>
