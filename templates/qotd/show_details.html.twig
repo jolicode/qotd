@@ -22,6 +22,14 @@
             </td>
         </tr>
         <tr>
+            <th>Raw Context</th>
+            <td>
+                <div class="overflow-x-scroll" style="max-width:calc(var(--bs-modal-width) - 10em)">
+                    <pre><code>{{ qotd.context|nl2br }}</code></pre>
+                </div>
+            </td>
+        </tr>
+        <tr>
             <th>Message</th>
             <td>{{ qotd_macro.message(qotd) }}</td>
         </tr>

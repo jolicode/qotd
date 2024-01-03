@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Qotd;
+use App\Form\Type\QotdType;
 use App\Repository\Model\QotdDirection;
 use App\Repository\Model\QotdVote;
 use App\Repository\QotdRepository;
@@ -15,8 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class QotdController extends AbstractController
 {
@@ -87,17 +86,9 @@ class QotdController extends AbstractController
         Request $request,
         #[MapEntity()] Qotd $qotd,
     ): Response {
-        $form = $this->createFormBuilder(
-            $qotd,
-            [
-                'action' => $this->generateUrl('qotd_show_edit', ['id' => $qotd->id]),
-            ])
-            ->add('message', null, [
-                'constraints' => [new NotBlank(), new Length(min: 10)],
-                'required' => false,
-            ])
-            ->getForm()
-        ;
+        $form = $this->createForm(QotdType::class, $qotd, [
+            'action' => $this->generateUrl('qotd_show_edit', ['id' => $qotd->id]),
+        ]);
 
         if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
             $this->em->flush();

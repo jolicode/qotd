@@ -62,7 +62,7 @@ class QotdControllerTest extends WebTestCase
         self::assertCount(20, $quotes);
 
         $firstQuote = $quotes->first();
-        $id = str_replace('qotd-default-', '', $firstQuote->attr('id'));
+        $id = str_replace('qotd-', '', $firstQuote->attr('id'));
 
         try {
             $form = $firstQuote->filter('[data-test=vote-up]')->form();
