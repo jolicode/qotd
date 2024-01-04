@@ -42,8 +42,8 @@ class QotdController extends AbstractController
         ]);
     }
 
-    #[Route('/not-voted', name: 'qotd_index_not_voted', defaults: ['direction' => QotdDirection::NotVoted->value])]
-    public function notVoted(Request $request, QotdDirection $direction, #[CurrentUser] UserInterface $user): Response
+    #[Route('/not-voted', name: 'qotd_index_not_voted')]
+    public function notVoted(Request $request, #[CurrentUser] UserInterface $user): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
         $pagination = $this
@@ -53,7 +53,7 @@ class QotdController extends AbstractController
 
         return $this->render('qotd/index.html.twig', [
             'pagination' => $pagination,
-            'direction' => $direction,
+            'direction' => QotdDirection::NotVoted,
         ]);
     }
 
