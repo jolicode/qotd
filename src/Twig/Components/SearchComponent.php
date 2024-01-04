@@ -14,7 +14,7 @@ final class SearchComponent
 {
     use DefaultActionTrait;
 
-    #[LiveProp(writable: true)]
+    #[LiveProp(writable: true, url: true)]
     public string $query;
 
     public function __construct(
