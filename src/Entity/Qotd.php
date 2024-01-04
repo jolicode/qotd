@@ -50,7 +50,7 @@ class Qotd
 
         #[Groups(['qotd:read'])]
         #[ORM\Column(type: Types::TEXT)]
-        public string $message,
+        public readonly string $message,
 
         #[Groups(['qotd:read'])]
         #[ORM\Column(length: 255)]
@@ -102,10 +102,5 @@ class Qotd
     public function onUpdate(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    public function getContext(): string
-    {
-        return $this->context;
     }
 }
