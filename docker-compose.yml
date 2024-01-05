@@ -14,6 +14,7 @@ services:
         depends_on:
             - postgres
         environment:
+            - SERVER_NAME=${SERVER_NAME:-localhost}, php:80
             - FRANKENPHP_CONFIG="worker /app/public/index.php"
             - "APP_RUNTIME=Runtime\\FrankenPhpSymfony\\Runtime"
 

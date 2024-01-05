@@ -1,45 +1,35 @@
 #syntax=docker/dockerfile:1.4
 
-FROM dunglas/frankenphp as base
-
-ARG USER_ID=1000
-
-# Fake user to maps with the one on the host
-RUN addgroup --gid 1000 app && \
-    adduser --system --uid ${USER_ID} --home /home/app --shell /bin/bash app
-RUN chown app:app /app
+FROM dunglas/frankenphp:latest-php8.3-bookworm as base
 
 # PHP Stuff
 RUN install-php-extensions \
-    intl \
-    opcache \
-    pdo_pgsql \
-    uuid \
-    zip
+        intl \
+        opcache \
+        pdo_pgsql \
+        uuid \
+        zip
 
-# ENV FRANKENPHP_CONFIG="worker ./public/index.php"
-# ENV APP_RUNTIME="Runtime\\FrankenPhpSymfony\\Runtime"
-
-WORKDIR /app
-
-USER app
-
-FROM base as builder
-
-USER root
-
-# Frontend build tools
-RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && \
-    apt-get install -y \
-        nodejs \
-    && npm install --global yarn \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libnss3-tools\
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
-# PHP Build tools
-COPY --from=composer/composer:2.5.5-bin /composer /usr/bin/composer
+COPY infrastructure/docker/services/php/frankenphp/conf.d/app.ini $PHP_INI_DIR/conf.d/
+COPY infrastructure/docker/services/php/frankenphp/Caddyfile /etc/caddy/Caddyfile
 
-USER app
+WORKDIR /app
+
+FROM base as builder
+
+
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+COPY infrastructure/docker/services/php/frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
+
+COPY --from=composer/composer:2.6.6-bin /composer /usr/bin/composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV PATH="${PATH}:/root/.composer/vendor/bin"
 
 RUN mkdir -p "/home/app/.composer/cache"
 
@@ -59,21 +49,34 @@ RUN \
 
 FROM builder as dev
 
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+
+CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--watch" ]
+
+
 EXPOSE 80
 EXPOSE 443
 
 FROM base as prod
 
-COPY --link --from=builder /app /app
 
 ENV APP_ENV=prod
+ENV FRANKENPHP_CONFIG="import worker.Caddyfile"
+
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY infrastructure/docker/services/php/frankenphp/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
+COPY infrastructure/docker/services/php/frankenphp/worker.Caddyfile /etc/caddy/worker.Caddyfile
+
+
+COPY --from=builder /app /app
+
+CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile" ]
 
 EXPOSE 80
 EXPOSE 443
 
 FROM prod as cron
 
-USER root
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
