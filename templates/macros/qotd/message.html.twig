@@ -1,6 +1,11 @@
 {% macro message(qotd) %}
-    {% cache "qotd-message-#{qotd.id}" %}
+    {% cache "qotd-message-#{qotd.id}-#{qotd.updatedAt.format('c')}" %}
         {# we use |replace because it better like that! #}
+        {% if qotd.context %}
+            <blockquote class="text-body-secondary">
+                {{ qotd.context|replace_emoji|replace_username|replace({'\n': '\n\n'})|markdown_to_html }}
+            </blockquote>
+        {% endif %}
         {{ qotd.message|replace_emoji|replace_username|replace({'\n': '\n\n'})|markdown_to_html }}
     {% endcache %}
 {% endmacro %}

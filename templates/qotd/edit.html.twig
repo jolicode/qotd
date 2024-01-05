@@ -1,0 +1,23 @@
+{% extends 'base_with_frame.html.twig' %}
+
+{% block title 'Edit QOTD #' ~ qotd.id %}
+
+{% block save_button %}
+    <button type="submit" class="btn btn-primary" form="qotd-edit">Save</button>
+{% endblock %}
+
+{% block body %}
+    {{ form(form, { attr: { id: 'qotd-edit' } } ) }}
+
+    {% if get_turbo_frame() != 'modal' %}
+        {{ block('save_button') }}
+    {% endif %}
+{% endblock %}
+
+{% set modal_attributes = {
+    'disable-loader': true,
+} %}
+
+{% block modal_footer_post %}
+    {{ block('save_button') }}
+{% endblock %}

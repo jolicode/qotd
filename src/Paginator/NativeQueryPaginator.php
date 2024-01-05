@@ -30,10 +30,11 @@ class NativeQueryPaginator implements EventSubscriberInterface
         ;
 
         $params = $query->parameters;
+        $params[] = $event->getLimit();
         $params[] = $event->getOffset();
         $qotds = $this
             ->em
-            ->createNativeQuery('SELECT * FROM ( ' . $query->sql . ' ) AS q LIMIT 20 OFFSET ?', $query->rsm)
+            ->createNativeQuery('SELECT * FROM ( ' . $query->sql . ' ) AS q LIMIT ? OFFSET ?', $query->rsm)
             ->setParameters($params)
             ->getResult()
         ;

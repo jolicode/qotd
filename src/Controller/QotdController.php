@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Qotd;
+use App\Form\Type\QotdType;
 use App\Repository\Model\QotdDirection;
 use App\Repository\Model\QotdVote;
 use App\Repository\QotdRepository;
@@ -15,7 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Symfony\UX\Turbo\TurboBundle;
 
 class QotdController extends AbstractController
 {
@@ -42,8 +42,8 @@ class QotdController extends AbstractController
         ]);
     }
 
-    #[Route('/not-voted', name: 'qotd_index_not_voted', defaults: ['direction' => QotdDirection::NotVoted->value])]
-    public function notVoted(Request $request, QotdDirection $direction, #[CurrentUser] UserInterface $user): Response
+    #[Route('/not-voted', name: 'qotd_index_not_voted')]
+    public function notVoted(Request $request, #[CurrentUser] UserInterface $user): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
         $pagination = $this
@@ -53,7 +53,7 @@ class QotdController extends AbstractController
 
         return $this->render('qotd/index.html.twig', [
             'pagination' => $pagination,
-            'direction' => $direction,
+            'direction' => QotdDirection::NotVoted,
         ]);
     }
 
@@ -67,25 +67,41 @@ class QotdController extends AbstractController
         }
 
         $qotd->applyVote($vote, $user);
+
         $this->em->flush();
-
-        if (TurboBundle::STREAM_FORMAT === $request->getPreferredFormat()) {
-            $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
-
-            return $this->render('qotd/_qotd.stream.html.twig', [
-                'qotd' => $qotd,
-            ]);
-        }
 
         $this->addFlash('success', 'Thanks for your vote!');
 
-        return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('qotd_index'));
+        return $this->redirectToRoute('qotd_show', ['id' => $qotd->id]);
     }
 
     #[Route('/search', name: 'qotd_search', methods: ['GET'])]
     public function search(): Response
     {
         return $this->render('qotd/search.html.twig');
+    }
+
+    #[Route('/qotd/{id}/edit', name: 'qotd_show_edit', methods: ['GET', 'POST'])]
+    public function edit(
+        Request $request,
+        #[MapEntity()] Qotd $qotd,
+    ): Response {
+        $form = $this->createForm(QotdType::class, $qotd, [
+            'action' => $this->generateUrl('qotd_show_edit', ['id' => $qotd->id]),
+        ]);
+
+        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
+            $this->em->flush();
+
+            $this->addFlash('success', 'Your changes have been saved!');
+
+            return $this->redirectToRoute('qotd_show', ['id' => $qotd->id]);
+        }
+
+        return $this->render('qotd/edit.html.twig', [
+            'form' => $form,
+            'qotd' => $qotd,
+        ]);
     }
 
     #[Route('/qotd/{id}', name: 'qotd_show', methods: ['GET'])]

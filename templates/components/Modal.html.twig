@@ -1,0 +1,33 @@
+<div
+    {# do NOT use fade here, it mess up JS (race concurrence, 💥) #}
+    class="modal"
+    {{ stimulus_target('modal', 'bsModal') }}
+    tabindex="-1"
+    aria-hidden="true"
+    {{ attributes }}
+>
+    <div class="modal-dialog modal-dialog modal-lg">
+        <div class="modal-content">
+            {% block header_container %}
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">
+                        {% block title '' %}
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            {% endblock %}
+            <div class="modal-body">
+                {% block content '' %}
+            </div>
+            {% block footer_container %}
+                <div class="modal-footer">
+                    {% block footer %}
+                        {% block footer_pre '' %}
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        {% block footer_post '' %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>

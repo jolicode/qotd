@@ -23,6 +23,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class QotdRepository extends ServiceEntityRepository
 {
+    private const MAX_PER_PAGE = 7;
+
     public function __construct(
         ManagerRegistry $registry,
         private readonly PaginatorInterface $paginator,
@@ -66,7 +68,7 @@ class QotdRepository extends ServiceEntityRepository
         return $this->paginator->paginate(
             $qb->getQuery(),
             $page,
-            20,
+            self::MAX_PER_PAGE,
         );
     }
 
@@ -92,7 +94,7 @@ class QotdRepository extends ServiceEntityRepository
         return $this->paginator->paginate(
             $query,
             $page,
-            20,
+            self::MAX_PER_PAGE,
         );
     }
 

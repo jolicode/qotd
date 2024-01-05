@@ -25,6 +25,9 @@ jobs:
       - name: Install Dependencies
         run: docker-compose run --rm --user=app frontend composer install
 
+      - name: Install Front Dependencies
+        run: docker-compose run --rm --user=app frontend bin/console importmap:install
+
       - name: Create Database
         run: docker-compose run --rm --user=app frontend bin/db --env=test
 

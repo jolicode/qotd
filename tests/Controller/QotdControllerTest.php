@@ -20,7 +20,7 @@ class QotdControllerTest extends WebTestCase
         self::assertTestSelectorTextContains('brand', 'QOTD');
         self::assertSelectorTextContains('title', 'Latest QOTD');
         $quotes = $crawler->filter('[data-test=quote]');
-        self::assertCount(20, $quotes);
+        self::assertCount(7, $quotes);
         self::assertSame("Hello Message on line 1; Message on line 2; Message on line 3; Message on line 4; 🙊 👍 https://joli-mapstr.vercel.app/ https://joli-mapstr.vercel.app/ @Marion @Marion foobar foobar list 1 list 2 list 3 quote <script>alert('foo')</script> some code end 2023-05-12 by rich-text@example.com 🔗 view in Slack 👎 0 👍", $quotes->first()->text());
     }
 
@@ -33,7 +33,7 @@ class QotdControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('title', 'Top QOTD');
         $quotes = $crawler->filter('[data-test=quote]');
-        self::assertCount(20, $quotes);
+        self::assertCount(7, $quotes);
         self::assertSame(100, (int) $quotes->first()->filter('[data-test=quote-vote]')->text());
     }
 
@@ -46,7 +46,7 @@ class QotdControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('title', 'Worst QOTD');
         $quotes = $crawler->filter('[data-test=quote]');
-        self::assertCount(20, $quotes);
+        self::assertCount(7, $quotes);
         self::assertSame(0, (int) $quotes->first()->filter('[data-test=quote-vote]')->text());
     }
 
@@ -59,10 +59,10 @@ class QotdControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('title', 'QOTD not voted yet');
         $quotes = $crawler->filter('[data-test=quote]');
-        self::assertCount(20, $quotes);
+        self::assertCount(7, $quotes);
 
         $firstQuote = $quotes->first();
-        $id = str_replace('qotd-default-', '', $firstQuote->attr('id'));
+        $id = str_replace('qotd-', '', $firstQuote->attr('id'));
 
         try {
             $form = $firstQuote->filter('[data-test=vote-up]')->form();

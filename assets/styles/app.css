@@ -10,3 +10,8 @@ a {
 .card img {
     max-width: 100%;
 }
+
+turbo-frame [aria-busy="true"] {
+    opacity: 0.75;
+    pointer-events:none;
+}

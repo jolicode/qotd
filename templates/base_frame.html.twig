@@ -1,0 +1,46 @@
+{% extends "unique_block.html.twig" %}
+
+{# We defined commonly overriden modal block, feel free to add more #}
+{% block title '' %}
+{% block body '' %}
+{% block modal_footer_pre '' %}
+{% block modal_footer_post '' %}
+
+{% block unique_block %}
+    <turbo-frame id="{{ get_turbo_frame() }}">
+        {% if 'modal' == get_turbo_frame() %}
+            {% block modal %}
+                {% component Modal with {...(modal_attributes ?? {}) } %}
+                    {% block title %}
+                        {{ block(outerBlocks.title) }}
+                    {% endblock %}
+                    {% block content %}
+                        {{ block(outerBlocks.body) }}
+                    {% endblock %}
+                    {% block footer_pre %}
+                        {{ block(outerBlocks.modal_footer_pre) }}
+                    {% endblock %}
+                    {% block footer_post %}
+                        {{ block(outerBlocks.modal_footer_post) }}
+                    {% endblock %}
+                {% endcomponent %}
+            {% endblock %}
+        {% else %}
+            {{ block('body') }}
+        {% endif %}
+
+        {% block toasts %}
+            {% for flash in app.flashes('success') %}
+                <turbo-stream action="append" target="toasts">
+                    <template>
+                        <twig:Notification title="✅ Saved!">
+                            {{ flash }}
+                        </twig:Notification>
+                    </template>
+                </turbo-stream>
+            {% endfor %}
+        {% endblock %}
+
+        {% block frames '' %}
+    </turbo-frame>
+{% endblock %}
