@@ -84,7 +84,7 @@ class QotdRunCommand extends Command
                 'count' => 100,
                 'sort' => 'timestamp',
             ],
-        ])->toArray()['messages']['matches'];
+        ])->toArray()['messages']['matches'] ?? throw new \RuntimeException('Cannot get messages.');
 
         $bestMessage = null;
         $bestScore = 0;
@@ -139,7 +139,9 @@ class QotdRunCommand extends Command
             );
 
             foreach ($bestMessage['files'] ?? [] as $file) {
-                if ('image' !== explode('/', $file['mimetype'])[0]) {
+                $format = explode('/', $file['mimetype'])[0];
+
+                if (!\in_array($format, ['image', 'video'], true)) {
                     continue;
                 }
 
@@ -147,12 +149,16 @@ class QotdRunCommand extends Command
                     'auth_bearer' => $this->slackBotToken,
                 ]);
 
-                $imageSuffix = sprintf('%s---%s', uuid_create(), $this->slugger->slug($file['name']));
-                $imagePath = sprintf('%s/%s---%s', $this->uploadDirectory, $qotd->id, $imageSuffix);
+                $mediaSuffix = sprintf('%s---%s', uuid_create(), $this->slugger->slug($file['name']));
+                $mediaPath = sprintf('%s/%s---%s', $this->uploadDirectory, $qotd->id, $mediaSuffix);
 
-                $this->fs->dumpFile($imagePath, $response->getContent());
+                $this->fs->dumpFile($mediaPath, $response->getContent());
 
-                $qotd->images[] = $imageSuffix;
+                if ('image' === $format) {
+                    $qotd->images[] = $mediaSuffix;
+                } elseif ('video' === $format) {
+                    $qotd->videos[] = $mediaSuffix;
+                }
             }
 
             $this->qotdRepository->save($qotd, true);

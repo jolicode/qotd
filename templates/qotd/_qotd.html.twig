@@ -11,6 +11,12 @@
             {% for imageUrl in qotd.imageUrls %}
                 <img src="{{ asset(imageUrl) }}" alt="" />
             {% endfor %}
+            {% for video in qotd.videos %}
+                {% set url = asset("uploads/#{qotd.id}---#{video}") %}
+                <video controls>
+                    <source src="{{ url }}" />
+                </video>
+            {% endfor %}
         </div>
         <div class="card-footer text-muted">
             <div class="d-flex justify-content-between">

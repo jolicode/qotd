@@ -36,11 +36,23 @@
         <tr>
             <th>Images</th>
             <th>
-                {% for image in qotd.images %}
-                    {% set url = asset("uploads/#{qotd.id}---#{image}") %}
+                {% for image in qotd.imageUrls %}
+                    {% set url = asset(image) %}
                     <a href="{{ url }}" target="_blank">
                         <img src="{{ url }}" alt="" style="max-width: 100px; max-height: 100px;">
                     </a>
+                {% else %}
+                    None
+                {% endfor %}
+            </th>
+        </tr>
+        <tr>
+            <th>Videos</th>
+            <th>
+                {% for video in qotd.videoUrls %}
+                    <video controls width="250">
+                        <source src="{{ asset(video) }}" />
+                    </video>
                 {% else %}
                     None
                 {% endfor %}
