@@ -32,6 +32,10 @@ class Qotd
     #[ORM\Column(type: Types::JSON, options: ['jsonb' => true])]
     public array $images = [];
 
+    /** @var string[] */
+    #[ORM\Column(type: Types::JSON, options: ['jsonb' => true])]
+    public array $videos = [];
+
     #[Assert\Length(min: 5)]
     #[ORM\Column(type: Types::TEXT)]
     public string $context = '';
@@ -96,6 +100,12 @@ class Qotd
     public function getImageUrls(): array
     {
         return array_map(fn (string $image) => sprintf('uploads/%s---%s', $this->id, $image), $this->images);
+    }
+
+    #[Groups(['qotd:read'])]
+    public function getVideoUrls(): array
+    {
+        return array_map(fn (string $video) => sprintf('uploads/%s---%s', $this->id, $video), $this->videos);
     }
 
     #[ORM\PreUpdate]
