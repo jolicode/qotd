@@ -36,7 +36,7 @@ class Qotd
     #[ORM\Column(type: Types::JSON, options: ['jsonb' => true])]
     public array $videos = [];
 
-    #[Assert\Length(min: 5)]
+    #[Assert\Length(max: 2048)]
     #[ORM\Column(type: Types::TEXT)]
     public string $context = '';
 
