@@ -11,10 +11,9 @@
             {% for imageUrl in qotd.imageUrls %}
                 <img src="{{ asset(imageUrl) }}" alt="" />
             {% endfor %}
-            {% for video in qotd.videos %}
-                {% set url = asset("uploads/#{qotd.id}---#{video}") %}
+            {% for videoUrl in qotd.videoUrls %}
                 <video controls>
-                    <source src="{{ url }}" />
+                    <source src="{{ asset(videoUrl) }}" />
                 </video>
             {% endfor %}
         </div>
