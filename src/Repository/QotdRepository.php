@@ -3,10 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\Qotd;
+use App\Form\Model\QotdFilters;
 use App\Paginator\Mode\NativeQuery;
 use App\Repository\Model\QotdDirection;
 use App\Repository\Model\QotdVote;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Component\Pager\Pagination\PaginationInterface;
@@ -54,9 +56,25 @@ class QotdRepository extends ServiceEntityRepository
     /**
      * @return PaginationInterface<string, Qotd>
      */
-    public function findForHomepage(int $page, QotdDirection $direction): PaginationInterface
+    public function findForHomepage(int $page, QotdDirection $direction, QotdFilters $filters = null): PaginationInterface
     {
         $qb = $this->createQueryBuilder('q');
+
+        if ($filters) {
+            if ($filters->author) {
+                $qb->andWhere('q.username = :author')->setParameter('author', $filters->author);
+            }
+            match ($filters->withImage) {
+                true => $qb->andWhere('q.images != \'[]\''),
+                false => $qb->andWhere('q.images = \'[]\''),
+                null => null,
+            };
+            match ($filters->withVideo) {
+                true => $qb->andWhere('q.videos != \'[]\''),
+                false => $qb->andWhere('q.videos = \'[]\''),
+                null => null,
+            };
+        }
 
         match ($direction) {
             QotdDirection::Top => $qb->addOrderBy('q.vote', 'DESC')->addOrderBy('q.date', 'DESC'),
@@ -328,6 +346,18 @@ class QotdRepository extends ServiceEntityRepository
                 'period' => $period,
             ])
             ->getResult()
+        ;
+    }
+
+    public function getAuthors(): array
+    {
+        return $this->createQueryBuilder('q')
+            ->select('q.username', 'count(q.username) as HIDDEN count')
+            ->addOrderBy('count', 'DESC')
+            ->addOrderBy('q.username', 'ASC')
+            ->groupBy('q.username')
+            ->getQuery()
+            ->getResult(Query::HYDRATE_SCALAR_COLUMN)
         ;
     }
 }
