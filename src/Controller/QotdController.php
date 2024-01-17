@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Qotd;
+use App\Form\Model\QotdFilters;
+use App\Form\Type\QotdFiltersType;
 use App\Form\Type\QotdType;
 use App\Repository\Model\QotdDirection;
 use App\Repository\Model\QotdVote;
@@ -28,17 +30,33 @@ class QotdController extends AbstractController
     #[Route('/', name: 'qotd_index', defaults: ['direction' => QotdDirection::Latest->value])]
     #[Route('/top', name: 'qotd_index_top', defaults: ['direction' => QotdDirection::Top->value])]
     #[Route('/flop', name: 'qotd_index_flop', defaults: ['direction' => QotdDirection::Flop->value])]
-    public function index(Request $request, QotdDirection $direction): Response
-    {
+    public function index(
+        Request $request,
+        QotdDirection $direction,
+    ): Response {
+        $valid = false;
+        $filters = new QotdFilters();
+        $form = $this->createForm(QotdFiltersType::class, $filters);
+
+        if ($form->handleRequest($request)->isSubmitted()) {
+            if ($form->isValid()) {
+                $valid = true;
+            } else {
+                $filters = null;
+            }
+        }
+
         $page = max(1, $request->query->getInt('page', 1));
         $pagination = $this
             ->qotdRepository
-            ->findForHomepage($page, $direction)
+            ->findForHomepage($page, $direction, $filters)
         ;
 
         return $this->render('qotd/index.html.twig', [
             'pagination' => $pagination,
             'direction' => $direction,
+            'form' => $form,
+            'valid' => $valid,
         ]);
     }
 

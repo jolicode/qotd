@@ -1,10 +1,26 @@
 {% extends 'base.html.twig' %}
 
+{% if form ?? false %}
+    {% form_theme form 'bootstrap_5_horizontal_layout.html.twig' %}
+{% endif %}
+
 {% set active = direction.toTwigActiveSection %}
 
 {% block title %}{{ direction.toTitle }}{% endblock %}
 
 {% block body %}
+    {% if form ?? false %}
+        <details {{ valid ? 'open' }}>
+            <summary>Filters</summary>
+            <div class="mb-3" {{ stimulus_controller('form-auto-submit') }}>
+                {{ form(form, { attr: { id: 'qotd-filters' } } ) }}
+                <noscript>
+                    <button type="submit" class="btn btn-primary" form="qotd-filters">Filters</button>
+                </noscript>
+            </div>
+        </details>
+    {% endif %}
+
     {% for qotd in pagination %}
         {{ include('qotd/_qotd.html.twig', { qotd }, with_context = false) }}
     {% else %}
