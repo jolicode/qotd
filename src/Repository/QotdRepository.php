@@ -56,7 +56,7 @@ class QotdRepository extends ServiceEntityRepository
     /**
      * @return PaginationInterface<string, Qotd>
      */
-    public function findForHomepage(int $page, QotdDirection $direction, QotdFilters $filters = null): PaginationInterface
+    public function findForHomepage(int $page, QotdDirection $direction, ?QotdFilters $filters = null): PaginationInterface
     {
         $qb = $this->createQueryBuilder('q');
 

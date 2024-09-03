@@ -1,0 +1,59 @@
+volumes:
+    postgres-data: {}
+
+services:
+    router:
+        build: services/router
+        volumes:
+            - "${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock"
+            - "./services/router/certs:/etc/ssl/certs"
+        network_mode: host
+        profiles:
+            - default
+
+    frontend:
+        build:
+            context: services/php
+            target: frontend
+            cache_from:
+                - "type=registry,ref=${REGISTRY:-}/frontend:cache"
+        user: "${USER_ID}:${USER_ID}"
+        depends_on:
+            - postgres
+        volumes:
+            - "../..:/var/www:cached"
+            - "../../.home:/home/app:cached"
+        environment:
+            - "PHP_VERSION=${PHP_VERSION}"
+            - HOME=/home/app
+        profiles:
+            - default
+        labels:
+            - "traefik.enable=true"
+            - "project-name=${PROJECT_NAME}"
+            - "traefik.http.routers.${PROJECT_NAME}-frontend.rule=Host(${PROJECT_DOMAINS})"
+            - "traefik.http.routers.${PROJECT_NAME}-frontend.tls=true"
+            - "traefik.http.routers.${PROJECT_NAME}-frontend-unsecure.rule=Host(${PROJECT_DOMAINS})"
+            # Comment the next line to be able to access frontend via HTTP instead of HTTPS
+            - "traefik.http.routers.${PROJECT_NAME}-frontend-unsecure.middlewares=redirect-to-https@file"
+
+    cron:
+        build:
+            context: services/php
+            target: cron
+            cache_from:
+                - "type=registry,ref=${REGISTRY:-}/cron:cache"
+        volumes:
+            - "../..:/var/www:cached"
+        profiles:
+            - default
+
+    postgres:
+        image: postgres:16
+        environment:
+            - POSTGRES_USER=app
+            - POSTGRES_PASSWORD=app
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        profiles:
+            - default

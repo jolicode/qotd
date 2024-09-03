@@ -10,57 +10,40 @@ permissions:
   contents: read
 
 jobs:
-  phpunit:
-    name: PHPUnit Test Suite
+  tests:
+    name: Run the tests suite
     runs-on: ubuntu-latest
     env:
-      UID: 1001
+      APP_ENV: 'test'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Build and Run Docker Stack
-        run: docker-compose up -d
-
-      - name: Install Dependencies
-        run: docker-compose run --rm --user=app frontend composer install
-
-      - name: Install Front Dependencies
-        run: docker-compose run --rm --user=app frontend bin/console importmap:install
-
-      - name: Create Database
-        run: docker-compose run --rm --user=app frontend bin/db --env=test
-
-      - name: Load Fixtures
-        run: docker-compose run --rm --user=app frontend bin/console doctrine:fixtures:load --env=test --no-interaction
-
-      - name: Execute tests
-        run: docker-compose run --rm --user=app frontend vendor/bin/simple-phpunit
-
-  check-cs:
-    name: Check Coding Standards
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: PHP-CS-Fixer
-        uses: docker://oskarstark/php-cs-fixer-ga
+      # Install official version of docker that correctly supports from-cache option in docker compose
+      - name: Set up Docker
+        uses: crazy-max/ghaction-setup-docker@v3
         with:
-          args: --config=.php-cs-fixer.php --diff --dry-run
+          set-host: true
 
-  phpstan:
-    name: PHPStan
-    runs-on: ubuntu-latest
-    steps:
+      # Docker socket path is different when using setup docker
+      - name: Set Docker Socket Host
+        run: echo "DOCKER_SOCKET_PATH=${DOCKER_HOST:5}" >> $GITHUB_ENV
+
+      - name: Log in to registry
+        shell: bash
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install missing extensions from the docker image
-        run: docker run --rm -v `pwd`:/app --workdir /app composer/composer composer require symfony/polyfill-intl-normalizer symfony/polyfill-intl-icu --ignore-platform-reqs
+      - name: Setup Castor
+        uses: castor-php/setup-castor@v0.1.0
+
+      - name: "Build and start the infrastructure"
+        run: castor start
+
+      - name: CS
+        run: castor cs
 
       - name: PHPStan
-        uses: docker://oskarstark/phpstan-ga
-        env:
-          REQUIRE_DEV: true
-          CHECK_PLATFORM_REQUIREMENTS: false
+        run: castor phpstan
+
+      - name: PHPUnit
+        run: castor phpunit

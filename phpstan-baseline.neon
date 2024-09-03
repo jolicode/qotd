@@ -1,2 +1,81 @@
 parameters:
-	ignoreErrors: []
+	ignoreErrors:
+		-
+			message: "#^Method App\\\\Command\\\\QotdRunCommand\\:\\:canUseMessage\\(\\) has parameter \\$message with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Command/QotdRunCommand.php
+
+		-
+			message: "#^Method App\\\\Entity\\\\Qotd\\:\\:getImageUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Entity/Qotd.php
+
+		-
+			message: "#^Method App\\\\Entity\\\\Qotd\\:\\:getVideoUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Entity/Qotd.php
+
+		-
+			message: "#^Method App\\\\Paginator\\\\Mode\\\\NativeQuery\\:\\:__construct\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Paginator/Mode/NativeQuery.php
+
+		-
+			message: "#^Method App\\\\Repository\\\\QotdRepository\\:\\:countBiggestVotingUsers\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repository/QotdRepository.php
+
+		-
+			message: "#^Method App\\\\Repository\\\\QotdRepository\\:\\:countMostQuotedUsers\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repository/QotdRepository.php
+
+		-
+			message: "#^Method App\\\\Repository\\\\QotdRepository\\:\\:countMostUpVotedUsers\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repository/QotdRepository.php
+
+		-
+			message: "#^Method App\\\\Repository\\\\QotdRepository\\:\\:countOver\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repository/QotdRepository.php
+
+		-
+			message: "#^Method App\\\\Repository\\\\QotdRepository\\:\\:findBestsOver\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repository/QotdRepository.php
+
+		-
+			message: "#^Method App\\\\Repository\\\\QotdRepository\\:\\:getAuthors\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repository/QotdRepository.php
+
+		-
+			message: "#^Method App\\\\Repository\\\\QotdRepository\\:\\:search\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repository/QotdRepository.php
+
+		-
+			message: "#^Method App\\\\Stats\\\\ChartBuilder\\:\\:getColors\\(\\) has parameter \\$counts with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Stats/ChartBuilder.php
+
+		-
+			message: "#^Method App\\\\Stats\\\\ChartBuilder\\:\\:getColors\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Stats/ChartBuilder.php
+
+		-
+			message: "#^Call to an undefined method App\\\\Tests\\\\Controller\\\\QotdControllerTest\\:\\:assertSame\\(\\)\\.$#"
+			count: 1
+			path: tests/Controller/QotdControllerTest.php
+
+		-
+			message: "#^Call to an undefined static method App\\\\Tests\\\\Controller\\\\QotdControllerTest\\:\\:assertCount\\(\\)\\.$#"
+			count: 4
+			path: tests/Controller/QotdControllerTest.php
+
+		-
+			message: "#^Call to an undefined static method App\\\\Tests\\\\Controller\\\\QotdControllerTest\\:\\:assertSame\\(\\)\\.$#"
+			count: 6
+			path: tests/Controller/QotdControllerTest.php
