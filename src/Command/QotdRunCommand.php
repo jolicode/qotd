@@ -170,7 +170,7 @@ class QotdRunCommand extends Command
                         "%s's QOTD was: %s\nYou can vote for it on %s",
                         ucfirst($input->getArgument('date')),
                         $bestMessage['permalink'],
-                        $this->router->generate('qotd_show', ['id' => $qotd->id], UrlGeneratorInterface::ABSOLUTE_URL),
+                        $this->router->generate('qotd_index_not_voted', [], UrlGeneratorInterface::ABSOLUTE_URL),
                     ),
                 ],
             ]);
