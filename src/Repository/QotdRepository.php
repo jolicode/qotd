@@ -361,7 +361,7 @@ class QotdRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findRandom(): Qotd
+    public function findRandom(): ?Qotd
     {
         // This is not efficient but i don't want to create a custom function for this
         $count = $this->createQueryBuilder('q')
@@ -369,6 +369,10 @@ class QotdRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult()
         ;
+
+        if (0 === $count) {
+            return null;
+        }
 
         $offset = random_int(0, $count - 1);
 

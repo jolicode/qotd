@@ -19,6 +19,10 @@ class RandomController extends AbstractController
     {
         $qotd = $this->qotdRepository->findRandom();
 
+        if (null === $qotd) {
+            throw $this->createNotFoundException('No QOTD found.');
+        }
+
         return $this->render('random/index.html.twig', [
             'qotd' => $qotd,
         ]);
