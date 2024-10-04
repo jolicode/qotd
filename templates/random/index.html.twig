@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% set active = 'hall_of_fame' %}
+
+{% block title %}Hall Of Fame{% endblock %}
+
+{% block body %}
+    <div class="mb-4">
+        <h2 class="text-center">QOTD of the {{ period }}</h2>
+        <div class="card mb-2">
+            <div class="card-body">
+                {{ include('qotd/_qotd.html.twig', { qotd }, with_context = false) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

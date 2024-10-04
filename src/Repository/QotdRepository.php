@@ -360,4 +360,24 @@ class QotdRepository extends ServiceEntityRepository
             ->getResult(Query::HYDRATE_SCALAR_COLUMN)
         ;
     }
+
+    public function findRandom(): Qotd
+    {
+        // This is not efficient but i don't want to create a custom function for this
+        $count = $this->createQueryBuilder('q')
+            ->select('count(q.id)')
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+
+        $offset = random_int(0, $count - 1);
+
+        return $this->createQueryBuilder('q')
+            ->setFirstResult($offset)
+            ->setMaxResults(1)
+            ->addOrderBy('q.id', 'ASC')
+            ->getQuery()
+            ->getSingleResult()
+        ;
+    }
 }
