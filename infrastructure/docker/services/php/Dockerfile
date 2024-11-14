@@ -124,6 +124,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 COPY --link cron/crontab /etc/cron.d/crontab
+COPY --link cron/entrypoint.sh /entrypoint.sh
 RUN crontab /etc/cron.d/crontab
+
+ENTRYPOINT [ "/entrypoint.sh" ]
 
 CMD ["cron", "-f"]

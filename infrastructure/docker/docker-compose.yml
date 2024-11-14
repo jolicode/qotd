@@ -43,6 +43,8 @@ services:
             target: cron
             cache_from:
                 - "type=registry,ref=${REGISTRY:-}/cron:cache"
+        environment:
+            - "USER_ID=${USER_ID}"
         volumes:
             - "../..:/var/www:cached"
         profiles:

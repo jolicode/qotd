@@ -1,1 +1,0 @@
-0 9 * * * su app -c "/home/app/application/bin/console qotd:run" > /proc/1/fd/1 2>&1
