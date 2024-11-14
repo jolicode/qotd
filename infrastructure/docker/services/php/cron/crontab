@@ -1,1 +1,1 @@
-* * * * * su app -c "/usr/local/bin/php /var/www/bin/console qotd:run" > /proc/1/fd/1 2>&1
+0 9 * * * /home/app/application/bin/console qotd:run > /proc/1/fd/1 2>&1
