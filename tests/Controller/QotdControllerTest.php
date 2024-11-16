@@ -125,7 +125,7 @@ class QotdControllerTest extends WebTestCase
 
     public static function assertTestSelectorTextContains(string $selector, string $text, string $message = ''): void
     {
-        self::assertSelectorTextContains(sprintf('[data-test=%s]', $selector), $text, $message);
+        self::assertSelectorTextContains(\sprintf('[data-test=%s]', $selector), $text, $message);
     }
 
     private function createClientAndLogin(): KernelBrowser

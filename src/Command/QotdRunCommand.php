@@ -67,12 +67,12 @@ class QotdRunCommand extends Command
         $lowerDate = $date->setTime(0, 0, 0);
         $upperDate = $date->setTime(23, 59, 59);
 
-        $io->comment(sprintf('Looking between %s and %s', $lowerDate->format('Y-m-d H:i:s'), $upperDate->format('Y-m-d H:i:s')));
+        $io->comment(\sprintf('Looking between %s and %s', $lowerDate->format('Y-m-d H:i:s'), $upperDate->format('Y-m-d H:i:s')));
 
         if (!$dryRun && !$input->getOption('force')) {
             $qotd = $this->qotdRepository->findOneBy(['date' => $date]);
             if ($qotd) {
-                $io->error(sprintf('Qotd for %s already exists', $date->format('Y-m-d')));
+                $io->error(\sprintf('Qotd for %s already exists', $date->format('Y-m-d')));
 
                 return Command::FAILURE;
             }
@@ -149,8 +149,8 @@ class QotdRunCommand extends Command
                     'auth_bearer' => $this->slackBotToken,
                 ]);
 
-                $mediaSuffix = sprintf('%s---%s', uuid_create(), $this->slugger->slug($file['name']));
-                $mediaPath = sprintf('%s/%s---%s', $this->uploadDirectory, $qotd->id, $mediaSuffix);
+                $mediaSuffix = \sprintf('%s---%s', uuid_create(), $this->slugger->slug($file['name']));
+                $mediaPath = \sprintf('%s/%s---%s', $this->uploadDirectory, $qotd->id, $mediaSuffix);
 
                 $this->fs->dumpFile($mediaPath, $response->getContent());
 
@@ -166,7 +166,7 @@ class QotdRunCommand extends Command
             $this->botClient->request('POST', 'chat.postMessage', [
                 'json' => [
                     'channel' => $this->channelIdForSummary,
-                    'text' => sprintf(
+                    'text' => \sprintf(
                         "%s's QOTD was: %s\nYou can vote for it on %s",
                         ucfirst($input->getArgument('date')),
                         $bestMessage['permalink'],

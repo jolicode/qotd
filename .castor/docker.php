@@ -39,7 +39,7 @@ function about(): void
 
     try {
         $routers = http_client()
-            ->request('GET', sprintf('http://%s:8080/api/http/routers', variable('root_domain')))
+            ->request('GET', \sprintf('http://%s:8080/api/http/routers', variable('root_domain')))
             ->toArray()
         ;
         $projectName = variable('project_name');
@@ -50,7 +50,7 @@ function about(): void
             if ("frontend-{$projectName}" === $router['service']) {
                 continue;
             }
-            if (!preg_match('{^Host\\(`(?P<hosts>.*)`\\)$}', $router['rule'], $matches)) {
+            if (!preg_match('{^Host\(`(?P<hosts>.*)`\)$}', $router['rule'], $matches)) {
                 continue;
             }
             $hosts = explode('`) || Host(`', $matches['hosts']);
@@ -85,6 +85,7 @@ function build(
     $command = [
         ...$command,
         'build',
+        '--build-arg', 'USER_ID=' . variable('user_id'),
         '--build-arg', 'PHP_VERSION=' . variable('php_version'),
         '--build-arg', 'PROJECT_NAME=' . variable('project_name'),
     ];
@@ -342,19 +343,19 @@ function push(): void
         }
     }
 
-    $content = sprintf(<<<'EOHCL'
+    $content = \sprintf(<<<'EOHCL'
         group "default" {
             targets = [%s]
         }
 
 
         EOHCL
-        , implode(', ', array_map(fn ($target) => sprintf('"%s"', $target['target']), $targets)));
+        , implode(', ', array_map(fn ($target) => \sprintf('"%s"', $target['target']), $targets)));
 
     foreach ($targets as $target) {
         $reference = str_replace('${REGISTRY:-}', $registry, $target['reference'] ?? '');
 
-        $content .= sprintf(<<<'EOHCL'
+        $content .= \sprintf(<<<'EOHCL'
             target "%s" {
                 context    = "infrastructure/docker/%s"
                 dockerfile = "%s"

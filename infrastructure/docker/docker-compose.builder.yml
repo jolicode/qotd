@@ -7,7 +7,6 @@ services:
                 - "type=registry,ref=${REGISTRY:-}/builder:cache"
         depends_on:
             - postgres
-        user: "${USER_ID}:${USER_ID}"
         environment:
             - COMPOSER_MEMORY_LIMIT=-1
             - UID=${USER_ID}

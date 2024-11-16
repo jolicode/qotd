@@ -29,6 +29,15 @@ function install(): void
     docker_compose_run('composer install -o', workDir: '/var/www/tools/phpstan');
 }
 
+#[AsTask(description: 'Updates tooling')]
+function update(): void
+{
+    io()->title('Updating QA tooling');
+
+    docker_compose_run('composer update -o', workDir: '/var/www/tools/php-cs-fixer');
+    docker_compose_run('composer update -o', workDir: '/var/www/tools/phpstan');
+}
+
 #[AsTask(description: 'Runs PHPUnit', aliases: ['phpunit'])]
 function phpunit(): int
 {
@@ -39,21 +48,17 @@ function phpunit(): int
 function phpstan(bool $generateBaseline = false): int
 {
     if (!is_dir(variable('root_dir') . '/tools/phpstan/vendor')) {
-        io()->error('PHPStan is not installed. Run `castor qa:install` first.');
-
-        return 1;
+        install();
     }
 
-    return docker_exit_code('phpstan' . ($generateBaseline ? ' -b' : ''), workDir: '/var/www');
+    return docker_exit_code('phpstan -v' . ($generateBaseline ? ' -b' : ''), workDir: '/var/www');
 }
 
 #[AsTask(description: 'Fixes Coding Style', aliases: ['cs'])]
 function cs(bool $dryRun = false): int
 {
     if (!is_dir(variable('root_dir') . '/tools/php-cs-fixer/vendor')) {
-        io()->error('PHP-CS-Fixer is not installed. Run `castor qa:install` first.');
-
-        return 1;
+        install();
     }
 
     if ($dryRun) {

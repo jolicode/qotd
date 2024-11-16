@@ -3,8 +3,8 @@
 namespace App\Twig\Extension;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Emoji\EmojiTransliterator;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Intl\Transliterator\EmojiTransliterator;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -50,7 +50,7 @@ class AppExtension extends AbstractExtension
             return '';
         }
 
-        return sprintf('data-test=%s', $name);
+        return \sprintf('data-test=%s', $name);
     }
 
     public function getTurboFrame(): ?string

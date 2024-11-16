@@ -95,7 +95,7 @@ class QotdRepository extends ServiceEntityRepository
      */
     public function findForHomepageNotVoted(int $page, UserInterface $user): PaginationInterface
     {
-        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q');
 
         $select = $rsm->generateSelectClause();
@@ -122,7 +122,7 @@ class QotdRepository extends ServiceEntityRepository
             return [];
         }
 
-        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q');
 
         $select = $rsm->generateSelectClause();
@@ -136,7 +136,7 @@ class QotdRepository extends ServiceEntityRepository
             EOSQL;
 
         $results = $this
-            ->_em
+            ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
             ->execute([
                 'query' => $query,
@@ -156,7 +156,7 @@ class QotdRepository extends ServiceEntityRepository
             EOSQL;
 
         return $this
-            ->_em
+            ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
             ->execute([
                 'query' => $query,
@@ -190,12 +190,12 @@ class QotdRepository extends ServiceEntityRepository
                 ORDER BY count DESC, username ASC
             EOSQL;
 
-        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addScalarResult('username', 'username', 'string');
         $rsm->addScalarResult('count', 'count', 'integer');
 
         return $this
-            ->_em
+            ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
             ->getResult()
         ;
@@ -226,12 +226,12 @@ class QotdRepository extends ServiceEntityRepository
                 ORDER BY vote DESC, username ASC
             EOSQL;
 
-        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addScalarResult('username', 'username', 'string');
         $rsm->addScalarResult('vote', 'vote', 'integer');
 
         return $this
-            ->_em
+            ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
             ->getResult()
         ;
@@ -265,12 +265,12 @@ class QotdRepository extends ServiceEntityRepository
                 ORDER BY vote DESC, voter_username ASC
             EOSQL;
 
-        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addScalarResult('voter_username', 'username', 'string');
         $rsm->addScalarResult('vote', 'vote', 'integer');
 
         return $this
-            ->_em
+            ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
             ->getResult()
         ;
@@ -286,13 +286,13 @@ class QotdRepository extends ServiceEntityRepository
                 limit 100
             EOSQL;
 
-        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addScalarResult('period', 'period', 'datetime_immutable');
         $rsm->addScalarResult('count', 'count', 'integer');
         $rsm->addScalarResult('vote', 'vote', 'integer');
 
         return $this
-            ->_em
+            ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
             ->setParameters([
                 'period' => $period,
@@ -301,15 +301,95 @@ class QotdRepository extends ServiceEntityRepository
         ;
     }
 
+    public function computeAwards(): array
+    {
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
+        $rsm->addScalarResult('rank', 'rank', 'integer');
+        $rsm->addScalarResult('username', 'username', 'string');
+        $rsm->addScalarResult('score', 'score', 'integer');
+        $rsm->addScalarResult('awards', 'awards', 'json');
+
+        $sql = <<<'SQL'
+                WITH
+                    raw_periods AS (
+                        select column1 as period, column2 as factor from (values
+                            ('day', 1 ^ 2),
+                            ('week', 2 ^ 2),
+                            ('month', 3 ^ 2),
+                            ('year', 4 ^ 2)
+                        ) as x
+                    ),
+                    date_boundary AS (
+                        SELECT
+                            min(date_trunc(p.period, date)) AS startp,
+                            max(date_trunc(p.period, date)) AS endp,
+                            p.*
+                        FROM qotd
+                            FULL OUTER JOIN raw_periods p on true
+                        GROUP BY p.period, p.factor
+                    ),
+                    periods AS (
+                        SELECT
+                            generate_series(startp, endp, ('1 ' || period)::interval) AS start_of_period,
+                            period,
+                            factor
+                        FROM date_boundary
+                    ),
+                    qotd AS (
+                        SELECT
+                            p.*,
+                            rank() OVER w AS rank,
+                            q.*
+                        FROM periods p
+                            INNER JOIN qotd q on date_trunc(p.period, q.date) = p.start_of_period
+                        WINDOW w AS (
+                            PARTITION BY p.period, p.start_of_period
+                            ORDER BY q.vote DESC, q.date DESC
+                        )
+                    ),
+                    aggregation AS (
+                        SELECT
+                            period,
+                            username,
+                            factor,
+                            count(1) as count
+                        FROM qotd
+                        WHERE rank = 1
+                        GROUP BY username, period, factor
+                        order by username asc, factor desc
+                    ),
+                    final AS (
+                        SELECT
+                            rank() over (order by sum(count * factor) desc, username asc) as rank,
+                            username,
+                            sum(count * factor) as score,
+                            json_object_agg(
+                                period, count
+                            ) as awards
+                        FROM aggregation
+                        GROUP BY username
+                    )
+                SELECT *
+                FROM final
+                ORDER BY rank ASC
+            SQL;
+
+        return $this
+            ->getEntityManager()
+            ->createNativeQuery($sql, $rsm)
+            ->getResult()
+        ;
+    }
+
     public function findBestsOver(string $period): array
     {
-        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q');
         $rsm->addScalarResult('start_of_period', 'start_of_period', 'datetime_immutable');
 
         $select = $rsm->generateSelectClause();
 
-        $sql = <<<EOSQL
+        $sql = <<<SQL
                 WITH
                     date_boundary AS (
                         SELECT
@@ -324,12 +404,13 @@ class QotdRepository extends ServiceEntityRepository
                     qotd AS (
                         SELECT
                             p.start_of_period,
-                            q.*,
-                            rank() OVER w AS rank
+                            rank() OVER w AS rank,
+                            q.*
                         FROM periods p
                             LEFT OUTER JOIN qotd q on date_trunc(:period, q.date) = p.start_of_period
                         WINDOW w AS (
-                            PARTITION BY p.start_of_period ORDER BY q.vote DESC, q.date DESC
+                            PARTITION BY p.start_of_period
+                            ORDER BY q.vote DESC, q.date DESC
                         )
                     )
                 SELECT start_of_period, {$select}
@@ -337,10 +418,10 @@ class QotdRepository extends ServiceEntityRepository
                 WHERE rank = 1
                 ORDER BY start_of_period DESC
                 LIMIT 20
-            EOSQL;
+            SQL;
 
         return $this
-            ->_em
+            ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
             ->setParameters([
                 'period' => $period,
