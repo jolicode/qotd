@@ -27,9 +27,9 @@ class QotdController extends AbstractController
         $qotd = $this->qotdRepository->findOneBy(['date' => $date]);
 
         if (!$qotd) {
-            return new Response(sprintf('There was not QOTD on %s.', $date->format('Y-m-d')));
+            return new Response(\sprintf('There was not QOTD on %s.', $date->format('Y-m-d')));
         }
 
-        return new Response(sprintf('%s\'s QOTD was: %s', $qotd->date->format('Y-m-d'), $qotd->permalink), 200);
+        return new Response(\sprintf('%s\'s QOTD was: %s', $qotd->date->format('Y-m-d'), $qotd->permalink), 200);
     }
 }

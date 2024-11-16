@@ -50,7 +50,7 @@ class AppExtension extends AbstractExtension
             return '';
         }
 
-        return sprintf('data-test=%s', $name);
+        return \sprintf('data-test=%s', $name);
     }
 
     public function getTurboFrame(): ?string

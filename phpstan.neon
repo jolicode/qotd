@@ -15,6 +15,10 @@ parameters:
     tmpDir: tools/phpstan/var
     inferPrivatePropertyTypeFromConstructor: true
 
+    ignoreErrors:
+        -
+            identifier: missingType.iterableValue
+
     # symfony:
     #     container_xml_path: 'var/cache/dev/App_KernelDevDebugContainer.xml'
 

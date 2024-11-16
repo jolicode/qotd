@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% set active = 'awards' %}
+
+{% block title %}Awards{% endblock %}
+
+{% set period_to_badges = {
+    'year': 'danger',
+    'month': 'warning',
+    'week': 'info',
+    'day': 'primary',
+} %}
+
+{% set rank_to_emoji = {
+    1: '🥇',
+    2: '🥈',
+    3: '🥉',
+} %}
+
+{% block body %}
+    <h2 class="text-center">Awards</h2>
+
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Ranks</th>
+                <th>Username</th>
+                <th>Score</th>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Week</th>
+                <th>Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for award in awards %}
+                <tr>
+                    <td>
+                        {{ attribute(rank_to_emoji, award.rank) ?? '' }}
+                    </td>
+                    <td>
+                        #{{ award.rank }}
+                    </td>
+                    <td>{{ award.username }}</td>
+                    <td>{{ award.score }}</td>
+                    {% for period, badge in period_to_badges %}
+                        <td>
+                            {% if attribute(award.awards, period) ?? false %}
+                                <span class="badge text-bg-{{ badge }}">
+                                    {{ attribute(award.awards, period) }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                    {% endfor %}
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4">No awards found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -35,9 +35,9 @@ class SignatureSubscriber implements EventSubscriberInterface
         $signature = $request->headers->get('X-Slack-Signature');
         $timestamp = $request->headers->get('X-Slack-Request-Timestamp');
 
-        $payload = sprintf('v0:%s:%s', $timestamp, $body);
+        $payload = \sprintf('v0:%s:%s', $timestamp, $body);
 
-        $signatureTmp = sprintf('v0=%s', hash_hmac('sha256', $payload, $this->signinSecret));
+        $signatureTmp = \sprintf('v0=%s', hash_hmac('sha256', $payload, $this->signinSecret));
 
         if ($signatureTmp !== $signature) {
             $event->setResponse(new Response('You are not slack', 401));
