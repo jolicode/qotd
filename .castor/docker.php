@@ -85,6 +85,7 @@ function build(
     $command = [
         ...$command,
         'build',
+        '--build-arg', 'USER_ID=' . variable('user_id'),
         '--build-arg', 'PHP_VERSION=' . variable('php_version'),
         '--build-arg', 'PROJECT_NAME=' . variable('project_name'),
     ];
