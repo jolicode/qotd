@@ -9,7 +9,6 @@ parameters:
         - config
         - public
         - src
-        - tests
     scanFiles:
         - .castor.stub.php
     tmpDir: tools/phpstan/var
