@@ -100,6 +100,7 @@
         ]
     },
     "config": {
+        "bump-after-update": true,
         "allow-plugins": {
             "symfony/flex": true,
             "symfony/runtime": true,
