@@ -76,6 +76,8 @@ function install(): void
         docker_compose_run('bin/console importmap:install');
     }
 
+    docker_compose_run('bin/console asset-map:compile');
+
     qa\install();
 }
 
