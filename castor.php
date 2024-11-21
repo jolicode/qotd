@@ -101,9 +101,13 @@ function migrate(): void
 }
 
 #[AsTask(description: 'Loads fixtures', namespace: 'app:db', aliases: ['fixtures'])]
-function fixtures(): void
+function fixtures(?string $env = null): void
 {
     io()->title('Loads fixtures');
 
-    docker_compose_run('bin/console doctrine:fixture:load -n');
+    $envArgument = $env ? " --env={$env}" : '';
+
+    docker_compose_run('bin/console doctrine:database:create --if-not-exists' . $envArgument);
+    docker_compose_run('bin/console doctrine:migration:migrate -n --allow-no-migration --all-or-nothing' . $envArgument);
+    docker_compose_run('bin/console doctrine:fixture:load -n' . $envArgument);
 }
