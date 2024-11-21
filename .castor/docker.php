@@ -23,7 +23,6 @@ use function Castor\log;
 use function Castor\open;
 use function Castor\run;
 use function Castor\variable;
-use function Castor\yaml_parse;
 
 #[AsTask(description: 'Displays some help and available urls for the current project', namespace: '')]
 function about(): void
@@ -110,7 +109,7 @@ function up(
         io()->title('Starting infrastructure');
     }
 
-    $command = ['up', '--detach', '--no-build'];
+    $command = ['up', '--detach', '--wait', '--no-build'];
 
     if ($service) {
         $command[] = $service;
@@ -270,7 +269,7 @@ function generate_certificates(
         return;
     }
 
-    run(['infrastructure/docker/services/router/generate-ssl.sh'], quiet: true);
+    run(['infrastructure/docker/services/router/generate-ssl.sh'], context: context()->withQuiet());
 
     io()->success('Successfully generated self-signed SSL certificates in infrastructure/docker/services/router/certs/*.pem.');
     io()->comment('Consider installing mkcert to generate locally trusted SSL certificates and run "castor docker:generate-certificates --force".');
@@ -387,7 +386,8 @@ function create_default_context(): Context
         'project_name' => 'app',
         'root_domain' => 'app.test',
         'extra_domains' => [],
-        'php_version' => '8.3',
+        'project_directory' => 'application',
+        'php_version' => '8.2',
         'docker_compose_files' => [
             'docker-compose.yml',
         ],
@@ -424,13 +424,11 @@ function create_default_context(): Context
     $platform = strtolower(php_uname('s'));
     if (str_contains($platform, 'darwin')) {
         $data['macos'] = true;
-        $data['docker_compose_files'][] = 'docker-compose.docker-for-x.yml';
     } elseif (\in_array($platform, ['win32', 'win64', 'windows nt'])) {
-        $data['docker_compose_files'][] = 'docker-compose.docker-for-x.yml';
         $data['power_shell'] = true;
     }
 
-    if ($data['user_id'] > 256000) {
+    if (false === $data['user_id'] || $data['user_id'] > 256000) {
         $data['user_id'] = 1000;
     }
 
@@ -541,9 +539,9 @@ function docker_compose_run(
     }
 
     $command[] = $service;
-    $command[] = '/bin/sh';
+    $command[] = '/bin/bash';
     $command[] = '-c';
-    $command[] = "exec {$runCommand}";
+    $command[] = "{$runCommand}";
 
     return docker_compose($command, c: $c, withBuilder: $withBuilder);
 }

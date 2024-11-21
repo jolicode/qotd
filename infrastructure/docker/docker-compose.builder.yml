@@ -1,3 +1,6 @@
+volumes:
+    builder-data: {}
+
 services:
     builder:
         build:
@@ -5,6 +8,7 @@ services:
             target: builder
             cache_from:
                 - "type=registry,ref=${REGISTRY:-}/builder:cache"
+        init: true
         depends_on:
             - postgres
         environment:
@@ -19,6 +23,8 @@ services:
             - RUN_ID # TaskCluster, dsari
             - HOME=/home/app
         volumes:
+            - "builder-data:/home/app"
+            - "${COMPOSER_CACHE_DIR}:/home/app/.composer/cache"
             - "../..:/var/www:cached"
             - "../../.home:/home/app:cached"
         profiles:

@@ -15,9 +15,9 @@ function all(): int
     install();
     $cs = cs();
     $phpstan = phpstan();
-    // $phpunit = phpunit();
+    $phpunit = phpunit();
 
-    return max($cs, $phpstan/* , $phpunit */);
+    return max($cs, $phpstan, $phpunit);
 }
 
 #[AsTask(description: 'Installs tooling')]
@@ -29,10 +29,10 @@ function install(): void
     docker_compose_run('composer install -o', workDir: '/var/www/tools/phpstan');
 }
 
-#[AsTask(description: 'Updates tooling')]
+#[AsTask(description: 'Update tooling')]
 function update(): void
 {
-    io()->title('Updating QA tooling');
+    io()->title('Update QA tooling');
 
     docker_compose_run('composer update -o', workDir: '/var/www/tools/php-cs-fixer');
     docker_compose_run('composer update -o', workDir: '/var/www/tools/phpstan');

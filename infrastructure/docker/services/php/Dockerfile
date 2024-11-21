@@ -85,8 +85,6 @@ EXPOSE 80
 
 CMD ["runsvdir", "-P", "/etc/service"]
 
-FROM php-base AS worker
-
 FROM php-base AS builder
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
