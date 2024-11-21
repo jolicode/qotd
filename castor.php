@@ -18,7 +18,7 @@ guard_min_version('0.18.0');
 import(__DIR__ . '/.castor');
 
 /**
- * @return array{project_name: string, root_domain: string, extra_domains: string[], php_version: string}
+ * @return array{project_name: string, root_domain: string, php_version: string}
  */
 function create_default_variables(): array
 {
@@ -26,6 +26,7 @@ function create_default_variables(): array
         'project_name' => 'qotd',
         'root_domain' => 'local.qotd.offithings.jolicode.com',
         'registry' => 'ghcr.io/jolicode/qotd',
+        'php_version' => '8.3',
     ];
 }
 
