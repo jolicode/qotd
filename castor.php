@@ -6,18 +6,19 @@ use function Castor\guard_min_version;
 use function Castor\import;
 use function Castor\io;
 use function Castor\notify;
+use function Castor\variable;
 use function docker\about;
 use function docker\build;
 use function docker\docker_compose_run;
 use function docker\generate_certificates;
 use function docker\up;
 
-guard_min_version('0.15.0');
+guard_min_version('0.18.0');
 
 import(__DIR__ . '/.castor');
 
 /**
- * @return array<string, mixed>
+ * @return array{project_name: string, root_domain: string, php_version: string}
  */
 function create_default_variables(): array
 {
@@ -25,6 +26,7 @@ function create_default_variables(): array
         'project_name' => 'qotd',
         'root_domain' => 'local.qotd.offithings.jolicode.com',
         'registry' => 'ghcr.io/jolicode/qotd',
+        'php_version' => '8.3',
     ];
 }
 
@@ -51,14 +53,30 @@ function install(): void
 {
     io()->title('Installing the application');
 
-    io()->section('Installing PHP dependencies');
-    docker_compose_run('composer install -n --prefer-dist --optimize-autoloader');
+    $basePath = variable('root_dir');
 
-    io()->section('Installing importmap');
-    docker_compose_run('bin/console importmap:install');
+    if (is_file("{$basePath}/composer.json")) {
+        io()->section('Installing PHP dependencies');
+        docker_compose_run('composer install -n --prefer-dist --optimize-autoloader');
+    }
+    if (is_file("{$basePath}/yarn.lock")) {
+        io()->section('Installing Node.js dependencies');
+        docker_compose_run('yarn install --frozen-lockfile');
+    } elseif (is_file("{$basePath}/package.json")) {
+        io()->section('Installing Node.js dependencies');
 
-    migrate();
-    fixtures();
+        if (is_file("{$basePath}/package-lock.json")) {
+            docker_compose_run('npm ci');
+        } else {
+            docker_compose_run('npm install');
+        }
+    }
+    if (is_file("{$basePath}/importmap.php")) {
+        io()->section('Installing importmap');
+        docker_compose_run('bin/console importmap:install');
+    }
+
+    docker_compose_run('bin/console asset-map:compile');
 
     qa\install();
 }
@@ -68,7 +86,11 @@ function cache_clear(): void
 {
     io()->title('Clearing the application cache');
 
-    docker_compose_run('rm -rf var/cache/ && bin/console cache:warmup');
+    docker_compose_run('rm -rf var/cache/');
+    // On the very first run, the vendor does not exist yet
+    if (is_dir(variable('root_dir') . '/vendor')) {
+        docker_compose_run('bin/console cache:warmup');
+    }
 }
 
 #[AsTask(description: 'Migrates database schema', namespace: 'app:db', aliases: ['migrate'])]
@@ -77,13 +99,17 @@ function migrate(): void
     io()->title('Migrating the database schema');
 
     docker_compose_run('bin/console doctrine:database:create --if-not-exists');
-    docker_compose_run('bin/console doctrine:migration:migrate -n --allow-no-migration');
+    docker_compose_run('bin/console doctrine:migration:migrate -n --allow-no-migration --all-or-nothing');
 }
 
-#[AsTask(description: 'Injects fixtures in the database', namespace: 'app:db', aliases: ['fixtures'])]
-function fixtures(): void
+#[AsTask(description: 'Loads fixtures', namespace: 'app:db', aliases: ['fixtures'])]
+function fixtures(?string $env = null): void
 {
-    io()->title('Injects fixtures in the database');
+    io()->title('Loads fixtures');
 
-    docker_compose_run('bin/console doctrine:fixture:load -n');
+    $envArgument = $env ? " --env={$env}" : '';
+
+    docker_compose_run('bin/console doctrine:database:create --if-not-exists' . $envArgument);
+    docker_compose_run('bin/console doctrine:migration:migrate -n --allow-no-migration --all-or-nothing' . $envArgument);
+    docker_compose_run('bin/console doctrine:fixture:load -n' . $envArgument);
 }

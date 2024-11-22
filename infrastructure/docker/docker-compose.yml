@@ -7,7 +7,12 @@ services:
         volumes:
             - "${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock"
             - "./services/router/certs:/etc/ssl/certs"
-        network_mode: host
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8080:8080"
+        networks:
+            - default
         profiles:
             - default
 
@@ -18,7 +23,8 @@ services:
             cache_from:
                 - "type=registry,ref=${REGISTRY:-}/frontend:cache"
         depends_on:
-            - postgres
+            postgres:
+                condition: service_healthy
         volumes:
             - "../..:/var/www:cached"
             - "../../.home:/home/app:cached"
@@ -50,11 +56,16 @@ services:
             - default
 
     postgres:
-        image: postgres:15
+        image: postgres:16
         environment:
-            - POSTGRES_USER=app
-            - POSTGRES_PASSWORD=app
+            - POSTGRES_USER=qotd
+            - POSTGRES_PASSWORD=qotd
         volumes:
             - postgres-data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
         profiles:
             - default

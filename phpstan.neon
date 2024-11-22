@@ -18,8 +18,8 @@ parameters:
         -
             identifier: missingType.iterableValue
 
-    # symfony:
-    #     container_xml_path: 'var/cache/dev/App_KernelDevDebugContainer.xml'
+    symfony:
+        container_xml_path: 'var/cache/dev/App_KernelDevDebugContainer.xml'
 
     typeAliases:
         ContextData: '''
@@ -33,7 +33,6 @@ parameters:
                 power_shell: bool,
                 user_id: int,
                 root_dir: string,
-                env: string,
                 composer_cache_dir: string,
             }
         '''

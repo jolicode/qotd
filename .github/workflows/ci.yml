@@ -1,20 +1,37 @@
 name: Continuous Integration
 
-on:
+"on":
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+  schedule:
+    - cron: "0 0 * * MON"
 
 permissions:
   contents: read
 
+env:
+  # Fix for symfony/color detection. We know GitHub Actions can handle it
+  ANSICON: 1
+  CASTOR_CONTEXT: ci
+
 jobs:
-  tests:
-    name: Run the tests suite
+  check-dockerfiles:
+    name: Check Dockerfile
     runs-on: ubuntu-latest
-    env:
-      APP_ENV: 'test'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check php/Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: infrastructure/docker/services/php/Dockerfile
+
+  ci:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
     steps:
       # Install official version of docker that correctly supports from-cache option in docker compose
       - name: Set up Docker
@@ -30,20 +47,22 @@ jobs:
         shell: bash
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Castor
+      - name: setup-castor
         uses: castor-php/setup-castor@v0.1.0
 
       - name: "Build and start the infrastructure"
-        run: castor start
+        run: "castor start"
 
-      - name: CS
-        run: castor cs
+      - name: "Check PHP coding standards"
+        run: "castor qa:cs"
 
-      - name: PHPStan
-        run: castor phpstan
+      - name: "Run PHPStan"
+        run: "castor qa:phpstan"
 
-      - name: PHPUnit
-        run: castor phpunit
+      - name: "Load fixtures"
+        run: "castor fixtures --env=test"
+
+      - name: "Run PHPUnit"
+        run: "castor qa:phpunit"
