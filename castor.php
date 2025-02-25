@@ -5,6 +5,7 @@ use Castor\Attribute\AsTask;
 use function Castor\guard_min_version;
 use function Castor\import;
 use function Castor\io;
+use function Castor\load_dot_env;
 use function Castor\notify;
 use function Castor\variable;
 use function docker\about;
@@ -53,25 +54,10 @@ function install(): void
 {
     io()->title('Installing the application');
 
-    $basePath = variable('root_dir');
+    io()->section('Installing PHP dependencies');
+    docker_compose_run('composer install -n --prefer-dist --optimize-autoloader');
 
-    if (is_file("{$basePath}/composer.json")) {
-        io()->section('Installing PHP dependencies');
-        docker_compose_run('composer install -n --prefer-dist --optimize-autoloader');
-    }
-    if (is_file("{$basePath}/yarn.lock")) {
-        io()->section('Installing Node.js dependencies');
-        docker_compose_run('yarn install --frozen-lockfile');
-    } elseif (is_file("{$basePath}/package.json")) {
-        io()->section('Installing Node.js dependencies');
-
-        if (is_file("{$basePath}/package-lock.json")) {
-            docker_compose_run('npm ci');
-        } else {
-            docker_compose_run('npm install');
-        }
-    }
-    if (is_file("{$basePath}/importmap.php")) {
+    if ('prod' === (load_dot_env()['APP_ENV'] ?? 'dev')) {
         io()->section('Installing importmap');
         docker_compose_run('bin/console importmap:install');
     }
