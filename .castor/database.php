@@ -11,5 +11,5 @@ function postgres_client(): void
 {
     io()->title('Connecting to the PostgreSQL database');
 
-    docker_compose(['exec', 'postgres', 'psql', '-U', 'app', 'app'], context()->toInteractive());
+    docker_compose(['exec', 'postgres', 'psql', '-U', 'qotd', 'qotd'], context()->toInteractive());
 }
