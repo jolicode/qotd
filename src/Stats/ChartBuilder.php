@@ -10,7 +10,7 @@ class ChartBuilder
 {
     // from: https://github.com/chartjs/Chart.js/blob/c0bf05f87df431202c991cfb5f3ee34106d9b6f4/src/plugins/plugin.colors.ts#L14-L22
     // see also https://github.com/symfony/ux/issues/763
-    private const COLORS = [
+    private const array COLORS = [
         'rgb(54, 162, 235)', // blue
         'rgb(255, 99, 132)', // red
         'rgb(255, 159, 64)', // orange
@@ -20,7 +20,7 @@ class ChartBuilder
         'rgb(201, 203, 207)', // grey
     ];
 
-    private const DIMMED_COLORS = [
+    private const array DIMMED_COLORS = [
         'rgb(54, 162, 235, 0.4)', // blue
         'rgb(255, 99, 132, 0.4)', // red
         'rgb(255, 159, 64, 0.4)', // orange
@@ -79,9 +79,9 @@ class ChartBuilder
 
         $labels = [];
         foreach ($counts as ['username' => $username]) {
-            $p = strpos($username, '@');
+            $p = strpos((string) $username, '@');
             if ($p) {
-                $labels[] = substr($username, 0, $p);
+                $labels[] = substr((string) $username, 0, $p);
             } else {
                 $labels[] = $username;
             }

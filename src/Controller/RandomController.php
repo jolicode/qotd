@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Qotd;
 use App\Repository\QotdRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +20,7 @@ class RandomController extends AbstractController
     {
         $qotd = $this->qotdRepository->findRandom();
 
-        if (null === $qotd) {
+        if (!$qotd instanceof Qotd) {
             throw $this->createNotFoundException('No QOTD found.');
         }
 

@@ -15,10 +15,8 @@ class SchemaListener implements EventSubscriberInterface
 {
     public function onSchemaColumnDefinition(SchemaColumnDefinitionEventArgs $eventArgs): void
     {
-        if ('qotd' === $eventArgs->getTable()) {
-            if ('message_ts' === $eventArgs->getTableColumn()['field']) {
-                $eventArgs->preventDefault();
-            }
+        if ('qotd' === $eventArgs->getTable() && 'message_ts' === $eventArgs->getTableColumn()['field']) {
+            $eventArgs->preventDefault();
         }
     }
 

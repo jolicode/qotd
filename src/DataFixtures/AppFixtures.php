@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Qotd;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Faker\Factory;
 
 class AppFixtures extends Fixture
 {
@@ -50,7 +51,7 @@ class AppFixtures extends Fixture
         );
         $manager->persist($qotd);
 
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
         $faker->seed(42);
 
         for ($i = 1; $i < 1000; ++$i) {

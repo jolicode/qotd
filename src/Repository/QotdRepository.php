@@ -25,7 +25,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class QotdRepository extends ServiceEntityRepository
 {
-    private const MAX_PER_PAGE = 7;
+    private const int MAX_PER_PAGE = 7;
 
     public function __construct(
         ManagerRegistry $registry,
