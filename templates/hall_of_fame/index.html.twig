@@ -24,12 +24,13 @@
                 nextEl: ".swiper-button-next",
                 prevEl: ".swiper-button-prev",
             },
+            initialSlide: bests_over_period|length - 1,
             autoHeight: true,
         }}) }}
         class="swiper"
     >
         <div class="swiper-wrapper">
-            {% for data in bests_over_period %}
+            {% for data in bests_over_period|reverse %}
                 <div class="swiper-slide">
                     {% set start_of_period = data.start_of_period %}
                     {% set qotd = data.0 %}
