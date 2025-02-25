@@ -24,7 +24,7 @@ function create_default_variables(): array
 {
     return [
         'project_name' => 'qotd',
-        'root_domain' => 'local.qotd.offithings.jolicode.com',
+        'root_domain' => 'local.qotd.internal.jolicode.com',
         'registry' => 'ghcr.io/jolicode/qotd',
         'php_version' => '8.3',
     ];
