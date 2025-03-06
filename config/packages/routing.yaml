@@ -1,7 +1,5 @@
 framework:
     router:
-        utf8: true
-
         default_uri: '%env(APP_DEFAULT_URI)%'
 when@prod:
     framework:

@@ -22,9 +22,7 @@ class YoloAuthenticator extends AbstractAuthenticator
     public function authenticate(Request $request): Passport
     {
         return new SelfValidatingPassport(
-            new UserBadge('yolo', function ($username) {
-                return new InMemoryUser($username, null, ['ROLE_USER']);
-            })
+            new UserBadge('yolo', fn ($username): InMemoryUser => new InMemoryUser($username, null, ['ROLE_USER']))
         );
     }
 

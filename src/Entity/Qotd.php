@@ -99,13 +99,13 @@ class Qotd
     #[Groups(['qotd:read'])]
     public function getImageUrls(): array
     {
-        return array_map(fn (string $image) => \sprintf('uploads/%s---%s', $this->id, $image), $this->images);
+        return array_map(fn (string $image): string => \sprintf('uploads/%s---%s', $this->id, $image), $this->images);
     }
 
     #[Groups(['qotd:read'])]
     public function getVideoUrls(): array
     {
-        return array_map(fn (string $video) => \sprintf('uploads/%s---%s', $this->id, $video), $this->videos);
+        return array_map(fn (string $video): string => \sprintf('uploads/%s---%s', $this->id, $video), $this->videos);
     }
 
     #[ORM\PreUpdate]

@@ -139,7 +139,7 @@ class QotdRunCommand extends Command
             );
 
             foreach ($bestMessage['files'] ?? [] as $file) {
-                $format = explode('/', $file['mimetype'])[0];
+                $format = explode('/', (string) $file['mimetype'])[0];
 
                 if (!\in_array($format, ['image', 'video'], true)) {
                     continue;
@@ -168,7 +168,7 @@ class QotdRunCommand extends Command
                     'channel' => $this->channelIdForSummary,
                     'text' => \sprintf(
                         "%s's QOTD was: %s\nYou can vote for it on %s",
-                        ucfirst($input->getArgument('date')),
+                        ucfirst((string) $input->getArgument('date')),
                         $bestMessage['permalink'],
                         $this->router->generate('qotd_index_not_voted', [], UrlGeneratorInterface::ABSOLUTE_URL),
                     ),
@@ -194,10 +194,7 @@ class QotdRunCommand extends Command
         if ($channel['is_im']) {
             return false;
         }
-        if ($channel['is_private']) {
-            return false;
-        }
 
-        return true;
+        return !$channel['is_private'];
     }
 }
