@@ -2,6 +2,7 @@
 
 use Castor\Attribute\AsTask;
 
+use function Castor\context;
 use function Castor\guard_min_version;
 use function Castor\import;
 use function Castor\io;
@@ -57,7 +58,7 @@ function install(): void
     io()->section('Installing PHP dependencies');
     docker_compose_run('composer install -n --prefer-dist --optimize-autoloader');
 
-    if ('prod' === (load_dot_env()['APP_ENV'] ?? 'dev')) {
+    if ('prod' === (load_dot_env()['APP_ENV'] ?? 'dev') || context()->name === 'ci') {
         io()->section('Installing importmap');
         docker_compose_run('bin/console importmap:install');
     }
