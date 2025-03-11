@@ -1,0 +1,1 @@
+This is a section block with an accessory image. <img src="<insert slack file url here>" alt="alt text"> <br />

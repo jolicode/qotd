@@ -1,0 +1,34 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"fields": [
+				{
+					"type": "plain_text",
+					"text": "*this is plain_text text*",
+					"emoji": true
+				},
+				{
+					"type": "plain_text",
+					"text": "*this is plain_text text*",
+					"emoji": true
+				},
+				{
+					"type": "plain_text",
+					"text": "*this is plain_text text*",
+					"emoji": true
+				},
+				{
+					"type": "plain_text",
+					"text": "*this is plain_text text*",
+					"emoji": true
+				},
+				{
+					"type": "plain_text",
+					"text": "*this is plain_text text*",
+					"emoji": true
+				}
+			]
+		}
+	]
+}

@@ -58,7 +58,7 @@ function install(): void
     io()->section('Installing PHP dependencies');
     docker_compose_run('composer install -n --prefer-dist --optimize-autoloader');
 
-    if ('prod' === (load_dot_env()['APP_ENV'] ?? 'dev') || context()->name === 'ci') {
+    if ('prod' === (load_dot_env()['APP_ENV'] ?? 'dev') || 'ci' === context()->name) {
         io()->section('Installing importmap');
         docker_compose_run('bin/console importmap:install');
     }

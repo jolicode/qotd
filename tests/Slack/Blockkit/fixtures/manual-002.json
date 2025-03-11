@@ -1,0 +1,128 @@
+{
+    "iid": "1d1706a5-7c74-4b3a-868d-970ed5d6fd28",
+    "team": "T0FLD8LEM",
+    "score": 0,
+    "channel": {
+        "id": "C0FLD8LSV",
+        "is_channel": true,
+        "is_group": false,
+        "is_im": false,
+        "is_mpim": false,
+        "is_shared": false,
+        "is_org_shared": false,
+        "is_ext_shared": false,
+        "is_private": false,
+        "name": "general",
+        "pending_shared": [],
+        "is_pending_ext_shared": false
+    },
+    "type": "message",
+    "user": "U0FLDV6UW",
+    "username": "lyrixx",
+    "ts": "1741885792.865889",
+    "files": [
+        {
+            "id": "F08HXRSP673",
+            "created": 1741885788,
+            "timestamp": 1741885788,
+            "name": "image.png",
+            "title": "image.png",
+            "mimetype": "image/png",
+            "filetype": "png",
+            "pretty_type": "PNG",
+            "user": "U0FLDV6UW",
+            "user_team": "T0FLD8LEM",
+            "editable": false,
+            "size": 433565,
+            "mode": "hosted",
+            "is_external": false,
+            "external_type": "",
+            "is_public": true,
+            "public_url_shared": false,
+            "display_as_bot": false,
+            "username": "",
+            "url_private": "https://files.slack.com/files-pri/T0FLD8LEM-F08HXRSP673/image.png",
+            "url_private_download": "https://files.slack.com/files-pri/T0FLD8LEM-F08HXRSP673/download/image.png",
+            "media_display_type": "unknown",
+            "thumb_64": "https://files.slack.com/files-tmb/T0FLD8LEM-F08HXRSP673-72f4caab75/image_64.png",
+            "thumb_80": "https://files.slack.com/files-tmb/T0FLD8LEM-F08HXRSP673-72f4caab75/image_80.png",
+            "thumb_360": "https://files.slack.com/files-tmb/T0FLD8LEM-F08HXRSP673-72f4caab75/image_360.png",
+            "thumb_360_w": 360,
+            "thumb_360_h": 300,
+            "thumb_480": "https://files.slack.com/files-tmb/T0FLD8LEM-F08HXRSP673-72f4caab75/image_480.png",
+            "thumb_480_w": 480,
+            "thumb_480_h": 400,
+            "thumb_160": "https://files.slack.com/files-tmb/T0FLD8LEM-F08HXRSP673-72f4caab75/image_160.png",
+            "thumb_720": "https://files.slack.com/files-tmb/T0FLD8LEM-F08HXRSP673-72f4caab75/image_720.png",
+            "thumb_720_w": 720,
+            "thumb_720_h": 599,
+            "thumb_800": "https://files.slack.com/files-tmb/T0FLD8LEM-F08HXRSP673-72f4caab75/image_800.png",
+            "thumb_800_w": 800,
+            "thumb_800_h": 666,
+            "thumb_960": "https://files.slack.com/files-tmb/T0FLD8LEM-F08HXRSP673-72f4caab75/image_960.png",
+            "thumb_960_w": 960,
+            "thumb_960_h": 799,
+            "thumb_1024": "https://files.slack.com/files-tmb/T0FLD8LEM-F08HXRSP673-72f4caab75/image_1024.png",
+            "thumb_1024_w": 1024,
+            "thumb_1024_h": 853,
+            "original_w": 1123,
+            "original_h": 935,
+            "thumb_tiny": "AwAnADCPzF/55L+ZqzZMGd8IF+XtmqVW9P8Avv8A7tUynsXR9adz/kUg9sUvPtUkhzS013WMZdgATinAggEdDQBiZq3p/wB9/wDdqpVvT/8AWP8A7tUy2Xh7U6minVJBDdGMRfvRlc+uKkjx5a7fu4GKbOWCDYoY56EZp6ZKLkYOORQBiVc07/WP9Kp1c07/AFj/AEqmUy+OKWiipJCiiigD/9k=",
+            "permalink": "https://lyrixx.slack.com/files/U0FLDV6UW/F08HXRSP673/image.png",
+            "permalink_public": "https://slack-files.com/T0FLD8LEM-F08HXRSP673-4d2a46fa2d",
+            "is_starred": false,
+            "has_rich_preview": false,
+            "file_access": "visible"
+        }
+    ],
+    "blocks": [
+        {
+            "type": "rich_text",
+            "block_id": "HvaGY",
+            "elements": [
+                {
+                    "type": "rich_text_section",
+                    "elements": [
+                        {
+                            "type": "text",
+                            "text": "a "
+                        },
+                        {
+                            "type": "user",
+                            "user_id": "UMYK1MQ3E"
+                        },
+                        {
+                            "type": "text",
+                            "text": " "
+                        },
+                        {
+                            "type": "text",
+                            "text": "salut",
+                            "style": {
+                                "bold": true
+                            }
+                        },
+                        {
+                            "type": "text",
+                            "text": " "
+                        },
+                        {
+                            "type": "user",
+                            "user_id": "U0FLDV6UW"
+                        },
+                        {
+                            "type": "text",
+                            "text": " and "
+                        },
+                        {
+                            "type": "user",
+                            "user_id": "U04CVTCQT45"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "text": "a <@UMYK1MQ3E|greg 2> salut <@U0FLDV6UW> and <@U04CVTCQT45>",
+    "permalink": "https://lyrixx.slack.com/archives/C0FLD8LSV/p1741885792865889"
+}

@@ -34,15 +34,6 @@ class QotdRepository extends ServiceEntityRepository
         parent::__construct($registry, Qotd::class);
     }
 
-    public function save(Qotd $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
     public function findLast(): ?Qotd
     {
         return $this->createQueryBuilder('q')

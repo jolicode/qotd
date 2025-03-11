@@ -31,7 +31,7 @@ class SchemaFilterSchemaManager extends AbstractSchemaManager
     ];
 
     /**
-     *  @param AbstractSchemaManager<AbstractPlatform> $decorated
+     * @param AbstractSchemaManager<AbstractPlatform> $decorated
      */
     public function __construct(
         private AbstractSchemaManager $decorated,

@@ -1,0 +1,21 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Section block with a timepicker"
+			},
+			"accessory": {
+				"type": "timepicker",
+				"initial_time": "13:37",
+				"placeholder": {
+					"type": "plain_text",
+					"text": "Select time",
+					"emoji": true
+				},
+				"action_id": "timepicker-action"
+			}
+		}
+	]
+}

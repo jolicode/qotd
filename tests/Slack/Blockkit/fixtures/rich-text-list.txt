@@ -1,0 +1,8 @@
+Basic bullet list with rich elements
+<ul>
+<li>item 1: 🏀</li>
+<li>item 2: this is a list item</li>
+<li>item 3: <b><a href="https://example.com/">with a link</a></b></li>
+<li>item 4: we are near the end</li>
+<li>item 5: this is the end</li>
+</ul>

@@ -1,0 +1,94 @@
+{
+	"blocks": [
+		{
+			"type": "rich_text",
+			"elements": [
+				{
+					"type": "rich_text_section",
+					"elements": [
+						{
+							"type": "text",
+							"text": "Basic bullet list with rich elements\n"
+						}
+					]
+				},
+				{
+					"type": "rich_text_list",
+					"style": "bullet",
+					"indent": 0,
+					"elements": [
+						{
+							"type": "rich_text_section",
+							"elements": [
+								{
+									"type": "text",
+									"text": "item 1: "
+								},
+								{
+									"type": "emoji",
+									"name": "basketball"
+								}
+							]
+						},
+						{
+							"type": "rich_text_section",
+							"elements": [
+								{
+									"type": "text",
+									"text": "item 2: "
+								},
+								{
+									"type": "text",
+									"text": "this is a list item"
+								}
+							]
+						},
+						{
+							"type": "rich_text_section",
+							"elements": [
+								{
+									"type": "text",
+									"text": "item 3: "
+								},
+								{
+									"type": "link",
+									"url": "https://example.com/",
+									"text": "with a link",
+									"style": {
+										"bold": true
+									}
+								}
+							]
+						},
+						{
+							"type": "rich_text_section",
+							"elements": [
+								{
+									"type": "text",
+									"text": "item 4: "
+								},
+								{
+									"type": "text",
+									"text": "we are near the end"
+								}
+							]
+						},
+						{
+							"type": "rich_text_section",
+							"elements": [
+								{
+									"type": "text",
+									"text": "item 5: "
+								},
+								{
+									"type": "text",
+									"text": "this is the end"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}

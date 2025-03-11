@@ -1,0 +1,39 @@
+{
+	"blocks": [
+		{
+			"type": "actions",
+			"elements": [
+				{
+					"type": "conversations_select",
+					"placeholder": {
+						"type": "plain_text",
+						"text": "Select a conversation",
+						"emoji": true
+					},
+					"initial_conversation": "G12345678",
+					"action_id": "actionId-0"
+				},
+				{
+					"type": "users_select",
+					"placeholder": {
+						"type": "plain_text",
+						"text": "Select a user",
+						"emoji": true
+					},
+					"initial_user": "U12345678",
+					"action_id": "actionId-1"
+				},
+				{
+					"type": "channels_select",
+					"placeholder": {
+						"type": "plain_text",
+						"text": "Select a channel",
+						"emoji": true
+					},
+					"initial_channel": "C12345678",
+					"action_id": "actionId-2"
+				}
+			]
+		}
+	]
+}

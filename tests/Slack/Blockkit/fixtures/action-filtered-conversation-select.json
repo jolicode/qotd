@@ -1,0 +1,23 @@
+{
+	"blocks": [
+		{
+			"type": "actions",
+			"elements": [
+				{
+					"type": "conversations_select",
+					"placeholder": {
+						"type": "plain_text",
+						"text": "Select private conversation",
+						"emoji": true
+					},
+					"filter": {
+						"include": [
+							"private"
+						]
+					},
+					"action_id": "actionId-0"
+				}
+			]
+		}
+	]
+}

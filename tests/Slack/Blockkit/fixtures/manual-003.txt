@@ -1,0 +1,2 @@
+&lt;strong&gt;salut&lt;/strong&gt;&lt;script&gt;alert(&#039;salut&#039;)&lt;/script&gt;
+<pre>&lt;strong&gt;salut&lt;/strong&gt;&lt;script&gt;alert(&#039;salut&#039;)&lt;/script&gt;</pre><blockquote> &lt;strong&gt;salut&lt;/strong&gt;&lt;script&gt;alert(&#039;salut&#039;)&lt;/script&gt;</blockquote>

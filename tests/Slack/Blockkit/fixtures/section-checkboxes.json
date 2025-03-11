@@ -1,0 +1,50 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "This is a section block with checkboxes."
+			},
+			"accessory": {
+				"type": "checkboxes",
+				"options": [
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "*this is mrkdwn text*"
+						},
+						"description": {
+							"type": "mrkdwn",
+							"text": "*this is mrkdwn text*"
+						},
+						"value": "value-0"
+					},
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "*this is mrkdwn text*"
+						},
+						"description": {
+							"type": "mrkdwn",
+							"text": "*this is mrkdwn text*"
+						},
+						"value": "value-1"
+					},
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "*this is mrkdwn text*"
+						},
+						"description": {
+							"type": "mrkdwn",
+							"text": "*this is mrkdwn text*"
+						},
+						"value": "value-2"
+					}
+				],
+				"action_id": "checkboxes-action"
+			}
+		}
+	]
+}

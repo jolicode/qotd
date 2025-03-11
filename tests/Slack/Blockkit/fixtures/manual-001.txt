@@ -1,0 +1,10 @@
+Hey there 👋 I'm TaskBot. I'm here to help you create and manage tasks in Slack.<br>
+There are two ways to quickly create tasks:<br />
+<b>1️⃣ Use the <code>/task</code> command</b>. Type <code>/task</code> followed by a short description of your tasks and I'll ask for a due date (if applicable). Try it out by using the <code>/task</code> command in this channel.<br />
+<b>2️⃣ Use the _Create a Task_ action.</b> If you want to create a task from a message, select <code>Create a Task</code> in a message's context menu. Try it out by selecting the _Create a Task_ action for this message (shown below).<br />
+<small>image1</small> <img src="https://api.slack.com/img/blocks/bkb_template_images/onboardingComplex.jpg" alt="image1"> <br />
+<br />
+➕ To start tracking your team's tasks, <b>add me to a channel</b> and I'll introduce myself. I'm usually added to a team or project channel. Type <code>/invite @TaskBot</code> from the channel or pick a channel on the right.<br />
+<hr><br />
+👀 View all tasks with <code>/task list</code><br>
+❓Get help at any time with <code>/task help</code> or type <b>help</b> in a DM with me

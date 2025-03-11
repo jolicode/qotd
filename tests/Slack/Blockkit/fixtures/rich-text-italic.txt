@@ -1,0 +1,1 @@
+Hello there, <i>I am an italic rich text block!</i>

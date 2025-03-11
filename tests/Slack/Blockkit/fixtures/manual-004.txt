@@ -1,0 +1,1 @@
+This is a mrkdwn section block 👻 <b>this is bold</b>, and <s>this is crossed out</s>, <a href="https://google.com">this is a link</a>, &lt;<https://google.com>|or broken link &lt;b&gt;a&lt;/b&gt;&gt;, and &lt;a href="https://google.com"&gt;another a link&lt;/a&gt; &lt;strong&gt;salut&lt;/strong&gt;&lt;script&gt;alert('salut')&lt;/script&gt;

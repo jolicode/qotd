@@ -1,0 +1,36 @@
+{
+    "iid": "de22dac5-1a6f-4390-ab4f-dc935cab737b",
+    "team": "T0FLD8LEM",
+    "score": 0,
+    "channel": {
+        "id": "C0FLD8LSV",
+        "is_channel": true,
+        "is_group": false,
+        "is_im": false,
+        "is_mpim": false,
+        "is_shared": false,
+        "is_org_shared": false,
+        "is_ext_shared": false,
+        "is_private": false,
+        "name": "general",
+        "pending_shared": [],
+        "is_pending_ext_shared": false
+    },
+    "type": "message",
+    "user": "U0FLDV6UW",
+    "username": "lyrixx",
+    "ts": "1741890014.169179",
+    "blocks": [
+        {
+            "type": "section",
+            "block_id": "8cCRE",
+            "text": {
+                "type": "mrkdwn",
+                "text": "This is a mrkdwn section block :ghost: *this is bold*, and ~this is crossed out~, <https://google.com|this is a link>, &lt;<https://google.com>|or broken link &lt;b&gt;a&lt;/b&gt;&gt;, and &lt;a href=\"https://google.com\"&gt;another a link&lt;/a&gt; &lt;strong&gt;salut&lt;/strong&gt;&lt;script&gt;alert('salut')&lt;/script&gt;",
+                "verbatim": false
+            }
+        }
+    ],
+    "text": "",
+    "permalink": "https://lyrixx.slack.com/archives/C0FLD8LSV/p1741890014169179"
+}

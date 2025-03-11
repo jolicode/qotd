@@ -1,0 +1,18 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "This is a section block with an accessory image."
+			},
+			"accessory": {
+				"type": "image",
+				"slack_file": {
+					"url": "<insert slack file url here>"
+				},
+				"alt_text": "alt text"
+			}
+		}
+	]
+}

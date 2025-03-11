@@ -21,6 +21,16 @@
                 </div>
             </td>
         </tr>
+        {% if qotd.messageRendered %}
+            <tr>
+                <th>Raw Message Renderer</th>
+                <td>
+                    <div class="overflow-x-scroll" style="max-width:calc(var(--bs-modal-width) - 10em)">
+                        <pre><code>{{ qotd.messageRendered|nl2br }}</code></pre>
+                    </div>
+                </td>
+            </tr>
+        {% endif %}
         <tr>
             <th>Raw Context</th>
             <td>

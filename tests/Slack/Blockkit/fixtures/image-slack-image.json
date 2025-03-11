@@ -1,0 +1,11 @@
+{
+	"blocks": [
+		{
+			"type": "image",
+			"slack_file": {
+				"url": "<insert slack file url here>"
+			},
+			"alt_text": "inspiration"
+		}
+	]
+}

@@ -6,6 +6,10 @@
                 {{ qotd.context|replace_emoji|replace_username|replace({'\n': '\n\n'})|markdown_to_html }}
             </blockquote>
         {% endif %}
-        {{ qotd.message|replace_emoji|replace_username|replace({'\n': '\n\n'})|markdown_to_html }}
+        {% if qotd.messageRendered %}
+            {{ qotd.messageRendered|raw }}
+        {% else %}
+            {{ qotd.message|replace_emoji|replace_username|replace({'\n': '\n\n'})|markdown_to_html }}
+        {% endif %}
     {% endcache %}
 {% endmacro %}

@@ -59,6 +59,10 @@ class Qotd
         #[Groups(['qotd:read'])]
         #[ORM\Column(length: 255)]
         public readonly string $username,
+
+        #[Groups(['qotd:read'])]
+        #[ORM\Column(type: Types::TEXT, nullable: true)]
+        public readonly ?string $messageRendered = null,
     ) {
         $this->id = uuid_create();
         $this->updatedAt = new \DateTimeImmutable();

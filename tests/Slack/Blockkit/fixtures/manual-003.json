@@ -1,0 +1,65 @@
+{
+    "iid": "cec73862-7504-49af-a8af-22052728d39f",
+    "team": "T0FLD8LEM",
+    "score": 0,
+    "channel": {
+        "id": "C0FLD8LSV",
+        "is_channel": true,
+        "is_group": false,
+        "is_im": false,
+        "is_mpim": false,
+        "is_shared": false,
+        "is_org_shared": false,
+        "is_ext_shared": false,
+        "is_private": false,
+        "name": "general",
+        "pending_shared": [],
+        "is_pending_ext_shared": false
+    },
+    "type": "message",
+    "user": "U0FLDV6UW",
+    "username": "lyrixx",
+    "ts": "1741887104.383249",
+    "blocks": [
+        {
+            "type": "rich_text",
+            "block_id": "UNa1l",
+            "elements": [
+                {
+                    "type": "rich_text_section",
+                    "elements": [
+                        {
+                            "type": "text",
+                            "text": "<strong>salut</strong><script>alert('salut')</script>\n"
+                        }
+                    ]
+                },
+                {
+                    "type": "rich_text_preformatted",
+                    "elements": [
+                        {
+                            "type": "text",
+                            "text": "<strong>salut</strong><script>alert('salut')</script>"
+                        }
+                    ],
+                    "border": 0
+                },
+                {
+                    "type": "rich_text_quote",
+                    "elements": [
+                        {
+                            "type": "text",
+                            "text": " <strong>salut</strong><script>alert('salut')</script>"
+                        }
+                    ]
+                },
+                {
+                    "type": "rich_text_section",
+                    "elements": []
+                }
+            ]
+        }
+    ],
+    "text": "<strong>salut</strong><script>alert('salut')</script>\n```<strong>salut</strong><script>alert('salut')</script>```\n>  <strong>salut</strong><script>alert('salut')</script>",
+    "permalink": "https://lyrixx.slack.com/archives/C0FLD8LSV/p1741887104383249"
+}
