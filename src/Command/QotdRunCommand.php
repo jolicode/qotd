@@ -2,9 +2,8 @@
 
 namespace App\Command;
 
-use App\Entity\Qotd;
+use App\Qotd\QotdCreator;
 use App\Repository\QotdRepository;
-use App\Slack\BlockKit\MessageRenderer;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -17,9 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\Target;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -32,8 +29,6 @@ class QotdRunCommand extends Command
     public function __construct(
         #[Target('slack.bot.client')]
         private readonly HttpClientInterface $botClient,
-        #[Autowire('%env(SLACK_BOT_TOKEN)%')]
-        private readonly string $slackBotToken,
         #[Target('slack.user.client')]
         private readonly HttpClientInterface $userClient,
         #[Autowire('%env(SLACK_CHANNEL_ID_FOR_SUMMARY)%')]
@@ -41,12 +36,8 @@ class QotdRunCommand extends Command
         #[Autowire('%env(SLACK_REACTION_TO_SEARCH)%')]
         private readonly string $reactionToSearch,
         private readonly QotdRepository $qotdRepository,
-        #[Autowire('%upload_dir%')]
-        private readonly string $uploadDirectory,
-        private readonly SluggerInterface $slugger,
-        private readonly Filesystem $fs,
+        private readonly QotdCreator $qotdCreator,
         private readonly UrlGeneratorInterface $router,
-        private readonly MessageRenderer $messageRendered,
         private readonly EntityManagerInterface $em,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
@@ -138,55 +129,7 @@ class QotdRunCommand extends Command
                 $this->em->remove($previousQotd);
             }
 
-            $messageRendered = null;
-
-            try {
-                $messageRendered = $this->messageRendered->render($bestMessage);
-            } catch (\InvalidArgumentException $e) {
-                $this->logger->error('Cannot render blocks.', [
-                    'exception' => $e,
-                    'permalink' => $bestMessage['permalink'],
-                    'blocks' => $bestMessage['blocks'],
-                ]);
-                file_put_contents(
-                    \sprintf('%s/../../var/error-block-render-%s.json', __DIR__, $date->format('Y-m-d')),
-                    json_encode($bestMessage, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES)
-                );
-            }
-
-            $qotd = new Qotd(
-                date: $date,
-                permalink: $bestMessage['permalink'],
-                message: $bestMessage['text'],
-                username: $bestMessage['username'],
-                messageRendered: $messageRendered,
-            );
-
-            foreach ($bestMessage['files'] ?? [] as $file) {
-                $format = explode('/', (string) $file['mimetype'])[0];
-
-                if (!\in_array($format, ['image', 'video'], true)) {
-                    continue;
-                }
-
-                $response = $this->botClient->request('GET', $file['url_private_download'], [
-                    'auth_bearer' => $this->slackBotToken,
-                ]);
-
-                $mediaSuffix = \sprintf('%s---%s', uuid_create(), $this->slugger->slug($file['name']));
-                $mediaPath = \sprintf('%s/%s---%s', $this->uploadDirectory, $qotd->id, $mediaSuffix);
-
-                $this->fs->dumpFile($mediaPath, $response->getContent());
-
-                if ('image' === $format) {
-                    $qotd->images[] = $mediaSuffix;
-                } elseif ('video' === $format) {
-                    $qotd->videos[] = $mediaSuffix;
-                }
-            }
-
-            $this->em->persist($qotd);
-            $this->em->flush();
+            $this->qotdCreator->createQotd($bestMessage, $date);
 
             $this->botClient->request('POST', 'chat.postMessage', [
                 'json' => [

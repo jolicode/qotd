@@ -44,9 +44,11 @@ final readonly class RichTextRenderer implements BlockRendererInterface
         foreach ($element['elements'] as $subElement) {
             $tmp = match ($subElement['type']) {
                 'text' => $this->plainTextRenderer->renderText($subElement['text']),
-                'link' => '<a href="' . $subElement['url'] . '">' . $this->plainTextRenderer->renderText($subElement['text']) . '</a>',
+                'link' => $this->renderLink($subElement),
                 'emoji' => $this->emojiTransliterator->replaceEmoji(':' . $subElement['name'] . ':'),
                 'user' => '@' . $this->userRegistry->getUserById($subElement['user_id']),
+                'usergroup' => '@' . $this->userRegistry->getUserById($subElement['usergroup_id']),
+                'channel' => '@' . $this->userRegistry->getUserById($subElement['channel_id']),
                 default => throw new \InvalidArgumentException(\sprintf('Rich text element type "%s" is not supported', $subElement['type'])),
             };
 
@@ -59,6 +61,7 @@ final readonly class RichTextRenderer implements BlockRendererInterface
                     'bold' => 'b',
                     'italic' => 'i',
                     'strike' => 's',
+                    'code' => 'code',
                     default => throw new \InvalidArgumentException(\sprintf('Rich text element style "%s" is not supported', $style)),
                 };
 
@@ -105,5 +108,17 @@ final readonly class RichTextRenderer implements BlockRendererInterface
         $output .= '</ul>';
 
         return $output;
+    }
+
+    private function renderLink(array $element): string
+    {
+        if (\array_key_exists('text', $element)) {
+            return '<a href="' . $element['url'] . '">' . $this->plainTextRenderer->renderText($element['text']) . '</a>';
+        }
+        if (\array_key_exists('emoji', $element)) {
+            return '<a href="' . $element['url'] . '">' . $this->emojiTransliterator->replaceEmoji(':' . $element['emoji'] . ':') . '</a>';
+        }
+
+        return '<a href="' . $element['url'] . '">' . $this->plainTextRenderer->renderText($element['url']) . '</a>';
     }
 }

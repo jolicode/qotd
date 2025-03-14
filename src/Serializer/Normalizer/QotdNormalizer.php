@@ -20,7 +20,6 @@ class QotdNormalizer implements NormalizerInterface
     {
         $data = $this->normalizer->normalize($object, $format, $context);
 
-
         $data['html'] = $this->twig->render('qotd/_message.html.twig', [
             'qotd' => $object,
         ]);

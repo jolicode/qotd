@@ -1,0 +1,58 @@
+{
+    "user": "U057R6FMABV",
+    "type": "message",
+    "ts": "1702635318.321949",
+    "client_msg_id": "577124c7-33fe-4103-b5eb-071d383a2b0b",
+    "text": "`fix(phpstan): postpone todo date`",
+    "team": "T024XPRSS",
+    "blocks": [
+        {
+            "type": "rich_text",
+            "block_id": "feUJW",
+            "elements": [
+                {
+                    "type": "rich_text_section",
+                    "elements": [
+                        {
+                            "type": "text",
+                            "text": "fix(phpstan): postpone todo date",
+                            "style": {
+                                "code": true
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "reactions": [
+        {
+            "name": "joy",
+            "users": [
+                "UCL5V20PP",
+                "U024XPRSU",
+                "U62EDD2NM",
+                "U70EZP41F"
+            ],
+            "count": 4
+        },
+        {
+            "name": "qotd",
+            "users": [
+                "UCL5V20PP",
+                "UD46M47E0",
+                "U09JD40U8",
+                "U03F71170",
+                "U024XPS2G"
+            ],
+            "count": 5
+        },
+        {
+            "name": "100",
+            "users": [
+                "U024XPRSU"
+            ],
+            "count": 1
+        }
+    ]
+}

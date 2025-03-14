@@ -1,0 +1,5 @@
+Hello,
+Quelques news de QOTD :
+<ul>
+<li>@C024XPRT0</li>
+</ul>

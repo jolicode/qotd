@@ -1,0 +1,62 @@
+{
+    "user": "U70EZP41F",
+    "type": "message",
+    "ts": "1728056608.396949",
+    "client_msg_id": "6fbcf970-4849-4582-ab01-e9f0a977bd47",
+    "text": "entre <!subteam^S05EQE0NY92> et @claclalaraclette on est au top niveau CHO :joy:",
+    "team": "T024XPRSS",
+    "thread_ts": "1728034972.319309",
+    "parent_user_id": "U051CSA0U82",
+    "blocks": [
+        {
+            "type": "rich_text",
+            "block_id": "ADD63",
+            "elements": [
+                {
+                    "type": "rich_text_section",
+                    "elements": [
+                        {
+                            "type": "text",
+                            "text": "entre "
+                        },
+                        {
+                            "type": "usergroup",
+                            "usergroup_id": "S05EQE0NY92"
+                        },
+                        {
+                            "type": "text",
+                            "text": " et @claclalaraclette on est au top niveau CHO "
+                        },
+                        {
+                            "type": "emoji",
+                            "name": "joy",
+                            "unicode": "1f602"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "reactions": [
+        {
+            "name": "rolling_on_the_floor_laughing",
+            "users": [
+                "U024XPRSU",
+                "U045VQQ63DJ",
+                "U051CSA0U82",
+                "U02PES2DU"
+            ],
+            "count": 4
+        },
+        {
+            "name": "qotd",
+            "users": [
+                "U024XPRSU",
+                "U045VQQ63DJ",
+                "U024XPS1W"
+            ],
+            "count": 3,
+            "url": "https://emoji.slack-edge.com/T024XPRSS/qotd/6a20d76197e6d4f5.png"
+        }
+    ]
+}

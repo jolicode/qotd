@@ -7,7 +7,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final readonly class NotSupportedRenderer implements AccessoryRendererInterface
 {
     public function __construct(
-        #[Autowire(env: 'bool:APP_DEBUG_NOT_SUPPORTED')]
+        #[Autowire('%kernel.debug%')]
         private bool $debug,
     ) {
     }

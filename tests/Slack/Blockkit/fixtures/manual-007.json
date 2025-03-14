@@ -1,0 +1,56 @@
+{
+    "user": "U62EDD2NM",
+    "type": "message",
+    "ts": "1679986804.753819",
+    "client_msg_id": "bfa6cdd2-405f-4123-b9b1-468e29da9330",
+    "text": "Redacted",
+    "team": "T024XPRSS",
+    "thread_ts": "1679986804.753819",
+    "reply_count": 16,
+    "reply_users_count": 6,
+    "latest_reply": "1680012975.526089",
+    "reply_users": [
+        "U024XPS1W",
+        "U04PQ24ACE9",
+        "U2YGNJC7K",
+        "U62EDD2NM",
+        "U02FJQEQN",
+        "U09JD40U8"
+    ],
+    "is_locked": false,
+    "subscribed": false,
+    "blocks": [
+        {
+            "type": "rich_text",
+            "block_id": "8Qcz",
+            "elements": [
+                {
+                    "type": "rich_text_section",
+                    "elements": [
+                        {
+                            "type": "text",
+                            "text": "Hello,\nQuelques news de QOTD :\n"
+                        }
+                    ]
+                },
+                {
+                    "type": "rich_text_list",
+                    "elements": [
+                        {
+                            "type": "rich_text_section",
+                            "elements": [
+                                {
+                                    "type": "channel",
+                                    "channel_id": "C024XPRT0"
+                                }
+                            ]
+                        }
+                    ],
+                    "style": "bullet",
+                    "indent": 0,
+                    "border": 0
+                }
+            ]
+        }
+    ]
+}
