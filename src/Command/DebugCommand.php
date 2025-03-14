@@ -32,7 +32,12 @@ class DebugCommand extends Command
     {
         $message = json_decode(file_get_contents($input->getArgument('file')), true);
 
-        $output->writeln($this->renderer->render($message));
+        $renderer = $this->renderer->render($message);
+        if (!$renderer) {
+            return Command::FAILURE;
+        }
+
+        $output->writeln($renderer);
 
         return Command::SUCCESS;
     }
