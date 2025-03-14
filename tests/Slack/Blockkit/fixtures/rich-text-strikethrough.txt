@@ -1,0 +1,1 @@
+Hello there, <s>I am a strikethrough rich text block!</s>

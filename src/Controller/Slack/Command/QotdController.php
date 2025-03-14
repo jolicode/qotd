@@ -15,7 +15,7 @@ class QotdController extends AbstractController
     ) {
     }
 
-    #[Route('/command/qotd')]
+    #[Route('/command/qotd', defaults: ['slack' => true])]
     public function __invoke(Request $request): Response
     {
         try {

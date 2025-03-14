@@ -1,0 +1,4 @@
+<b>This</b> is 😄 markdown <img src="https://pbs.twimg.com/profile_images/625633822235693056/lNGUneLX_400x400.jpg" alt="cute cat"> <br />
+ <img src="https://pbs.twimg.com/profile_images/625633822235693056/lNGUneLX_400x400.jpg" alt="cute cat"> <br />
+ <img src="https://pbs.twimg.com/profile_images/625633822235693056/lNGUneLX_400x400.jpg" alt="cute cat"> <br />
+ Author: K A Applegate

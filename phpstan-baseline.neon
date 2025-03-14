@@ -9,3 +9,18 @@ parameters:
 			message: "#^Method App\\\\Repository\\\\QotdRepository\\:\\:findForHomepageNotVoted\\(\\) should return Knp\\\\Component\\\\Pager\\\\Pagination\\\\PaginationInterface\\<string, App\\\\Entity\\\\Qotd\\> but returns Knp\\\\Component\\\\Pager\\\\Pagination\\\\PaginationInterface\\<int, mixed\\>\\.$#"
 			count: 1
 			path: src/Repository/QotdRepository.php
+
+		-
+			message: "#^Service \"App\\\\Slack\\\\BlockKit\\\\Block\\\\Image\\\\ImageRenderer\" is private\\.$#"
+			count: 1
+			path: src/Slack/BlockKit/Block/Context/ContextRenderer.php
+
+		-
+			message: "#^Service \"App\\\\Slack\\\\BlockKit\\\\Block\\\\Section\\\\MrkdwnRenderer\" is private\\.$#"
+			count: 1
+			path: src/Slack/BlockKit/Block/Context/ContextRenderer.php
+
+		-
+			message: "#^Service \"App\\\\Slack\\\\BlockKit\\\\Block\\\\Section\\\\PlainTextRenderer\" is private\\.$#"
+			count: 1
+			path: src/Slack/BlockKit/Block/Context/ContextRenderer.php

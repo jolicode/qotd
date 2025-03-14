@@ -1,0 +1,103 @@
+{
+    "iid": "a4af91c6-eda7-42cd-830c-cb9000dcc693",
+    "team": "T0FLD8LEM",
+    "score": 0,
+    "channel": {
+        "id": "C0FLD8LSV",
+        "is_channel": true,
+        "is_group": false,
+        "is_im": false,
+        "is_mpim": false,
+        "is_shared": false,
+        "is_org_shared": false,
+        "is_ext_shared": false,
+        "is_private": false,
+        "name": "general",
+        "pending_shared": [],
+        "is_pending_ext_shared": false
+    },
+    "type": "message",
+    "user": "U0FLDV6UW",
+    "username": "lyrixx",
+    "ts": "1741884161.671859",
+    "blocks": [
+        {
+            "type": "section",
+            "block_id": "4y26R",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Hey there :wave: I'm TaskBot. I'm here to help you create and manage tasks in Slack.\nThere are two ways to quickly create tasks:",
+                "verbatim": false
+            }
+        },
+        {
+            "type": "section",
+            "block_id": "wcnWb",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:one: Use the `/task` command*. Type `/task` followed by a short description of your tasks and I'll ask for a due date (if applicable). Try it out by using the `/task` command in this channel.",
+                "verbatim": false
+            }
+        },
+        {
+            "type": "section",
+            "block_id": "nZyQD",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:two: Use the _Create a Task_ action.* If you want to create a task from a message, select `Create a Task` in a message's context menu. Try it out by selecting the _Create a Task_ action for this message (shown below).",
+                "verbatim": false
+            }
+        },
+        {
+            "type": "image",
+            "block_id": "76kvY",
+            "image_url": "https://api.slack.com/img/blocks/bkb_template_images/onboardingComplex.jpg",
+            "alt_text": "image1",
+            "title": {
+                "type": "plain_text",
+                "text": "image1",
+                "emoji": true
+            },
+            "image_width": 2184,
+            "image_height": 989,
+            "image_bytes": 97082,
+            "is_animated": true,
+            "fallback": "2184x989px image"
+        },
+        {
+            "type": "section",
+            "block_id": "d5ad4",
+            "text": {
+                "type": "mrkdwn",
+                "text": ":heavy_plus_sign: To start tracking your team's tasks, *add me to a channel* and I'll introduce myself. I'm usually added to a team or project channel. Type `/invite @TaskBot` from the channel or pick a channel on the right.",
+                "verbatim": false
+            },
+            "accessory": {
+                "type": "conversations_select",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Select a channel...",
+                    "emoji": true
+                },
+                "action_id": "zhjkd"
+            }
+        },
+        {
+            "type": "divider",
+            "block_id": "pWeYc"
+        },
+        {
+            "type": "context",
+            "block_id": "E258S",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": ":eyes: View all tasks with `/task list`\n:question:Get help at any time with `/task help` or type *help* in a DM with me",
+                    "verbatim": false
+                }
+            ]
+        }
+    ],
+    "text": "",
+    "permalink": "https://lyrixx.slack.com/archives/C0FLD8LSV/p1741884161671859"
+}

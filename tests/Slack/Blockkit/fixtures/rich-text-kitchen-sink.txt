@@ -1,0 +1,22 @@
+Check out these different block types with paragraph breaks between them:
+
+<pre>Hello there, I am preformatted block!
+
+I can have multiple paragraph breaks within the block.</pre>
+I am rich text with a paragraph break following preformatted text. 
+
+I can have multiple paragraph breaks within the block.
+
+<blockquote>I am a basic rich text quote, 
+
+I can have multiple paragraph breaks within the block.</blockquote>
+I am rich text with a paragraph after the quote block
+
+<blockquote>I am a basic quote block following rich text</blockquote>
+<pre>I am more preformatted text following a quote block</pre>
+<blockquote>I am a basic quote block following preformatted text</blockquote>
+<ul>
+<li>list item one</li>
+<li>list item two</li>
+</ul>
+I am rich text with a paragraph break after a list

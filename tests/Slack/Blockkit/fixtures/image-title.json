@@ -1,0 +1,14 @@
+{
+	"blocks": [
+		{
+			"type": "image",
+			"title": {
+				"type": "plain_text",
+				"text": "I love tacos",
+				"emoji": true
+			},
+			"image_url": "https://assets3.thrillist.com/v1/image/1682388/size/tl-horizontal_main.jpg",
+			"alt_text": "delicious tacos"
+		}
+	]
+}

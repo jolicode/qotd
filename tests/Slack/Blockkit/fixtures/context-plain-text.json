@@ -1,0 +1,14 @@
+{
+	"blocks": [
+		{
+			"type": "context",
+			"elements": [
+				{
+					"type": "plain_text",
+					"text": "Author: K A Applegate",
+					"emoji": true
+				}
+			]
+		}
+	]
+}

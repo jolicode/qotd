@@ -10,6 +10,9 @@ security:
         api:
             pattern: ^/api
             security: false
+        command_qotd:
+            pattern: ^/command/qotd$
+            security: false
         auth:
             pattern: ^/connect/google$
             security: false

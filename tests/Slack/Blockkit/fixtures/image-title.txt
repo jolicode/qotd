@@ -1,0 +1,1 @@
+<small>I love tacos</small> <img src="https://assets3.thrillist.com/v1/image/1682388/size/tl-horizontal_main.jpg" alt="delicious tacos"> <br />

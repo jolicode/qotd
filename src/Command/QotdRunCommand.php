@@ -4,6 +4,8 @@ namespace App\Command;
 
 use App\Entity\Qotd;
 use App\Repository\QotdRepository;
+use App\Slack\BlockKit\MessageRenderer;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -44,6 +46,8 @@ class QotdRunCommand extends Command
         private readonly SluggerInterface $slugger,
         private readonly Filesystem $fs,
         private readonly UrlGeneratorInterface $router,
+        private readonly MessageRenderer $messageRendered,
+        private readonly EntityManagerInterface $em,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
         parent::__construct();
@@ -69,13 +73,12 @@ class QotdRunCommand extends Command
 
         $io->comment(\sprintf('Looking between %s and %s', $lowerDate->format('Y-m-d H:i:s'), $upperDate->format('Y-m-d H:i:s')));
 
-        if (!$dryRun && !$input->getOption('force')) {
-            $qotd = $this->qotdRepository->findOneBy(['date' => $date]);
-            if ($qotd) {
-                $io->error(\sprintf('Qotd for %s already exists', $date->format('Y-m-d')));
+        $previousQotd = null;
+        $previousQotd = $this->qotdRepository->findOneBy(['date' => $date]);
+        if (!$dryRun && !$input->getOption('force') && $previousQotd) {
+            $io->error(\sprintf('Qotd for %s already exists', $date->format('Y-m-d')));
 
-                return Command::FAILURE;
-            }
+            return Command::FAILURE;
         }
 
         $messages = $this->userClient->request('GET', 'search.messages', [
@@ -131,11 +134,32 @@ class QotdRunCommand extends Command
         $io->comment('Best message: ' . $bestMessage['permalink']);
 
         if (!$dryRun) {
+            if ($previousQotd) {
+                $this->em->remove($previousQotd);
+            }
+
+            $messageRendered = null;
+
+            try {
+                $messageRendered = $this->messageRendered->render($bestMessage);
+            } catch (\InvalidArgumentException $e) {
+                $this->logger->error('Cannot render blocks.', [
+                    'exception' => $e,
+                    'permalink' => $bestMessage['permalink'],
+                    'blocks' => $bestMessage['blocks'],
+                ]);
+                file_put_contents(
+                    \sprintf('%s/../../var/error-block-render-%s.json', __DIR__, $date->format('Y-m-d')),
+                    json_encode($bestMessage, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES)
+                );
+            }
+
             $qotd = new Qotd(
                 date: $date,
                 permalink: $bestMessage['permalink'],
                 message: $bestMessage['text'],
                 username: $bestMessage['username'],
+                messageRendered: $messageRendered,
             );
 
             foreach ($bestMessage['files'] ?? [] as $file) {
@@ -161,7 +185,8 @@ class QotdRunCommand extends Command
                 }
             }
 
-            $this->qotdRepository->save($qotd, true);
+            $this->em->persist($qotd);
+            $this->em->flush();
 
             $this->botClient->request('POST', 'chat.postMessage', [
                 'json' => [
