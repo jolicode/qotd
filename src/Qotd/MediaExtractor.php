@@ -17,7 +17,6 @@ class MediaExtractor
         private HttpClientInterface $botClient,
         #[Autowire('%env(SLACK_BOT_TOKEN)%')]
         private string $slackBotToken,
-        private SluggerInterface $slugger,
         #[Autowire('%upload_dir%')]
         private string $uploadDirectory,
         private Filesystem $fs,
@@ -40,7 +39,7 @@ class MediaExtractor
                 'auth_bearer' => $this->slackBotToken,
             ]);
 
-            $mediaSuffix = \sprintf('%s---%s', uuid_create(), $this->slugger->slug($file['name']));
+            $mediaSuffix = \sprintf('%s---%s', uuid_create(), $file['name']);
             $mediaPath = \sprintf('%s/%s---%s', $this->uploadDirectory, $qotd->id, $mediaSuffix);
 
             $this->fs->dumpFile($mediaPath, $response->getContent());
