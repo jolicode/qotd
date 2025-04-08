@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Slack\Blockkit\Block;
+namespace App\Tests\Slack\Blockkit;
 
 use App\Slack\BlockKit\MessageRenderer;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
