@@ -504,6 +504,11 @@ function docker_compose(array $subCommand, ?Context $c = null, bool $withBuilder
     if ($withBuilder) {
         $command[] = '-f';
         $command[] = variable('root_dir') . '/infrastructure/docker/docker-compose.builder.yml';
+
+        if (file_exists(variable('root_dir') . '/infrastructure/docker/docker-compose.builder.override.yml')) {
+            $command[] = '-f';
+            $command[] = variable('root_dir') . '/infrastructure/docker/docker-compose.builder.override.yml';
+        }
     }
 
     $command = array_merge($command, $subCommand);
