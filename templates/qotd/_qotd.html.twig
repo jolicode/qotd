@@ -9,10 +9,10 @@
         <div class="card-body">
             {{ qotd_macro.message(qotd) }}
             {% for imageUrl in qotd.imageUrls %}
-                <img src="{{ asset(imageUrl) }}" alt="" />
+                <img class="mw-100" src="{{ asset(imageUrl) }}" alt="" />
             {% endfor %}
             {% for videoUrl in qotd.videoUrls %}
-                <video controls>
+                <video class="mw-100" controls>
                     <source src="{{ asset(videoUrl) }}" />
                 </video>
             {% endfor %}
