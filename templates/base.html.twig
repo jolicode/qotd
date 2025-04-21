@@ -20,7 +20,7 @@
                     {{ message }}
                 </div>
             {% endfor %}
-            <div class="container">
+            <div {{ stimulus_controller('hide-votes') }} class="container">
                 {% block menu %}
                     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
                         <div class="container-fluid">
@@ -31,34 +31,46 @@
                             {% set active = active ?? null %}
                             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                                    <li class="nav-item ">
+                                    <li class="nav-item">
                                         <a class="nav-link {{ 'qotd_top' == active ? 'active' }}" href="{{ url('qotd_index_top') }}">👍 Top</a>
                                     </li>
-                                    <li class="nav-item ">
+                                    <li class="nav-item">
                                         <a class="nav-link {{ 'qotd_flop' == active ? 'active' }}" href="{{ url('qotd_index_flop') }}">👎 Flop</a>
                                     </li>
-                                    <li class="nav-item ">
+                                    <li class="nav-item">
                                         <a class="nav-link {{ 'qotd_not_voted' == active ? 'active' }}" href="{{ url('qotd_index_not_voted') }}">🗳 Not voted yet</a>
                                     </li>
-                                    <li class="nav-item ">
+                                    <li class="nav-item">
                                         <a class="nav-link {{ 'search' == active ? 'active' }}" href="{{ url('qotd_search') }}">🔍 Search</a>
                                     </li>
-                                    <li class="nav-item ">
+                                    <li class="nav-item">
                                         <a class="nav-link {{ 'random' == active ? 'active' }}" href="{{ url('random') }}">🤷 Random</a>
                                     </li>
-                                    <li class="nav-item ">
+                                    <li class="nav-item">
                                         <a class="nav-link {{ 'hall_of_fame' == active ? 'active' }}" href="{{ url('hall_of_fame') }}">📆 Hall Of Fame</a>
                                     </li>
-                                    <li class="nav-item ">
+                                    <li class="nav-item">
                                         <a class="nav-link {{ 'awards' == active ? 'active' }}" href="{{ url('awards') }}">🏅 Awards</a>
                                     </li>
-                                    <li class="nav-item ">
+                                    <li class="nav-item">
                                         <a class="nav-link {{ 'stats' == active ? 'active' }}" href="{{ url('stats') }}">📈 Stats</a>
                                     </li>
                                 </ul>
-                                <div {{ stimulus_controller('loading') }} class="d-none">
-                                    <div class="spinner-border text-secondary" role="status" >
-                                        <span class="visually-hidden">Loading...</span>
+                                <div class="d-flex flex-column align-items-start gap-2 flex-lg-row align-items-lg-center">
+                                    <div {{ stimulus_controller('loading') }} class="d-none">
+                                        <div class="spinner-border text-secondary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input
+                                            class="form-check-input" type="checkbox" role="switch" id="hideVotesSwitch"
+                                            {{ stimulus_target('hide-votes', 'switch') }}
+                                            {{ stimulus_action('hide-votes', 'toggle', 'change') }}
+                                        >
+                                        <label class="form-check-label" for="hideVotesSwitch">
+                                            Hide votes
+                                        </label>
                                     </div>
                                 </div>
                             </div>

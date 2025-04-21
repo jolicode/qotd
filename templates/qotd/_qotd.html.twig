@@ -18,7 +18,7 @@
             {% endfor %}
         </div>
         <div class="card-footer text-muted">
-            <div class="d-flex justify-content-between">
+            <div class="d-flex align-items-center justify-content-between">
                 <div class="me-auto">
                     <a href="{{ url('qotd_show', { id: qotd.id }) }}" target="_top" class="text-reset">
                         {{ qotd.date|date('Y-m-d') }} by {{ qotd.username }}
@@ -37,10 +37,9 @@
                     <input type="hidden" name="token" value="{{ csrf_token('vote') }}">
                     <button type="submit" class="{{ html_classes('btn', 'btn-sm', { 'btn-outline-primary': qotd.hasVotedDown(app.user) }) }}">👎</button>
                 </form>
-                <div class="mx-1">
-                    <span class="badge bg-primary" {{ tt('quote-vote') }}>
-                        {{ qotd.vote }}
-                    </span>
+                <div class="mx-1 badge bg-primary" {{ tt('quote-vote') }}>
+                    <span {{ stimulus_target('hide-votes', 'vote') }}>{{ qotd.vote }}</span>
+                    <i {{ stimulus_target('hide-votes', 'icon') }} class="d-none bi bi-eye-slash-fill align-middle"></i>
                 </div>
                 <form action="{{ url(qotd.hasVotedUp(app.user) ? 'qotd_vote_null' : 'qotd_vote_up', { id: qotd.id }) }}" method="POST" {{ tt('vote-up') }}>
                     <input type="hidden" name="token" value="{{ csrf_token('vote') }}">
