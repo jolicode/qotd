@@ -5,17 +5,12 @@ namespace App\Command;
 use App\Qotd\QotdSynchronizer;
 use App\Repository\QotdRepository;
 use App\Slack\MessageFetcher;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\Attribute\Target;
-use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsCommand(
     name: 'qotd:sync',

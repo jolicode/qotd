@@ -105,9 +105,8 @@ final readonly class RichTextRenderer implements BlockRendererInterface
             $output .= '<li>' . $this->renderElement($listItem) . '</li>';
         }
         $output .= "\n";
-        $output .= '</ul>';
 
-        return $output;
+        return $output . '</ul>';
     }
 
     private function renderLink(array $element): string

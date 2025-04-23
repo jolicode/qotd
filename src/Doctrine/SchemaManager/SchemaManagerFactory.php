@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
 class SchemaManagerFactory implements DoctrineSchemaManagerFactory
 {
     public function __construct(
-        private DoctrineSchemaManagerFactory $decorated,
+        private readonly DoctrineSchemaManagerFactory $decorated,
     ) {
     }
 
