@@ -14,13 +14,13 @@ class MediaExtractor
 {
     public function __construct(
         #[Target('slack.bot.client')]
-        private HttpClientInterface $botClient,
+        private readonly HttpClientInterface $botClient,
         #[Autowire('%env(SLACK_BOT_TOKEN)%')]
-        private string $slackBotToken,
-        private SluggerInterface $slugger,
+        private readonly string $slackBotToken,
+        private readonly SluggerInterface $slugger,
         #[Autowire('%upload_dir%')]
-        private string $uploadDirectory,
-        private Filesystem $fs,
+        private readonly string $uploadDirectory,
+        private readonly Filesystem $fs,
     ) {
     }
 

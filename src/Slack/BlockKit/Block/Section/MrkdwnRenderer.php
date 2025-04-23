@@ -26,11 +26,11 @@ final readonly class MrkdwnRenderer implements BlockRendererInterface
         // Convert <https://google.com|this is a link> to <a href="https://google.com">this is a link</a>
         $text = preg_replace('/<([^|]+)\|([^>]+)>/', '<a href="$1">$2</a>', $text);
         // Convert *this is bold* to <b>this is bold</b>
-        $text = preg_replace('/\*(.*?)\*/', '<b>$1</b>', $text);
+        $text = preg_replace('/\*(.*?)\*/', '<b>$1</b>', (string) $text);
         // Convert ~this is crossed out~ to <s>this is crossed out</s>
-        $text = preg_replace('/~(.*?)~/', '<s>$1</s>', $text);
+        $text = preg_replace('/~(.*?)~/', '<s>$1</s>', (string) $text);
         // Convert `code` to <code>code</code>
-        $text = preg_replace('/`(.*?)`/', '<code>$1</code>', $text);
+        $text = preg_replace('/`(.*?)`/', '<code>$1</code>', (string) $text);
 
         return str_replace("\n", "<br>\n", $text);
     }

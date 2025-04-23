@@ -65,8 +65,6 @@ class QotdRunCommand extends Command
         $upperDate = $date->setTime(23, 59, 59);
 
         $io->comment(\sprintf('Looking between %s and %s', $lowerDate->format('Y-m-d H:i:s'), $upperDate->format('Y-m-d H:i:s')));
-
-        $previousQotd = null;
         $previousQotd = $this->qotdRepository->findOneBy(['date' => $date]);
         if (!$dryRun && !$input->getOption('force') && $previousQotd) {
             $io->error(\sprintf('Qotd for %s already exists', $date->format('Y-m-d')));
@@ -131,7 +129,7 @@ class QotdRunCommand extends Command
                 $this->em->remove($previousQotd);
             }
 
-            if (!array_key_exists('files', $bestMessage)) {
+            if (!\array_key_exists('files', $bestMessage)) {
                 // Refetch the message because sometimes, files are not included in the search result
                 $message = $this->messageFetcher->getMessageByPermalink($bestMessage['permalink']);
 

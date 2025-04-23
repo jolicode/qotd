@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DebugCommand extends Command
 {
     public function __construct(
-        private MessageRenderer $renderer,
+        private readonly MessageRenderer $renderer,
     ) {
         parent::__construct();
     }

@@ -11,8 +11,8 @@ class QotdNormalizer implements NormalizerInterface
 {
     public function __construct(
         #[Autowire(service: 'serializer.normalizer.object')]
-        private NormalizerInterface $normalizer,
-        private Environment $twig,
+        private readonly NormalizerInterface $normalizer,
+        private readonly Environment $twig,
     ) {
     }
 

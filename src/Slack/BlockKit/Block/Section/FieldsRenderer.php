@@ -7,7 +7,7 @@ use App\Slack\BlockKit\Block\BlockRendererInterface;
 class FieldsRenderer implements BlockRendererInterface
 {
     public function __construct(
-        private PlainTextRenderer $plainTextRenderer,
+        private readonly PlainTextRenderer $plainTextRenderer,
     ) {
     }
 
