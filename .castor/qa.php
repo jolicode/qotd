@@ -27,6 +27,7 @@ function install(): void
 
     docker_compose_run('composer install -o', workDir: '/var/www/tools/php-cs-fixer');
     docker_compose_run('composer install -o', workDir: '/var/www/tools/phpstan');
+    docker_compose_run('composer install -o', workDir: '/var/www/tools/rector');
 }
 
 #[AsTask(description: 'Update tooling')]
@@ -51,7 +52,7 @@ function phpstan(bool $generateBaseline = false): int
         install();
     }
 
-    return docker_exit_code('phpstan -v' . ($generateBaseline ? ' -b' : ''), workDir: '/var/www');
+    return docker_exit_code('phpstan -v' . ($generateBaseline ? ' -b' : ''));
 }
 
 #[AsTask(description: 'Fixes Coding Style', aliases: ['cs'])]
@@ -62,8 +63,18 @@ function cs(bool $dryRun = false): int
     }
 
     if ($dryRun) {
-        return docker_exit_code('php-cs-fixer fix --dry-run --diff', workDir: '/var/www');
+        return docker_exit_code('php-cs-fixer fix --dry-run --diff');
     }
 
-    return docker_exit_code('php-cs-fixer fix', workDir: '/var/www');
+    return docker_exit_code('php-cs-fixer fix');
+}
+
+#[AsTask(description: 'Runs rector', aliases: ['rector'])]
+function rector(): int
+{
+    if (!is_dir(variable('root_dir') . '/tools/rector/vendor')) {
+        install();
+    }
+
+    return docker_exit_code('rector');
 }
