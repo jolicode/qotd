@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Qotd\QotdCreator;
 use App\Repository\QotdRepository;
+use App\Slack\MessageFetcher;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -31,6 +32,7 @@ class QotdRunCommand extends Command
         private readonly HttpClientInterface $botClient,
         #[Target('slack.user.client')]
         private readonly HttpClientInterface $userClient,
+        private readonly MessageFetcher $messageFetcher,
         #[Autowire('%env(SLACK_CHANNEL_ID_FOR_SUMMARY)%')]
         private readonly string $channelIdForSummary,
         #[Autowire('%env(SLACK_REACTION_TO_SEARCH)%')]
@@ -127,6 +129,15 @@ class QotdRunCommand extends Command
         if (!$dryRun) {
             if ($previousQotd) {
                 $this->em->remove($previousQotd);
+            }
+
+            if (!array_key_exists('files', $bestMessage)) {
+                // Refetch the message because sometimes, files are not included in the search result
+                $message = $this->messageFetcher->getMessageByPermalink($bestMessage['permalink']);
+
+                if ($message) {
+                    $bestMessage['files'] = $message['files'] ?? [];
+                }
             }
 
             $this->qotdCreator->createQotd($bestMessage, $date);
