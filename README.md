@@ -48,8 +48,6 @@ To make the application available locally at the address
 `docker-compose.override.yml` file with the following content:
 
 ```yaml
-version: '3.7'
-
 services:
     frontend:
         ports:
