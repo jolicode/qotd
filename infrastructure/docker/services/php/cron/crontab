@@ -1,1 +1,1 @@
-0 9 * * * /var/www/bin/console qotd:run > /proc/1/fd/1 2>&1
+0 9 * * * /var/www/bin/console qotd:run > /tmp/cron-stdout 2>&1

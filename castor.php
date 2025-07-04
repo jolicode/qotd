@@ -37,11 +37,9 @@ function start(): void
 {
     io()->title('Starting the stack');
 
-    generate_certificates(force: false);
     build();
-    up();
-    cache_clear();
     install();
+    up();
     migrate();
 
     notify('The stack is now up and running.');

@@ -17,9 +17,18 @@ parameters:
     ignoreErrors:
         -
             identifier: missingType.iterableValue
+        -
+            message: '#^.* Symfony\\Component\\Form\\AbstractType( but)? does not specify its types: TData$#'
+            identifier: missingType.generics
+        # -
+        #     message: '#^.* Symfony\\Component\\Form\\FormBuilderInterface( but)? does not specify its types: TData$#'
+        #     identifier: missingType.generics
+        # -
+        #     message: '#^.* Symfony\\Component\\Form\\FormInterface( but)? does not specify its types: TData$#'
+        #     identifier: missingType.generics
 
     symfony:
-        container_xml_path: 'var/cache/dev/App_KernelDevDebugContainer.xml'
+        containerXmlPath: 'var/cache/dev/App_KernelDevDebugContainer.xml'
 
     typeAliases:
         ContextData: '''
@@ -28,11 +37,12 @@ parameters:
                 root_domain: string,
                 extra_domains: string[],
                 php_version: string,
-                docker_compose_files: string[],
+                docker_compose_files: list<string>,
+                docker_compose_run_environment: list<string>,
                 macos: bool,
                 power_shell: bool,
                 user_id: int,
                 root_dir: string,
-                composer_cache_dir: string,
+                registry?: ?string,
             }
         '''
