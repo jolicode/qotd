@@ -57,19 +57,19 @@ services:
         profiles:
             - builder
 
-    # cron:
-    #     build:
-    #         context: services/php
-    #         target: cron
-    #         cache_from:
-    #             - "type=registry,ref=${REGISTRY:-}/cron:cache"
-    #     user: "${USER_ID}:${USER_ID}"
-    #     depends_on:
-    #         postgres:
-    #             condition: service_healthy
-    #     env_file: .env
-    #     volumes:
-    #         - "../..:/var/www:cached"
-    #         - "../../.home:/home/app:cached"
-    #     profiles:
-    #         - default
+    cron:
+        build:
+            context: services/php
+            target: cron
+            cache_from:
+                - "type=registry,ref=${REGISTRY:-}/cron:cache"
+        user: "${USER_ID}:${USER_ID}"
+        depends_on:
+            postgres:
+                condition: service_healthy
+        env_file: .env
+        volumes:
+            - "../..:/var/www:cached"
+            - "../../.home:/home/app:cached"
+        profiles:
+            - default

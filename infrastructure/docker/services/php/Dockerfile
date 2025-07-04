@@ -33,6 +33,21 @@ CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "cad
 
 EXPOSE 80
 
+FROM php-base AS cron
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        cron \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+
+COPY --link cron/crontab /etc/cron.d/crontab
+RUN touch /var/run/crond.pid \
+    && chmod 777 /var/run/crond.pid \
+    && crontab /etc/cron.d/crontab
+
+CMD ["cron", "-f"]
+
 FROM php-base AS worker
 
 FROM php-base AS builder
