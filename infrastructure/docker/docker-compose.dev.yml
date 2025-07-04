@@ -1,0 +1,21 @@
+services:
+    router:
+        build: services/router
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+            - "./services/router/certs:/etc/ssl/certs"
+        networks:
+            default:
+                aliases:
+                    - ${PROJECT_ROOT_DOMAIN}
+        profiles:
+            - default
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8080:8080"
+
+    frontend:
+        healthcheck:
+            # disable the healthcheck in dev mode, 500 occurs too often, and it's legit
+            test: ['CMD','true']

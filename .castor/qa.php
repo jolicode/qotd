@@ -2,6 +2,8 @@
 
 namespace qa;
 
+use Castor\Attribute\AsOption;
+use Castor\Attribute\AsRawTokens;
 use Castor\Attribute\AsTask;
 
 use function Castor\io;
@@ -12,12 +14,12 @@ use function docker\docker_exit_code;
 #[AsTask(description: 'Runs all QA tasks')]
 function all(): int
 {
-    install();
     $cs = cs();
     $phpstan = phpstan();
     $phpunit = phpunit();
+    $twigCs = twigCs();
 
-    return max($cs, $phpstan, $phpunit);
+    return max($cs, $phpstan, $phpunit, $twigCs);
 }
 
 #[AsTask(description: 'Installs tooling')]
@@ -27,32 +29,45 @@ function install(): void
 
     docker_compose_run('composer install -o', workDir: '/var/www/tools/php-cs-fixer');
     docker_compose_run('composer install -o', workDir: '/var/www/tools/phpstan');
-    docker_compose_run('composer install -o', workDir: '/var/www/tools/rector');
+    docker_compose_run('composer install -o', workDir: '/var/www/tools/twig-cs-fixer');
 }
 
-#[AsTask(description: 'Update tooling')]
+#[AsTask(description: 'Updates tooling')]
 function update(): void
 {
-    io()->title('Update QA tooling');
+    io()->title('Updating QA tooling');
 
     docker_compose_run('composer update -o', workDir: '/var/www/tools/php-cs-fixer');
     docker_compose_run('composer update -o', workDir: '/var/www/tools/phpstan');
+    docker_compose_run('composer update -o', workDir: '/var/www/tools/twig-cs-fixer');
 }
 
+/**
+ * @param string[] $rawTokens
+ */
 #[AsTask(description: 'Runs PHPUnit', aliases: ['phpunit'])]
-function phpunit(): int
+function phpunit(#[AsRawTokens] array $rawTokens = []): int
 {
-    return docker_exit_code('vendor/bin/simple-phpunit');
+    io()->section('Running PHPUnit...');
+
+    return docker_exit_code('bin/phpunit ' . implode(' ', $rawTokens));
 }
 
 #[AsTask(description: 'Runs PHPStan', aliases: ['phpstan'])]
-function phpstan(bool $generateBaseline = false): int
-{
+function phpstan(
+    #[AsOption(description: 'Generate baseline file', shortcut: 'b')]
+    bool $baseline = false,
+): int {
     if (!is_dir(variable('root_dir') . '/tools/phpstan/vendor')) {
         install();
     }
 
-    return docker_exit_code('phpstan -v' . ($generateBaseline ? ' -b' : ''));
+    io()->section('Running PHPStan...');
+
+    $options = $baseline ? '--generate-baseline --allow-empty-baseline' : '';
+    $command = \sprintf('phpstan analyse --memory-limit=-1 %s -v', $options);
+
+    return docker_exit_code($command, workDir: '/var/www');
 }
 
 #[AsTask(description: 'Fixes Coding Style', aliases: ['cs'])]
@@ -62,19 +77,27 @@ function cs(bool $dryRun = false): int
         install();
     }
 
+    io()->section('Running PHP CS Fixer...');
+
     if ($dryRun) {
-        return docker_exit_code('php-cs-fixer fix --dry-run --diff');
+        return docker_exit_code('php-cs-fixer fix --dry-run --diff', workDir: '/var/www');
     }
 
-    return docker_exit_code('php-cs-fixer fix');
+    return docker_exit_code('php-cs-fixer fix', workDir: '/var/www');
 }
 
-#[AsTask(description: 'Runs rector', aliases: ['rector'])]
-function rector(): int
+#[AsTask(description: 'Fixes Twig Coding Style', aliases: ['twig-cs'])]
+function twigCs(bool $dryRun = false): int
 {
-    if (!is_dir(variable('root_dir') . '/tools/rector/vendor')) {
+    if (!is_dir(variable('root_dir') . '/tools/twig-cs-fixer/vendor')) {
         install();
     }
 
-    return docker_exit_code('rector');
+    io()->section('Running Twig CS Fixer...');
+
+    if ($dryRun) {
+        return docker_exit_code('twig-cs-fixer', workDir: '/var/www');
+    }
+
+    return docker_exit_code('twig-cs-fixer --fix', workDir: '/var/www');
 }
