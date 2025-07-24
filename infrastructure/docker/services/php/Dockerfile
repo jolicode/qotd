@@ -1,125 +1,94 @@
 # hadolint global ignore=DL3008
 
-FROM debian:12.6-slim AS php-base
+FROM dunglas/frankenphp:1.7.0-php8.4-bookworm AS php-base
 
-LABEL org.opencontainers.image.source=https://github.com/jolicode/qotd
+RUN install-php-extensions \
+        intl \
+        opcache \
+        pcov \
+        pdo_pgsql \
+        uuid
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY ./base/php.ini $PHP_INI_DIR/conf.d/app-base.ini
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        curl \
-        ca-certificates \
-        gnupg \
-    && curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb \
-    && dpkg -i /tmp/debsuryorg-archive-keyring.deb \
-    && echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php bookworm main" > /etc/apt/sources.list.d/sury.list \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+ENV HOME=/home/app
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        bash-completion \
-        procps \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
-
-ARG PHP_VERSION
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        "php${PHP_VERSION}-apcu" \
-        "php${PHP_VERSION}-bcmath" \
-        "php${PHP_VERSION}-cli" \
-        "php${PHP_VERSION}-common" \
-        "php${PHP_VERSION}-curl" \
-        "php${PHP_VERSION}-iconv" \
-        "php${PHP_VERSION}-intl" \
-        "php${PHP_VERSION}-mbstring" \
-        "php${PHP_VERSION}-pgsql" \
-        "php${PHP_VERSION}-uuid" \
-        "php${PHP_VERSION}-xml" \
-        "php${PHP_VERSION}-zip" \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
-
-# Fake user to maps with the one on the host
-ARG USER_ID
-COPY entrypoint /
-RUN addgroup --gid $USER_ID app && \
-    adduser --system --uid $USER_ID --home /home/app --shell /bin/bash app && \
-    curl -Ls https://github.com/tianon/gosu/releases/download/1.17/gosu-amd64 | \
-        install /dev/stdin /usr/local/bin/gosu && \
-    sed "s/{{ application_user }}/app/g" -i /entrypoint
-
-# Configuration
-COPY base/php-configuration /etc/php/${PHP_VERSION}
-
-ENV PHP_VERSION=${PHP_VERSION}
+HEALTHCHECK --start-period=10s --start-interval=1s --interval=5s --timeout=5s \
+    CMD ["true"]
 
 WORKDIR /var/www
 
-ENTRYPOINT [ "/entrypoint" ]
-
 FROM php-base AS frontend
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        nginx \
-        "php${PHP_VERSION}-fpm" \
-        runit \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* \
-    && rm -r "/etc/php/${PHP_VERSION}/fpm/pool.d/"
+RUN setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp \
+    && chmod 777 /data /config
 
-RUN useradd -s /bin/false nginx
+COPY ./frontend/etc/. /etc/
+COPY ./frontend/php.ini $PHP_INI_DIR/conf.d/app-frontend.ini
 
-COPY frontend/php-configuration /etc/php/${PHP_VERSION}
-COPY frontend/etc/nginx/. /etc/nginx/
-COPY frontend/etc/service/. /etc/service/
+HEALTHCHECK --start-period=10s --start-interval=1s --interval=5s --timeout=5s \
+    CMD curl -f http://localhost/ || exit 1
 
-RUN phpenmod app-default \
-    && phpenmod app-fpm
+CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 
 EXPOSE 80
 
-CMD ["runsvdir", "-P", "/etc/service"]
+FROM php-base AS cron
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        cron \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+
+COPY --link cron/crontab /etc/cron.d/crontab
+
+COPY cron/entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["cron", "-f"]
+
+FROM php-base AS worker
 
 FROM php-base AS builder
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-ARG NODEJS_VERSION=20.x
-RUN curl -s https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODEJS_VERSION} nodistro main" > /etc/apt/sources.list.d/nodesource.list
-
-# Default toys
+# Default OPS toolings
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        gnupg \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+
+# Default toys
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        bash-completion \
+        ca-certificates \
+        curl \
         git \
         make \
-        nodejs \
+        procps \
         sudo \
         unzip \
     && apt-get clean \
-    && npm install -g yarn@1.22 \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
-# Config
-COPY builder/etc/. /etc/
-COPY builder/php-configuration /etc/php/${PHP_VERSION}
-RUN adduser app sudo \
-    && mkdir /var/log/php \
-    && chmod 777 /var/log/php \
-    && phpenmod app-default \
-    && phpenmod app-builder
+# Install a fake sudo command
+COPY builder/sudo.sh /usr/local/bin/sudo
+RUN curl -L https://github.com/tianon/gosu/releases/download/1.16/gosu-amd64 -o /usr/local/bin/gosu && \
+   chmod u+s /usr/local/bin/gosu && \
+   chmod +x /usr/local/bin/gosu && \
+   chmod +x /usr/local/bin/sudo
 
 # Composer
-COPY --from=composer/composer:2.8.2 /usr/bin/composer /usr/bin/composer
-RUN mkdir -p "/home/app/.composer/cache" \
-    && chown app: /home/app/.composer -R
+COPY --from=composer/composer:2.8.9 /usr/bin/composer /usr/bin/composer
+ENV COMPOSER_MEMORY_LIMIT=-1
 
-ADD https://raw.githubusercontent.com/symfony/symfony/refs/heads/7.2/src/Symfony/Component/Console/Resources/completion.bash /tmp/completion.bash
+ADD https://raw.githubusercontent.com/symfony/symfony/refs/heads/7.3/src/Symfony/Component/Console/Resources/completion.bash /tmp/completion.bash
 
 # Composer symfony/console version is too old, and doest not support "API version feature", so we remove it
 # Hey, while we are at it, let's add some more completion
@@ -133,8 +102,20 @@ RUN sed /tmp/completion.bash \
         -e "s/{{ VERSION }}/1/g"  \
         > /etc/bash_completion.d/console
 
+# Config
+COPY ./builder/php.ini $PHP_INI_DIR/conf.d/app-builder.ini
+RUN mkdir /var/log/php \
+    && chmod 777 /var/log/php
+
 # Third party tools
 ENV PATH="$PATH:/var/www/tools/bin"
+ENV PHP_CS_FIXER_IGNORE_ENV=1
+# frankenphp defined the two following vars. But they are located in a folder
+# not owned by the user (/data, and /config). Yarn needs it, and it must be
+# shared between all containers instances! So let's override(reset) them to
+# point to the user home directory (default values)
+ENV XDG_DATA_HOME=
+ENV XDG_CONFIG_HOME=
 
 # Good default customization
 RUN cat >> /etc/bash.bashrc <<EOF
@@ -142,21 +123,3 @@ RUN cat >> /etc/bash.bashrc <<EOF
 
 PS1='\[\e[01;33m\]\u \[\e[00;32m\]\w\[\e[0m\] '
 EOF
-
-WORKDIR /var/www
-
-FROM php-base AS cron
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        cron \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
-
-COPY --link cron/crontab /etc/cron.d/crontab
-COPY --link cron/entrypoint.sh /entrypoint.sh
-RUN crontab /etc/cron.d/crontab
-
-ENTRYPOINT [ "/entrypoint.sh" ]
-
-CMD ["cron", "-f"]

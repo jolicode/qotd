@@ -17,18 +17,6 @@ env:
   CASTOR_CONTEXT: ci
 
 jobs:
-  check-dockerfiles:
-    name: Check Dockerfile
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Check php/Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          dockerfile: infrastructure/docker/services/php/Dockerfile
-
   ci:
     name: Continuous Integration
     runs-on: ubuntu-latest

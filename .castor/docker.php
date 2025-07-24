@@ -2,24 +2,23 @@
 
 namespace docker;
 
-use Castor\Attribute\AsContext;
 use Castor\Attribute\AsOption;
 use Castor\Attribute\AsTask;
 use Castor\Context;
+use Castor\Helper\PathHelper;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Process\Exception\ExceptionInterface;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
 
-use function Castor\cache;
 use function Castor\capture;
 use function Castor\context;
 use function Castor\finder;
 use function Castor\fs;
 use function Castor\http_client;
 use function Castor\io;
-use function Castor\log;
 use function Castor\open;
 use function Castor\run;
 use function Castor\variable;
@@ -72,19 +71,22 @@ function build(
     ?string $service = null,
     ?string $profile = null,
 ): void {
+    generate_certificates(force: false);
+
     io()->title('Building infrastructure');
 
     $command = [];
 
+    $command[] = '--profile';
     if ($profile) {
-        $command[] = '--profile';
         $command[] = $profile;
+    } else {
+        $command[] = '*';
     }
 
     $command = [
         ...$command,
         'build',
-        '--build-arg', 'USER_ID=' . variable('user_id'),
         '--build-arg', 'PHP_VERSION=' . variable('php_version'),
         '--build-arg', 'PROJECT_NAME=' . variable('project_name'),
     ];
@@ -93,7 +95,7 @@ function build(
         $command[] = $service;
     }
 
-    docker_compose($command, withBuilder: true);
+    docker_compose($command);
 }
 
 /**
@@ -179,9 +181,23 @@ function logs(
 }
 
 #[AsTask(description: 'Lists containers status', aliases: ['ps'])]
-function ps(): void
+function ps(bool $ports = false): void
 {
-    docker_compose(['ps'], withBuilder: false);
+    $command = [
+        'ps',
+        '--format', 'table {{.Name}}\t{{.Image}}\t{{.Status}}\t{{.RunningFor}}\t{{.Command}}',
+        '--no-trunc',
+    ];
+
+    if ($ports) {
+        $command[2] .= '\t{{.Ports}}';
+    }
+
+    docker_compose($command, profiles: ['*']);
+
+    if (!$ports) {
+        io()->comment('You can use the "--ports" option to display ports.');
+    }
 }
 
 #[AsTask(description: 'Cleans the infrastructure (remove container, volume, networks)', aliases: ['destroy'])]
@@ -201,7 +217,7 @@ function destroy(
         }
     }
 
-    docker_compose(['down', '--remove-orphans', '--volumes', '--rmi=local'], withBuilder: true);
+    docker_compose(['down', '--remove-orphans', '--volumes', '--rmi=local'], profiles: ['*']);
     $files = finder()
         ->in(variable('root_dir') . '/infrastructure/docker/services/router/certs/')
         ->name('*.pem')
@@ -279,193 +295,74 @@ function generate_certificates(
     }
 }
 
-#[AsTask(description: 'Push images cache to the registry', namespace: 'docker', name: 'push', aliases: ['push'])]
-function push(): void
+#[AsTask(description: 'Starts the workers', namespace: 'docker:worker', name: 'start', aliases: ['start-workers'])]
+function workers_start(): void
 {
-    // Generate bake file
-    $composeFile = variable('docker_compose_files');
-    $composeFile[] = 'docker-compose.builder.yml';
+    io()->title('Starting workers');
 
-    $targets = [];
+    $command = ['up', '--detach', '--wait', '--no-build'];
+    $profiles = ['worker', 'default'];
 
-    /** @var string|null $registry */
-    $registry = variable('registry');
-
-    if (null === $registry || '' === $registry) {
-        throw new \RuntimeException('You must define a registry to push images.');
-    }
-
-    foreach ($composeFile as $file) {
-        $path = variable('root_dir') . '/infrastructure/docker/' . $file;
-        $content = file_get_contents($path);
-        $data = yaml_parse($content);
-
-        foreach ($data['services'] ?? [] as $service => $config) {
-            $cacheFrom = $config['build']['cache_from'][0] ?? null;
-
-            if (null === $cacheFrom) {
-                continue;
-            }
-
-            $cacheFrom = explode(',', $cacheFrom);
-            $reference = null;
-            $type = null;
-
-            if (1 === \count($cacheFrom)) {
-                $reference = $cacheFrom[0];
-                $type = 'registry';
-            } else {
-                foreach ($cacheFrom as $part) {
-                    $from = explode('=', $part);
-
-                    if (2 !== \count($from)) {
-                        continue;
-                    }
-
-                    if ('type' === $from[0]) {
-                        $type = $from[1];
-                    }
-
-                    if ('ref' === $from[0]) {
-                        $reference = $from[1];
-                    }
-                }
-            }
-
-            $targets[] = [
-                'reference' => $reference,
-                'type' => $type,
-                'context' => $config['build']['context'],
-                'dockerfile' => $config['build']['dockerfile'] ?? 'Dockerfile',
-                'target' => $config['build']['target'] ?? null,
-            ];
-        }
-    }
-
-    $content = \sprintf(<<<'EOHCL'
-        group "default" {
-            targets = [%s]
+    try {
+        docker_compose($command, profiles: $profiles);
+    } catch (ProcessFailedException $e) {
+        preg_match('/service "(\w+)" depends on undefined service "(\w+)"/', $e->getProcess()->getErrorOutput(), $matches);
+        if (!$matches) {
+            throw $e;
         }
 
+        $r = new \ReflectionFunction(__FUNCTION__);
 
-        EOHCL
-        , implode(', ', array_map(fn ($target) => \sprintf('"%s"', $target['target']), $targets)));
+        io()->newLine();
+        io()->error('An error occurred while starting the workers.');
+        io()->warning(\sprintf(
+            <<<'EOT'
+                The "%1$s" service depends on the "%2$s" service, which is not defined in the current docker-compose configuration.
 
-    foreach ($targets as $target) {
-        $reference = str_replace('${REGISTRY:-}', $registry, $target['reference'] ?? '');
+                Usually, this means that the service "%2$s" is not defined in the same profile (%3$s) as the "%1$s" service.
 
-        $content .= \sprintf(<<<'EOHCL'
-            target "%s" {
-                context    = "infrastructure/docker/%s"
-                dockerfile = "%s"
-                cache-from = ["%s"]
-                cache-to   = ["type=%s,ref=%s,mode=max"]
-                target     = "%s"
-                args = {
-                    PHP_VERSION = "%s"
-                }
-            }
-
-
-            EOHCL
-            , $target['target'], $target['context'], $target['dockerfile'], $reference, $target['type'], $reference, $target['target'], variable('php_version'));
+                You can try to add its profile in the current task: %4$s:%5$s
+                EOT,
+            $matches[1],
+            $matches[2],
+            implode(', ', $profiles),
+            PathHelper::makeRelative((string) $r->getFileName()),
+            $r->getStartLine(),
+        ));
     }
-
-    // write bake file in tmp file
-    $bakeFile = tempnam(sys_get_temp_dir(), 'bake');
-    file_put_contents($bakeFile, $content);
-
-    // Run bake
-    run(['docker', 'buildx', 'bake', '-f', $bakeFile]);
 }
 
-#[AsContext(default: true)]
-function create_default_context(): Context
+#[AsTask(description: 'Stops the workers', namespace: 'docker:worker', name: 'stop', aliases: ['stop-workers'])]
+function workers_stop(): void
 {
-    $data = create_default_variables() + [
-        'project_name' => 'app',
-        'root_domain' => 'app.test',
-        'extra_domains' => [],
-        'project_directory' => 'application',
-        'php_version' => '8.2',
-        'docker_compose_files' => [
-            'docker-compose.yml',
-        ],
-        'macos' => false,
-        'power_shell' => false,
-        // check if posix_geteuid is available, if not, use getmyuid (windows)
-        'user_id' => \function_exists('posix_geteuid') ? posix_geteuid() : getmyuid(),
-        'root_dir' => \dirname(__DIR__),
-    ];
+    io()->title('Stopping workers');
 
-    if (file_exists($data['root_dir'] . '/infrastructure/docker/docker-compose.override.yml')) {
-        $data['docker_compose_files'][] = 'docker-compose.override.yml';
-    }
+    // Docker compose cannot stop a single service in a profile, if it depends
+    // on another service in another profile. To make it work, we need to select
+    // both profiles, and so stop both services
 
-    // We need an empty context to run command, since the default context has
-    // not been set in castor, since we ARE creating it right now
-    $emptyContext = new Context();
+    // So we find all services, in all profiles, and manually filter the one
+    // that has the "worker" profile, then we stop it
+    $command = ['stop'];
 
-    $data['composer_cache_dir'] = cache('composer_cache_dir', function () use ($emptyContext): string {
-        $composerCacheDir = capture(['composer', 'global', 'config', 'cache-dir', '-q'], onFailure: '', context: $emptyContext);
-        // If PHP is broken, the output will not be a valid path but an error message
-        if (!is_dir($composerCacheDir)) {
-            $composerCacheDir = sys_get_temp_dir() . '/castor/composer';
-            // If the directory does not exist, we create it. Otherwise, docker
-            // will do, as root, and the user will not be able to write in it.
-            if (!is_dir($composerCacheDir)) {
-                mkdir($composerCacheDir, 0o777, true);
+    foreach (get_services() as $name => $service) {
+        foreach ($service['profiles'] ?? [] as $profile) {
+            if ('worker' === $profile) {
+                $command[] = $name;
+
+                continue 2;
             }
         }
-
-        return $composerCacheDir;
-    });
-
-    $platform = strtolower(php_uname('s'));
-    if (str_contains($platform, 'darwin')) {
-        $data['macos'] = true;
-    } elseif (\in_array($platform, ['win32', 'win64', 'windows nt'])) {
-        $data['power_shell'] = true;
     }
 
-    if (false === $data['user_id'] || $data['user_id'] > 256000) {
-        $data['user_id'] = 1000;
-    }
-
-    if (0 === $data['user_id']) {
-        log('Running as root? Fallback to fake user id.', 'warning');
-        $data['user_id'] = 1000;
-    }
-
-    return new Context(
-        $data,
-        pty: Process::isPtySupported(),
-        environment: [
-            'BUILDKIT_PROGRESS' => 'plain',
-        ]
-    );
-}
-
-#[AsContext(name: 'ci')]
-function create_ci_context(): Context
-{
-    $c = create_default_context();
-
-    return $c
-        ->withData([
-            // override the default context here
-        ])
-        ->withEnvironment([
-            'COMPOSE_ANSI' => 'never',
-        ])
-    ;
+    docker_compose($command, profiles: ['*']);
 }
 
 /**
  * @param list<string> $subCommand
  * @param list<string> $profiles
  */
-function docker_compose(array $subCommand, ?Context $c = null, bool $withBuilder = false, array $profiles = []): Process
+function docker_compose(array $subCommand, ?Context $c = null, array $profiles = []): Process
 {
     $c ??= context();
     $profiles = $profiles ?: ['default'];
@@ -473,18 +370,14 @@ function docker_compose(array $subCommand, ?Context $c = null, bool $withBuilder
     $domains = [variable('root_domain'), ...variable('extra_domains')];
     $domains = '`' . implode('`) || Host(`', $domains) . '`';
 
-    $c = $c
-        ->withTimeout(null)
-        ->withEnvironment([
-            'PROJECT_NAME' => variable('project_name'),
-            'PROJECT_ROOT_DOMAIN' => variable('root_domain'),
-            'PROJECT_DOMAINS' => $domains,
-            'USER_ID' => variable('user_id'),
-            'COMPOSER_CACHE_DIR' => variable('composer_cache_dir'),
-            'PHP_VERSION' => variable('php_version'),
-            'REGISTRY' => variable('registry'),
-        ])
-    ;
+    $c = $c->withEnvironment([
+        'PROJECT_NAME' => variable('project_name'),
+        'PROJECT_ROOT_DOMAIN' => variable('root_domain'),
+        'PROJECT_DOMAINS' => $domains,
+        'USER_ID' => variable('user_id'),
+        'PHP_VERSION' => variable('php_version'),
+        'REGISTRY' => variable('registry') ?? '',
+    ]);
 
     $command = [
         'docker',
@@ -501,16 +394,6 @@ function docker_compose(array $subCommand, ?Context $c = null, bool $withBuilder
         $command[] = variable('root_dir') . '/infrastructure/docker/' . $file;
     }
 
-    if ($withBuilder) {
-        $command[] = '-f';
-        $command[] = variable('root_dir') . '/infrastructure/docker/docker-compose.builder.yml';
-
-        if (file_exists(variable('root_dir') . '/infrastructure/docker/docker-compose.builder.override.yml')) {
-            $command[] = '-f';
-            $command[] = variable('root_dir') . '/infrastructure/docker/docker-compose.builder.override.yml';
-        }
-    }
-
     $command = array_merge($command, $subCommand);
 
     return run($command, context: $c);
@@ -523,7 +406,6 @@ function docker_compose_run(
     bool $noDeps = true,
     ?string $workDir = null,
     bool $portMapping = false,
-    bool $withBuilder = true,
 ): Process {
     $command = [
         'run',
@@ -543,12 +425,17 @@ function docker_compose_run(
         $command[] = $workDir;
     }
 
+    foreach (variable('docker_compose_run_environment') as $key => $value) {
+        $command[] = '-e';
+        $command[] = "{$key}={$value}";
+    }
+
     $command[] = $service;
     $command[] = '/bin/bash';
     $command[] = '-c';
     $command[] = "{$runCommand}";
 
-    return docker_compose($command, c: $c, withBuilder: $withBuilder);
+    return docker_compose($command, c: $c, profiles: ['*']);
 }
 
 function docker_exit_code(
@@ -557,7 +444,6 @@ function docker_exit_code(
     string $service = 'builder',
     bool $noDeps = true,
     ?string $workDir = null,
-    bool $withBuilder = true,
 ): int {
     $c = ($c ?? context())->withAllowFailure();
 
@@ -567,7 +453,6 @@ function docker_exit_code(
         service: $service,
         noDeps: $noDeps,
         workDir: $workDir,
-        withBuilder: $withBuilder,
     );
 
     return $process->getExitCode() ?? 0;
@@ -584,4 +469,111 @@ function run_in_docker_or_locally_for_mac(string $command, ?Context $c = null): 
     } else {
         docker_compose_run($command, c: $c);
     }
+}
+
+#[AsTask(description: 'Push images cache to the registry', namespace: 'docker', name: 'push', aliases: ['push'])]
+function push(bool $dryRun = false): void
+{
+    $registry = variable('registry');
+
+    if (!$registry) {
+        throw new \RuntimeException('You must define a registry to push images.');
+    }
+
+    // Generate bake file
+    $targets = [];
+
+    foreach (get_services() as $service => $config) {
+        $cacheFrom = $config['build']['cache_from'][0] ?? null;
+
+        if (null === $cacheFrom) {
+            continue;
+        }
+
+        $cacheFrom = explode(',', $cacheFrom);
+        $reference = null;
+        $type = null;
+
+        if (1 === \count($cacheFrom)) {
+            $reference = $cacheFrom[0];
+            $type = 'registry';
+        } else {
+            foreach ($cacheFrom as $part) {
+                $from = explode('=', $part);
+
+                if (2 !== \count($from)) {
+                    continue;
+                }
+
+                if ('type' === $from[0]) {
+                    $type = $from[1];
+                }
+
+                if ('ref' === $from[0]) {
+                    $reference = $from[1];
+                }
+            }
+        }
+
+        $targets[] = [
+            'reference' => $reference,
+            'type' => $type,
+            'context' => $config['build']['context'],
+            'dockerfile' => $config['build']['dockerfile'] ?? 'Dockerfile',
+            'target' => $config['build']['target'] ?? null,
+        ];
+    }
+
+    $content = \sprintf(<<<'EOHCL'
+        group "default" {
+            targets = [%s]
+        }
+
+        EOHCL
+        , implode(', ', array_map(fn ($target) => \sprintf('"%s"', $target['target']), $targets)));
+
+    foreach ($targets as $target) {
+        $content .= \sprintf(<<<'EOHCL'
+            target "%s" {
+                context    = "%s"
+                dockerfile = "%s"
+                cache-from = ["%s"]
+                cache-to   = ["type=%s,ref=%s,mode=max"]
+                target     = "%s"
+                args = {
+                    PHP_VERSION = "%s"
+                }
+            }
+
+            EOHCL
+            , $target['target'], $target['context'], $target['dockerfile'], $target['reference'], $target['type'], $target['reference'], $target['target'], variable('php_version'));
+    }
+
+    if ($dryRun) {
+        io()->write($content);
+
+        return;
+    }
+
+    // write bake file in tmp file
+    $bakeFile = tempnam(sys_get_temp_dir(), 'bake');
+    file_put_contents($bakeFile, $content);
+
+    // Run bake
+    run(['docker', 'buildx', 'bake', '-f', $bakeFile]);
+}
+
+/**
+ * @return array<string, array{profiles?: list<string>, build: array{context: string, dockerfile?: string, cache_from?: list<string>, target?: string}}>
+ */
+function get_services(): array
+{
+    return json_decode(
+        docker_compose(
+            ['config', '--format', 'json'],
+            context()->withQuiet(),
+            profiles: ['*'],
+        )->getOutput(),
+        true,
+    )['services'];
 }

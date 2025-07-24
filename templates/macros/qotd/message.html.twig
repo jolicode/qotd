@@ -1,5 +1,5 @@
 {% macro message(qotd) %}
-    {% cache "qotd-message-#{qotd.id}-#{qotd.updatedAt.format('c')}" %}
+    {% cache "qotd-message-#{qotd.id}-#{qotd.updatedAt.format('U')}" %}
         {# we use |replace because it better like that! #}
         {% if qotd.context %}
             <blockquote class="text-body-secondary">
