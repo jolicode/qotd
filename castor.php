@@ -12,7 +12,6 @@ use function Castor\variable;
 use function docker\about;
 use function docker\build;
 use function docker\docker_compose_run;
-use function docker\generate_certificates;
 use function docker\up;
 
 guard_min_version('0.18.0');
