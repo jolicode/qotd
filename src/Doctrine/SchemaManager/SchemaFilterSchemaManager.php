@@ -2,6 +2,7 @@
 
 namespace App\Doctrine\SchemaManager;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -35,7 +36,9 @@ class SchemaFilterSchemaManager extends AbstractSchemaManager
      */
     public function __construct(
         private readonly AbstractSchemaManager $decorated,
+        Connection $connection,
     ) {
+        parent::__construct($connection, $connection->getDatabasePlatform());
     }
 
     public function listDatabases(): array
@@ -210,7 +213,7 @@ class SchemaFilterSchemaManager extends AbstractSchemaManager
 
         $tables = [];
         foreach ($schema->getTables() as $table) {
-            $config = self::TO_DROP[$table->getName()] ?? null;
+            $config = self::TO_DROP[$table->getObjectName()->toString()] ?? null;
             if (!$config) {
                 $tables[] = $table;
 
@@ -219,7 +222,7 @@ class SchemaFilterSchemaManager extends AbstractSchemaManager
 
             $columns = [];
             foreach ($table->getColumns() as $column) {
-                if (!\in_array($column->getName(), $config['columns'], true)) {
+                if (!\in_array($column->getObjectName()->toString(), $config['columns'], true)) {
                     $columns[] = $column;
 
                     continue;
@@ -229,7 +232,7 @@ class SchemaFilterSchemaManager extends AbstractSchemaManager
             $indexes = [];
 
             foreach ($table->getIndexes() as $index) {
-                if (!\in_array($index->getName(), $config['indexes'], true)) {
+                if (!\in_array($index->getObjectName()->toString(), $config['indexes'], true)) {
                     $indexes[] = $index;
 
                     continue;
@@ -237,7 +240,7 @@ class SchemaFilterSchemaManager extends AbstractSchemaManager
             }
 
             $tables[] = new Table(
-                $table->getName(),
+                $table->getObjectName()->toString(),
                 $columns,
                 $indexes,
                 $table->getUniqueConstraints(),
@@ -257,7 +260,7 @@ class SchemaFilterSchemaManager extends AbstractSchemaManager
 
     public function createSchemaConfig(): SchemaConfig
     {
-        return $this->decorated->{__FUNCTION__}(...\func_get_args());
+        return $this->decorated->createSchemaConfig();
     }
 
     public function createComparator(): Comparator
@@ -308,5 +311,10 @@ class SchemaFilterSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
         throw new \LogicException('Not implemented, not needed!');
+    }
+
+    protected function determineCurrentSchemaName(): ?string
+    {
+        return (new \ReflectionMethod($this->decorated, 'determineCurrentSchemaName'))->invoke($this->decorated);
     }
 }

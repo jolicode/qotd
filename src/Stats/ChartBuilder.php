@@ -104,7 +104,7 @@ class ChartBuilder
     {
         $counts = $this->qotdRepository->countOver($period);
         $chart = $this->chartBuilder->createChart(Chart::TYPE_LINE);
-        $labels = array_map(fn (array $item): string => $item['period']->format('y-m-d'), $counts);
+        $labels = array_map(static fn (array $item): string => $item['period']->format('y-m-d'), $counts);
 
         $chart->setData([
             'labels' => $labels,

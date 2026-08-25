@@ -10,26 +10,21 @@ name: Continuous Integration
 
 permissions:
   contents: read
+  packages: read
 
 env:
   # Fix for symfony/color detection. We know GitHub Actions can handle it
   ANSICON: 1
   CASTOR_CONTEXT: ci
+  DS_REGISTRY: "ghcr.io/jolicode/qotd"
 
 jobs:
   ci:
     name: Continuous Integration
     runs-on: ubuntu-latest
     steps:
-      # Install official version of docker that correctly supports from-cache option in docker compose
-      - name: Set up Docker
-        uses: crazy-max/ghaction-setup-docker@v3
-        with:
-          set-host: true
-
-      # Docker socket path is different when using setup docker
-      - name: Set Docker Socket Host
-        run: echo "DOCKER_SOCKET_PATH=${DOCKER_HOST:5}" >> $GITHUB_ENV
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to registry
         shell: bash
@@ -44,7 +39,7 @@ jobs:
         run: "castor start"
 
       - name: "Check PHP coding standards"
-        run: "castor qa:cs"
+        run: "castor qa:cs --dry-run"
 
       - name: "Run PHPStan"
         run: "castor qa:phpstan"

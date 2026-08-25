@@ -1,0 +1,3 @@
+twig_extra:
+    commonmark:
+        html_input: escape

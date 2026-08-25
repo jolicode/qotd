@@ -6,7 +6,6 @@ use function Castor\context;
 use function Castor\guard_min_version;
 use function Castor\import;
 use function Castor\io;
-use function Castor\load_dot_env;
 use function Castor\notify;
 use function Castor\variable;
 use function docker\about;
@@ -14,12 +13,12 @@ use function docker\build;
 use function docker\docker_compose_run;
 use function docker\up;
 
-guard_min_version('0.18.0');
+guard_min_version('1.5.0');
 
 import(__DIR__ . '/.castor');
 
 /**
- * @return array{project_name: string, root_domain: string, php_version: string}
+ * @return array{project_name: string, root_domain: string, registry: string}
  */
 function create_default_variables(): array
 {
@@ -27,7 +26,6 @@ function create_default_variables(): array
         'project_name' => 'qotd',
         'root_domain' => 'local.qotd.internal.jolicode.com',
         'registry' => 'ghcr.io/jolicode/qotd',
-        'php_version' => '8.3',
     ];
 }
 
@@ -38,7 +36,7 @@ function start(): void
 
     build();
     install();
-    up();
+    up(profiles: ['default']); // We can't start worker now, they are not installed
     migrate();
 
     notify('The stack is now up and running.');
@@ -52,28 +50,51 @@ function install(): void
 {
     io()->title('Installing the application');
 
-    io()->section('Installing PHP dependencies');
-    docker_compose_run('composer install -n --prefer-dist --optimize-autoloader');
+    $basePath = variable('root_dir');
 
-    io()->section('Installing importmap');
-    docker_compose_run('bin/console importmap:install');
+    if (is_file("{$basePath}/composer.json")) {
+        io()->section('Installing PHP dependencies');
+        docker_compose_run(['composer', 'install', '-n', '--prefer-dist', '--optimize-autoloader']);
+    }
+    if (is_file("{$basePath}/yarn.lock")) {
+        io()->section('Installing Node.js dependencies');
+        docker_compose_run(['yarn', 'install', '--immutable']);
+    } elseif (is_file("{$basePath}/package.json")) {
+        io()->section('Installing Node.js dependencies');
 
-    if ('prod' === (load_dot_env()['APP_ENV'] ?? 'dev') || 'ci' === context()->name) {
-        docker_compose_run('bin/console asset-map:compile');
+        if (is_file("{$basePath}/package-lock.json")) {
+            docker_compose_run(['npm', 'ci']);
+        } else {
+            docker_compose_run(['npm', 'install']);
+        }
+    }
+    if (is_file("{$basePath}/importmap.php")) {
+        io()->section('Installing importmap');
+        docker_compose_run(['bin/console', 'importmap:install']);
     }
 
     qa\install();
 }
 
-#[AsTask(description: 'Clear the application cache', namespace: 'app', aliases: ['cache-clear'])]
-function cache_clear(): void
+#[AsTask(description: 'Update dependencies')]
+function update(bool $withTools = false): void
+{
+    io()->title('Updating dependencies...');
+
+    if ($withTools) {
+        qa\update();
+    }
+}
+
+#[AsTask(description: 'Clears the application cache', namespace: 'app', aliases: ['cache-clear'])]
+function cache_clear(bool $warm = true): void
 {
     io()->title('Clearing the application cache');
 
-    docker_compose_run('rm -rf var/cache/');
-    // On the very first run, the vendor does not exist yet
-    if (is_dir(variable('root_dir') . '/vendor')) {
-        docker_compose_run('bin/console cache:warmup');
+    docker_compose_run(['rm', '-rf', 'var/cache/']);
+
+    if ($warm && is_dir(variable('root_dir') . '/vendor')) {
+        docker_compose_run(['bin/console', 'cache:warmup'], c: context()->withAllowFailure());
     }
 }
 
@@ -82,8 +103,8 @@ function migrate(): void
 {
     io()->title('Migrating the database schema');
 
-    docker_compose_run('bin/console doctrine:database:create --if-not-exists');
-    docker_compose_run('bin/console doctrine:migration:migrate -n --allow-no-migration --all-or-nothing');
+    docker_compose_run(['bin/console', 'doctrine:database:create', '--if-not-exists']);
+    docker_compose_run(['bin/console', 'doctrine:migration:migrate', '-n', '--allow-no-migration', '--all-or-nothing']);
 }
 
 #[AsTask(description: 'Loads fixtures', namespace: 'app:db', aliases: ['fixtures'])]
@@ -91,9 +112,9 @@ function fixtures(?string $env = null): void
 {
     io()->title('Loads fixtures');
 
-    $envArgument = $env ? " --env={$env}" : '';
+    $envArgument = $env ? ['--env=' . $env] : [];
 
-    docker_compose_run('bin/console doctrine:database:create --if-not-exists' . $envArgument);
-    docker_compose_run('bin/console doctrine:migration:migrate -n --allow-no-migration --all-or-nothing' . $envArgument);
-    docker_compose_run('bin/console doctrine:fixture:load -n' . $envArgument);
+    docker_compose_run(['bin/console', 'doctrine:database:create', '--if-not-exists', ...$envArgument]);
+    docker_compose_run(['bin/console', 'doctrine:migration:migrate', '-n', '--allow-no-migration', '--all-or-nothing', ...$envArgument]);
+    docker_compose_run(['bin/console', 'doctrine:fixture:load', '-n', ...$envArgument]);
 }

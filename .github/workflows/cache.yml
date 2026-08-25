@@ -1,0 +1,30 @@
+name: Push docker image to registry
+
+"on":
+  push:
+    # Only run this job when pushing to the main branch
+    branches: ["main"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  push-images:
+    name: Push image to registry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to registry
+        shell: bash
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: setup-castor
+        uses: castor-php/setup-castor@v0.1.0
+
+      - uses: actions/checkout@v5
+
+      - name: "Build and push the infrastructure images"
+        run: "castor docker:push"

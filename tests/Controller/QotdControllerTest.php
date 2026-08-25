@@ -63,6 +63,7 @@ class QotdControllerTest extends WebTestCase
 
         $firstQuote = $quotes->first();
         $id = str_replace('qotd-', '', $firstQuote->attr('id'));
+        $initialVote = self::getContainer()->get(QotdRepository::class)->find($id)->vote;
 
         try {
             $form = $firstQuote->filter('[data-test=vote-up]')->form();
@@ -70,12 +71,12 @@ class QotdControllerTest extends WebTestCase
             self::assertResponseStatusCodeSame(302);
 
             $dbQuote = self::getContainer()->get(QotdRepository::class)->find($id);
-            $this->assertSame(1, $dbQuote->vote);
+            $this->assertSame($initialVote + 1, $dbQuote->vote);
         } finally {
             $em = self::getContainer()->get(EntityManagerInterface::class);
             $em->clear();
             $dbQuote = self::getContainer()->get(QotdRepository::class)->find($id);
-            $dbQuote->vote = 0;
+            $dbQuote->vote = $initialVote;
             $dbQuote->voterIds = null;
             $em->flush();
         }

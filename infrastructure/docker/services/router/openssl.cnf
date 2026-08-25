@@ -13,7 +13,7 @@ basicConstraints=CA:true
 subjectAltName = @alt_names
 
 [dn]
-CN=app.test
+CN=local.qotd.internal.jolicode.com
 
 [alt_names]
-DNS.1 = app.test
+DNS.1 = local.qotd.internal.jolicode.com
