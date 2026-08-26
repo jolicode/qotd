@@ -23,6 +23,7 @@ class SchemaManagerFactory implements DoctrineSchemaManagerFactory
     {
         return new SchemaFilterSchemaManager(
             $this->decorated->createSchemaManager($connection),
+            $connection,
         );
     }
 }

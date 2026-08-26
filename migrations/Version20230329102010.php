@@ -23,7 +23,7 @@ final class Version20230329102010 extends AbstractMigration
         foreach ($rows as $row) {
             $voterIds = json_decode($row['voter_ids'], true);
 
-            $newVoterIds = array_filter($voterIds, function (string $direction): bool {
+            $newVoterIds = array_filter($voterIds, static function (string $direction): bool {
                 return 'unknown' !== $direction;
             });
 

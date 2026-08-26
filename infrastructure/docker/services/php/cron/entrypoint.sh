@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-groupadd -g $USER_ID app
-useradd -M -u $USER_ID -g $USER_ID -s /bin/bash app
+getent group "$USER_ID" >/dev/null || groupadd -g "$USER_ID" app
+id -u app >/dev/null 2>&1 || useradd -M -u "$USER_ID" -g "$USER_ID" -s /bin/bash app
 
 crontab -u app /etc/cron.d/crontab
 
