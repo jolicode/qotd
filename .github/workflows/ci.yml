@@ -49,3 +49,17 @@ jobs:
 
       - name: "Run PHPUnit"
         run: "castor qa:phpunit"
+
+      - name: "Test HTTP server"
+        run: |
+            set -e
+            set -o pipefail
+
+            # Not authenticated, we expect a redirection to the Google connect route
+            status="$(curl --insecure --silent --output /dev/null --write-out "%{http_code}" -H "Host: local.qotd.internal.jolicode.com" https://127.0.0.1)"
+            echo "HTTP status: ${status}"
+            grep "302" <<<"${status}"
+
+            location="$(curl --insecure --silent --output /dev/null --write-out "%{redirect_url}" -H "Host: local.qotd.internal.jolicode.com" https://127.0.0.1)"
+            echo "Redirect location: ${location}"
+            grep "/connect/google" <<<"${location}"
