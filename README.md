@@ -51,7 +51,7 @@ To make the application available locally at the address
 services:
     frontend:
         ports:
-            - "8000:80"
+            - "8000:8080"
 ```
 
 > [!NOTE]
@@ -79,8 +79,55 @@ services:
         volumes:
             - .:/app
         ports:
-          - 8888:80
+          - 8888:8080
 ```
+
+## Production
+
+The application ships as two self-contained Docker images, built from the
+"production stages" of `infrastructure/docker/services/php/Dockerfile`:
+
+* `php`: php-fpm listening on the unix socket `/var/run/php/php-fpm.sock`,
+  with the code, the vendors and the compiled assets baked in, `APP_ENV=prod`.
+  It is also the CLI image: the cron job (`bin/console qotd:run`) and the
+  database migrations run with it;
+* `nginx`: the official nginx image, the compiled `public/` directory and the
+  site configuration, forwarding PHP requests to that socket.
+
+Both use the php-fpm and nginx configuration of the dev container
+(`services/php/php/` and `services/php/nginx/`); what production does
+differently is in `services/php/php/mods-available/app-prod.ini`. Everything
+else (secrets, database,
+Slack and Google credentials) is provided through environment variables at
+runtime, and `public/uploads` (medias downloaded from Slack) must be a volume
+shared by all the containers.
+
+On every push to `main` (and on every git tag), the "Build and push production
+images" workflow pushes both images to `ghcr.io/<repository>/php` and
+`ghcr.io/<repository>/nginx`, tagged with the short commit sha, `latest` on
+`main`, and the tag name when there is one.
+
+### Testing the production images locally
+
+The `prod` castor context runs the usual tasks on a dedicated compose stack
+(`docker-compose.prod.yml`: postgres + the two images, no bind mount, no
+router), independent from the development one:
+
+    castor build -c prod       # builds the php and nginx images
+    castor start -c prod       # starts the stack and runs the migrations
+    # -> http://127.0.0.1:8080 (HTTP_PORT=18080 castor start -c prod to change the port)
+    castor destroy -c prod     # removes the containers and the volumes
+
+It uses dummy secrets: to test a real Google login or a real Slack workspace,
+put the corresponding variables in a `.env.prod.local` file at the root of the
+repository (ignored by git, loaded by the php container). `APP_DEFAULT_URI`
+and the Google callback URL must then match your local URL.
+
+To push images from your machine instead of waiting for the CI (you need to be
+logged in to the registry with `docker login ghcr.io`, and a buildx builder
+able to export a registry cache, e.g. `docker buildx create --use`):
+
+    REGISTRY=ghcr.io/<org>/<repo> castor docker:push -c prod --tag=my-test
 
 ## Usage
 
