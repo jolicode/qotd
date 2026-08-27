@@ -1,0 +1,133 @@
+# Production stack. Images are self-contained (code baked in), no bind mounts,
+# containers run as non-root users and traefik is not part of it: TLS/routing is
+# handled by your infrastructure reverse proxy / ingress.
+#
+# Usage:
+#   docker compose -f infrastructure/docker/docker-compose.prod.yml build --pull
+#   TAG=$(git rev-parse --short HEAD) docker compose -f ... build --push
+#
+# A managed database is preferred in production; the bundled postgres service is
+# there for simple single-node deployments.
+
+x-php-build: &php-build
+    context: services/php
+    additional_contexts:
+        app: ${APP_BUILD_CONTEXT:-../..}
+    args:
+        PHP_VERSION: "${PHP_VERSION:-8.5}"
+
+x-deploy: &deploy
+    restart: unless-stopped
+    init: true
+    logging:
+        driver: json-file
+        options:
+            max-size: "10m"
+            max-file: "5"
+
+volumes:
+    postgres-data: {}
+
+services:
+    postgres:
+        image: postgres:16
+        environment:
+            - POSTGRES_USER=qotd
+            - POSTGRES_PASSWORD=qotd
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U qotd"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        <<: *deploy
+
+    php-fpm:
+        build:
+            <<: *php-build
+            target: php-fpm
+            cache_from:
+                - "type=registry,ref=${REGISTRY:-ghcr.io/jolicode/qotd}/php-fpm:cache"
+        image: "${REGISTRY:-ghcr.io/jolicode/qotd}/php-fpm:${TAG:-latest}"
+        environment:
+            - APP_ENV=prod
+            - APP_DEBUG=0
+            - APP_SECRET=${APP_SECRET:-}
+            - DATABASE_URL=${DATABASE_URL:-postgresql://qotd:qotd@postgres:5432/qotd?serverVersion=16&charset=utf8}
+        depends_on:
+            postgres:
+                condition: service_healthy
+        <<: *deploy
+
+    nginx:
+        build:
+            <<: *php-build
+            target: nginx
+            cache_from:
+                - "type=registry,ref=${REGISTRY:-ghcr.io/jolicode/qotd}/nginx:cache"
+        image: "${REGISTRY:-ghcr.io/jolicode/qotd}/nginx:${TAG:-latest}"
+        ports:
+            - "${HTTP_PORT:-80}:8080"
+        depends_on:
+            php-fpm:
+                condition: service_healthy
+        <<: *deploy
+
+    worker_messenger:
+        build:
+            <<: *php-build
+            target: worker-prod
+            cache_from:
+                - "type=registry,ref=${REGISTRY:-ghcr.io/jolicode/qotd}/worker:cache"
+        image: "${REGISTRY:-ghcr.io/jolicode/qotd}/worker:${TAG:-latest}"
+        environment:
+            - APP_ENV=prod
+            - APP_DEBUG=0
+            - APP_SECRET=${APP_SECRET:-}
+            - DATABASE_URL=${DATABASE_URL:-postgresql://qotd:qotd@postgres:5432/qotd?serverVersion=16&charset=utf8}
+        depends_on:
+            postgres:
+                condition: service_healthy
+        profiles:
+            - worker
+        <<: *deploy
+
+    cron:
+        build:
+            <<: *php-build
+            target: cron-prod
+            cache_from:
+                - "type=registry,ref=${REGISTRY:-ghcr.io/jolicode/qotd}/cron:cache"
+        image: "${REGISTRY:-ghcr.io/jolicode/qotd}/cron:${TAG:-latest}"
+        environment:
+            - APP_ENV=prod
+            - APP_DEBUG=0
+            - APP_SECRET=${APP_SECRET:-}
+            - DATABASE_URL=${DATABASE_URL:-postgresql://qotd:qotd@postgres:5432/qotd?serverVersion=16&charset=utf8}
+            # The entrypoint creates the app user from this id
+            - USER_ID=1000
+        depends_on:
+            postgres:
+                condition: service_healthy
+        <<: *deploy
+
+    # One-shot service to run database migrations before/with a deployment
+    migrate:
+        build:
+            <<: *php-build
+            target: worker-prod
+        image: "${REGISTRY:-ghcr.io/jolicode/qotd}/worker:${TAG:-latest}"
+        entrypoint: ["/bin/bash", "-c"]
+        command: ["bin/console doctrine:migration:migrate -n --allow-no-migration --all-or-nothing"]
+        environment:
+            - APP_ENV=prod
+            - APP_DEBUG=0
+            - APP_SECRET=${APP_SECRET:-}
+            - DATABASE_URL=${DATABASE_URL:-postgresql://qotd:qotd@postgres:5432/qotd?serverVersion=16&charset=utf8}
+        depends_on:
+            postgres:
+                condition: service_healthy
+        restart: "no"
+        profiles:
+            - tools

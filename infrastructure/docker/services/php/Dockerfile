@@ -108,3 +108,99 @@ COPY cron/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["cron", "-f"]
+
+# ------------------------- Production stages -------------------------
+#
+# Those stages produce self-contained, production ready images: the
+# application code is baked into the image (no bind mounts), dependencies
+# are installed without dev packages and containers run as a non-root user.
+#
+# The application source code is expected in the additional build context
+# named "app", pointing to the repository root, e.g.:
+#   docker buildx build \
+#       --build-context app=. \
+#       --target php-fpm ...
+
+FROM builder AS app-build
+
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# Copy only what is needed to resolve dependencies first, for better caching
+COPY --from=app composer.json composer.lock symfony.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --no-scripts --optimize-autoloader
+
+# .dockerignore filters this to what's needed at runtime; .env is kept
+# because symfony/runtime requires it to exist (real secrets are only
+# provided as environment variables at runtime, they override it)
+COPY --from=app . .
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader \
+    && php bin/console cache:warmup
+
+FROM php-base AS php-fpm
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        php${PHP_VERSION}-fpm libfcgi-bin \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+
+COPY php-fpm/php-configuration /etc/php/${PHP_VERSION}
+RUN phpenmod app-default && phpenmod app-fpm
+
+RUN groupadd -g 1000 app \
+    && useradd -M -u 1000 -g 1000 -s /bin/false app
+
+WORKDIR /var/www
+
+COPY --from=app-build --chown=app:app /var/www /var/www
+
+USER app
+
+EXPOSE 9000
+
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
+    CMD SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping cgi-fcgi -bind -connect 127.0.0.1:9000 || exit 1
+
+CMD ["sh", "-c", "exec /usr/sbin/php-fpm${PHP_VERSION}"]
+
+FROM php-base AS nginx
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        nginx curl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+
+RUN groupadd -g 1001 nginx \
+    && useradd -M -u 1001 -g 1001 -s /bin/false nginx
+
+COPY nginx/etc/nginx.conf /etc/nginx/nginx.conf
+
+COPY --from=app-build --chown=nginx:nginx /var/www/public /var/www/public
+
+USER nginx
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
+    CMD curl -fsS http://127.0.0.1:8080/ping || exit 1
+
+# "daemon off" is already set in nginx.conf
+CMD ["nginx"]
+
+FROM worker AS worker-prod
+
+RUN groupadd -g 1000 app \
+    && useradd -M -u 1000 -g 1000 -s /bin/false app
+
+WORKDIR /var/www
+
+COPY --from=app-build --chown=app:app /var/www /var/www
+
+USER app
+
+CMD ["php", "bin/console", "messenger:consume", "async", "--time-limit=3600", "--memory-limit=128M"]
+
+FROM cron AS cron-prod
+
+COPY --from=app-build --chown=root:root /var/www /var/www
