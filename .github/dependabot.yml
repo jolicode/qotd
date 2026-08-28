@@ -1,0 +1,30 @@
+version: 2
+
+updates:
+  - package-ecosystem: composer
+    directories:
+      - "/"
+      - "/tools/php-cs-fixer"
+      - "/tools/phpstan"
+      - "/tools/twig-cs-fixer"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: github-actions
+    directories:
+      - "/"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: docker
+    directories:
+      - "/infrastructure/docker/services/php"
+      - "/infrastructure/docker/services/router"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
