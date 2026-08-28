@@ -6,6 +6,7 @@ use function Castor\context;
 use function Castor\guard_min_version;
 use function Castor\import;
 use function Castor\io;
+use function Castor\load_dot_env;
 use function Castor\notify;
 use function Castor\variable;
 use function docker\about;
@@ -71,6 +72,11 @@ function install(): void
     if (is_file("{$basePath}/importmap.php")) {
         io()->section('Installing importmap');
         docker_compose_run(['bin/console', 'importmap:install']);
+
+        if ('prod' === (load_dot_env()['APP_ENV'] ?? 'dev') || 'ci' === context()->name) {
+            io()->section('Compiling assets');
+            docker_compose_run(['bin/console', 'asset-map:compile']);
+        }
     }
 
     qa\install();
