@@ -1,6 +1,6 @@
 # hadolint global ignore=DL3008
 
-FROM debian:13.5-slim AS php-base
+FROM debian:13.6-slim AS php-base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
