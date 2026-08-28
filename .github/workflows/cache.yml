@@ -24,7 +24,7 @@ jobs:
       - name: setup-castor
         uses: castor-php/setup-castor@v0.1.0
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: "Build and push the infrastructure images"
         run: "castor docker:push"

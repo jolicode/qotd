@@ -30,7 +30,7 @@ jobs:
         shell: bash
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: setup-castor
         uses: castor-php/setup-castor@v0.1.0
