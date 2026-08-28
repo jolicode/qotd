@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: setup-castor
-        uses: castor-php/setup-castor@v0.1.0
+        uses: castor-php/setup-castor@v1.1.0
 
       - name: "Build and start the infrastructure"
         run: "castor start"
