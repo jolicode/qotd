@@ -96,22 +96,6 @@ function securityAudit(): int
         }
     }
 
-    if (is_file("{$basePath}/yarn.lock")) {
-        io()->text('Running Yarn audit...');
-
-        $exitCode = docker_exit_code(['yarn', 'audit']);
-
-        if (0 !== $exitCode) {
-            return $exitCode;
-        }
-    }
-
-    if (is_file("{$basePath}/package-lock.json")) {
-        io()->text('Running NPM audit...');
-
-        return docker_exit_code(['npm', 'audit']);
-    }
-
     return 0;
 }
 

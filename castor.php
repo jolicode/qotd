@@ -30,7 +30,7 @@ function create_default_variables(): array
     ];
 }
 
-#[AsTask(description: 'Builds and starts the infrastructure, then install the application (composer, yarn, ...)')]
+#[AsTask(description: 'Builds and starts the infrastructure, then install the application (composer, ...)')]
 function start(): void
 {
     io()->title('Starting the stack');
@@ -46,7 +46,7 @@ function start(): void
     about();
 }
 
-#[AsTask(description: 'Installs the application (composer, yarn, ...)', namespace: 'app', aliases: ['install'])]
+#[AsTask(description: 'Installs the application (composer, ...)', namespace: 'app', aliases: ['install'])]
 function install(): void
 {
     io()->title('Installing the application');
@@ -56,18 +56,6 @@ function install(): void
     if (is_file("{$basePath}/composer.json")) {
         io()->section('Installing PHP dependencies');
         docker_compose_run(['composer', 'install', '-n', '--prefer-dist', '--optimize-autoloader']);
-    }
-    if (is_file("{$basePath}/yarn.lock")) {
-        io()->section('Installing Node.js dependencies');
-        docker_compose_run(['yarn', 'install', '--immutable']);
-    } elseif (is_file("{$basePath}/package.json")) {
-        io()->section('Installing Node.js dependencies');
-
-        if (is_file("{$basePath}/package-lock.json")) {
-            docker_compose_run(['npm', 'ci']);
-        } else {
-            docker_compose_run(['npm', 'install']);
-        }
     }
     if (is_file("{$basePath}/importmap.php")) {
         io()->section('Installing importmap');

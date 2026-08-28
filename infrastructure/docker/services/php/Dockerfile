@@ -62,15 +62,9 @@ FROM php-base AS builder
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-ARG NODEJS_VERSION=24.x
-RUN curl -s https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODEJS_VERSION} nodistro main" > /etc/apt/sources.list.d/nodesource.list
-
-ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git make nodejs php${PHP_VERSION}-dev sudo unzip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* \
-    && corepack enable && yarn set version stable
+    && apt-get install -y --no-install-recommends git make php${PHP_VERSION}-dev sudo unzip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 COPY builder/php-configuration /etc/php/${PHP_VERSION}
 RUN phpenmod app-default && phpenmod app-builder
