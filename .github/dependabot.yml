@@ -11,6 +11,10 @@ updates:
       interval: monthly
     cooldown:
       default-days: 7
+    groups:
+      composer-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: github-actions
     directories:
@@ -19,6 +23,10 @@ updates:
       interval: monthly
     cooldown:
       default-days: 7
+    groups:
+      github-actions-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: docker
     directories:
@@ -28,3 +36,7 @@ updates:
       interval: monthly
     cooldown:
       default-days: 7
+    groups:
+      docker-dependencies:
+        patterns:
+          - "*"
