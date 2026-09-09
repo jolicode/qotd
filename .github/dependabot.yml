@@ -15,6 +15,10 @@ updates:
       composer-dependencies:
         patterns:
           - "*"
+      composer-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   - package-ecosystem: github-actions
     directories:
@@ -25,6 +29,10 @@ updates:
       default-days: 7
     groups:
       github-actions-dependencies:
+        patterns:
+          - "*"
+      github-actions-security:
+        applies-to: security-updates
         patterns:
           - "*"
 
