@@ -2,6 +2,8 @@
 
 use Castor\Attribute\AsTask;
 
+defined('CASTOR_USE_CHDIR') || define('CASTOR_USE_CHDIR', true);
+
 use function Castor\context;
 use function Castor\guard_min_version;
 use function Castor\import;
