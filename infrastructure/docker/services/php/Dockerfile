@@ -27,7 +27,8 @@ RUN apt-get update \
         php${PHP_VERSION}-zip \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
-COPY base/php-configuration /etc/php/${PHP_VERSION}
+# Every PHP setting of every image: each stage enables its own ones with phpenmod
+COPY php/mods-available/ /etc/php/${PHP_VERSION}/mods-available/
 
 ENV PHP_VERSION=${PHP_VERSION}
 ENV HOME=/home/app
@@ -45,15 +46,19 @@ RUN apt-get update \
 
 RUN useradd -s /bin/false nginx
 
-COPY frontend/php-configuration /etc/php/${PHP_VERSION}
-COPY frontend/etc/nginx/. /etc/nginx/
+# Same php-fpm pool and nginx site as the production images (see "Production stages"), the
+# container runs as the host user so the socket directory must be writable by anyone
+COPY php/fpm/php-fpm.conf /etc/php/${PHP_VERSION}/fpm/php-fpm.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/conf.d/ /etc/nginx/conf.d/
+RUN mkdir -p /var/run/php && chmod 1777 /var/run/php
 RUN rm -rf /etc/service/
-COPY frontend/etc/service/. /etc/service/
-RUN chmod 777 /etc/service/*/supervise/
+COPY runit/ /etc/service/
+RUN mkdir -p /etc/service/nginx/supervise /etc/service/php-fpm/supervise && chmod 777 /etc/service/*/supervise/
 
-RUN phpenmod app-default && phpenmod app-fpm
+RUN phpenmod app-default && phpenmod -s fpm app-fpm
 
-EXPOSE 80
+EXPOSE 8080
 CMD ["runsvdir", "-P", "/etc/service"]
 
 FROM php-base AS worker
@@ -66,7 +71,6 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends git make php${PHP_VERSION}-dev sudo unzip \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
-COPY builder/php-configuration /etc/php/${PHP_VERSION}
 RUN phpenmod app-default && phpenmod app-builder
 
 COPY --from=composer/composer:2.10.0 /usr/bin/composer /usr/bin/composer
@@ -102,3 +106,80 @@ COPY cron/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["cron", "-f"]
+
+# ------------------------- Production stages -------------------------
+#
+# Two self-contained images, "php" and "nginx": the application code is baked
+# in (no bind mounts), dependencies are installed without dev packages, assets
+# are compiled and containers run as a non-root user. They talk to each other
+# through the php-fpm unix socket /var/run/php/php-fpm.sock, shared via a
+# volume (docker compose) or an emptyDir (Kubernetes). Cron jobs and workers
+# are run by the orchestrator with the "php" image (`bin/console ...`).
+#
+# The php-fpm and nginx configuration is the one of the dev "frontend" stage
+# (php/ and nginx/), the production differences live in php/mods-available/app-prod.ini.
+#
+# The application source code is expected in the additional build context
+# named "app", pointing to the repository root (its .dockerignore applies):
+#   docker buildx build --build-context app=. --target php .
+
+FROM builder AS app-build
+
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# Dependencies first, for better layer caching
+COPY --from=app composer.json composer.lock symfony.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --no-scripts --optimize-autoloader
+
+COPY --from=app . .
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader \
+    && composer dump-env prod \
+    && bin/console asset-map:compile \
+    && bin/console cache:warmup
+
+FROM php-base AS php
+
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends php${PHP_VERSION}-fpm libfcgi-bin \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* \
+    && rm -r "/etc/php/${PHP_VERSION}/fpm/pool.d/"
+
+# Same php-fpm pool as the dev "frontend" stage, plus the production-only settings
+COPY php/fpm/php-fpm.conf /etc/php/${PHP_VERSION}/fpm/php-fpm.conf
+RUN phpenmod app-default && phpenmod -s fpm app-fpm && phpenmod app-prod
+
+RUN groupadd -g 1000 app \
+    && useradd -M -u 1000 -g 1000 -s /bin/false app \
+    && mkdir -p /var/run/php \
+    && chown app:app /var/run/php
+
+WORKDIR /var/www
+
+COPY --from=app-build --chown=app:app /var/www /var/www
+
+# Mount point of the uploads volume (medias downloaded from Slack): owned by the
+# application user so that the volume inherits it when it is first created
+RUN mkdir -p public/uploads && chown app:app public/uploads
+
+USER 1000:1000
+
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
+    CMD SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping cgi-fcgi -bind -connect /var/run/php/php-fpm.sock || exit 1
+
+CMD ["sh", "-c", "exec /usr/sbin/php-fpm${PHP_VERSION}"]
+
+FROM nginx:1.28-alpine AS nginx
+
+COPY nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
+
+COPY --from=app-build /var/www/public /var/www/public
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
+    CMD wget -q -O /dev/null http://127.0.0.1:8080/ping || exit 1

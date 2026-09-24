@@ -12,6 +12,7 @@ use function Castor\variable;
 use function docker\about;
 use function docker\build;
 use function docker\docker_compose_run;
+use function docker\get_services;
 use function docker\up;
 
 guard_min_version('1.5.0');
@@ -50,6 +51,12 @@ function start(): void
 function install(): void
 {
     io()->title('Installing the application');
+
+    if (!isset(get_services()['builder'])) {
+        io()->comment('No builder service in this stack: the application is embedded in the images, nothing to install.');
+
+        return;
+    }
 
     $basePath = variable('root_dir');
 
