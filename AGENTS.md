@@ -24,6 +24,7 @@ castor app:db:migrate                        # Doctrine migrations (alias: casto
 castor app:db:fixtures                       # fixtures (alias: castor fixtures)
 castor app:cache-clear                       # clears var/cache (alias: castor cache-clear)
 castor postgres                              # opens a psql shell (alias: castor pg)
+castor pg -- "SELECT now();"                 # one-shot psql query (or raw psql args: castor pg -- -c "\dt")
 ```
 
 Docker / workers:
@@ -76,7 +77,8 @@ After any PHP/Twig code change: `castor qa:cs --dry-run`,
 
 1. **Never invoke `docker compose` by hand**: use the `docker_compose()` /
    `docker_compose_run()` functions from `.castor/docker.php` to write new tasks.
-2. **Never hardcode ports or project names**: use `variable('project_name')` etc.
+2. **Never hardcode ports or project names**: git worktree support automatically
+   isolates project/volumes/ports (`castor docker:ports`). Use `variable('project_name')` etc.
 3. New recurring task? Make it a Castor task (`castor.php` or `.castor/*.php`),
    not a shell script.
 4. QA tool dependencies live in `tools/<tool>/composer.json`
