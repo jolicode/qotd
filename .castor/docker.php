@@ -6,6 +6,8 @@ use Castor\Attribute\AsArgsAfterOptionEnd;
 use Castor\Attribute\AsOption;
 use Castor\Attribute\AsTask;
 use Castor\Context;
+use Castor\Helper\PathHelper;
+use Symfony\Component\Console\Completion\CompletionInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Process\Exception\ExceptionInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -22,6 +24,18 @@ use function Castor\io;
 use function Castor\open;
 use function Castor\run;
 use function Castor\variable;
+use function worktree\get_worktree_name;
+use function worktree\get_worktree_ports;
+
+/** @return array<string, array{env: string, default: int, label: string}> */
+function get_port_specs(): array
+{
+    return [
+        'http' => ['env' => 'PROJECT_HTTP_PORT',  'default' => 80,   'label' => 'HTTP'],
+        'https' => ['env' => 'PROJECT_HTTPS_PORT', 'default' => 443,  'label' => 'HTTPS'],
+        'admin' => ['env' => 'PROJECT_ADMIN_PORT', 'default' => 8080, 'label' => 'Traefik admin'],
+    ];
+}
 
 #[AsTask(description: 'Displays some help and available urls for the current project', namespace: '')]
 function about(): void
@@ -42,9 +56,12 @@ function about(): void
 
     $urls = [variable('root_domain'), ...variable('extra_domains')];
 
+    $worktreeName = get_worktree_name();
+    $adminPort = get_worktree_ports($worktreeName)['admin'];
+
     try {
         $routers = http_client()
-            ->request('GET', \sprintf('http://%s:8080/api/http/routers', variable('root_domain')))
+            ->request('GET', \sprintf('http://%s:%d/api/http/routers', variable('root_domain'), $adminPort))
             ->toArray()
         ;
         $projectName = variable('project_name');
@@ -64,7 +81,12 @@ function about(): void
     } catch (HttpExceptionInterface) {
     }
 
-    io()->listing(array_map(static fn ($url) => "https://{$url}", array_unique($urls)));
+    $httpsPort = null !== $worktreeName ? get_worktree_ports($worktreeName)['https'] : null;
+    $formatUrl = static function (string $host) use ($httpsPort): string {
+        return null !== $httpsPort ? "https://{$host}:{$httpsPort}" : "https://{$host}";
+    };
+
+    io()->listing(array_map($formatUrl, array_unique($urls)));
 }
 
 #[AsTask(description: 'Opens the project in your browser', namespace: '', aliases: ['open'])]
@@ -75,7 +97,7 @@ function open_project(): void
 
 #[AsTask(description: 'Builds the infrastructure', aliases: ['build'])]
 function build(
-    #[AsOption(description: 'The service to build (default: all services)')]
+    #[AsOption(description: 'The service to build (default: all services)', autocomplete: 'docker\complete_service_names')]
     ?string $service = null,
     ?string $profile = null,
 ): void {
@@ -111,6 +133,7 @@ function build(
  */
 #[AsTask(description: 'Builds and starts the infrastructure', aliases: ['up'])]
 function up(
+    #[AsOption(description: 'The service to start (default: all services)', autocomplete: 'docker\complete_service_names')]
     ?string $service = null,
     #[AsOption(mode: InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED)]
     array $profiles = [],
@@ -141,6 +164,7 @@ function up(
  */
 #[AsTask(description: 'Stops the infrastructure', aliases: ['stop'])]
 function stop(
+    #[AsOption(description: 'The service to stop (default: all services)', autocomplete: 'docker\complete_service_names')]
     ?string $service = null,
     #[AsOption(mode: InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED)]
     array $profiles = [],
@@ -158,6 +182,9 @@ function stop(
     docker_compose($command, profiles: $profiles);
 }
 
+/**
+ * @param list<string> $params
+ */
 #[AsTask(description: 'Opens a shell (bash) or proxy any command to the builder container', aliases: ['builder'])]
 function builder(#[AsArgsAfterOptionEnd] array $params = []): int
 {
@@ -341,7 +368,7 @@ function workers_start(): void
             $matches[1],
             $matches[2],
             implode(', ', $profiles),
-            $r->getFileName(),
+            PathHelper::makeRelative((string) $r->getFileName()),
             $r->getStartLine(),
         ));
     }
@@ -351,26 +378,33 @@ function workers_start(): void
 function workers_stop(): void
 {
     io()->title('Stopping workers');
+    $workers = get_service_names(profile: 'worker');
 
-    // Docker compose cannot stop a single service in a profile, if it depends
-    // on another service in another profile. To make it work, we need to select
-    // both profiles, and so stop both services
+    if ([] === $workers) {
+        io()->error('No worker service found.');
 
-    // So we find all services, in all profiles, and manually filter the one
-    // that has the "worker" profile, then we stop it
-    $command = ['stop'];
-
-    foreach (get_services() as $name => $service) {
-        foreach ($service['profiles'] ?? [] as $profile) {
-            if ('worker' === $profile) {
-                $command[] = $name;
-
-                continue 2;
-            }
-        }
+        return;
     }
 
-    docker_compose($command, profiles: ['*']);
+    docker_compose(['stop', ...$workers], profiles: ['*']);
+}
+
+/**
+ * @return array<string, string>
+ */
+function get_compose_environment(Context $c): array
+{
+    $domains = [$c['root_domain'], ...$c['extra_domains']];
+    $domains = '`' . implode('`) || Host(`', $domains) . '`';
+
+    return [
+        'PROJECT_NAME' => $c['project_name'],
+        'PROJECT_ROOT_DOMAIN' => $c['root_domain'],
+        'PROJECT_DOMAINS' => $domains,
+        'USER_ID' => $c['user_id'],
+        'PHP_VERSION' => $c['php_version'],
+        'REGISTRY' => $c['registry'] ?? '',
+    ];
 }
 
 /**
@@ -382,17 +416,17 @@ function docker_compose(array $subCommand, ?Context $c = null, array $profiles =
     $c ??= context();
     $profiles = $profiles ?: ['default'];
 
-    $domains = [$c['root_domain'], ...$c['extra_domains']];
-    $domains = '`' . implode('`) || Host(`', $domains) . '`';
+    $c = $c->withEnvironment(get_compose_environment($c));
 
-    $c = $c->withEnvironment([
-        'PROJECT_NAME' => $c['project_name'],
-        'PROJECT_ROOT_DOMAIN' => $c['root_domain'],
-        'PROJECT_DOMAINS' => $domains,
-        'USER_ID' => $c['user_id'],
-        'PHP_VERSION' => $c['php_version'],
-        'REGISTRY' => $c['registry'] ?? '',
-    ]);
+    $worktreeName = get_worktree_name();
+    if ($worktreeName) {
+        $ports = get_worktree_ports($worktreeName);
+        $portsEnv = [];
+        foreach (get_port_specs() as $key => $spec) {
+            $portsEnv[$spec['env']] = (string) $ports[$key];
+        }
+        $c = $c->withEnvironment($portsEnv);
+    }
 
     if ($c['APP_ENV'] ?? false) {
         $c = $c->withEnvironment([
@@ -477,6 +511,36 @@ function docker_compose_run(
 /**
  * @param list<string> $params
  */
+function docker_compose_exec(
+    array $params,
+    ?Context $context = null,
+    string $service = 'builder',
+): Process {
+    $context ??= context();
+
+    $command = [
+        'exec',
+    ];
+
+    if (0 === \count($params)) {
+        $params = ['bash'];
+        $context = $context->toInteractive();
+    } else {
+        $context = $context->withTty(false)->withPty(false)->withInput(\STDIN)->withAllowFailure();
+        $params = array_map(escapeshellarg(...), $params);
+    }
+
+    $command[] = $service;
+    $command[] = '/bin/bash';
+    $command[] = '-c';
+    $command[] = implode(' ', $params);
+
+    return docker_compose($command, c: $context, profiles: ['*']);
+}
+
+/**
+ * @param list<string> $params
+ */
 function docker_exit_code(
     array $params,
     ?Context $c = null,
@@ -524,103 +588,46 @@ function push(
         throw new \RuntimeException('You must define a registry to push images.');
     }
 
-    // Generate bake file
-    $targets = [];
+    // Only services with a cache_from can push their build cache back to the registry.
+    $services = array_filter(get_services(), static fn (array $config) => isset($config['build']['cache_from'][0]));
 
-    foreach (get_services() as $service => $config) {
-        $cacheFrom = $config['build']['cache_from'][0] ?? null;
+    $c = context()
+        ->withEnvironment(get_compose_environment(context()))
+        ->withWorkingDirectory(variable('root_dir') . '/infrastructure/docker')
+    ;
 
-        if (null === $cacheFrom) {
-            continue;
-        }
+    $command = ['docker', 'buildx', 'bake'];
 
-        $cacheFrom = explode(',', $cacheFrom);
-        $reference = null;
-        $type = null;
+    foreach ($c['docker_compose_files'] as $file) {
+        $command[] = '-f';
+        $command[] = $file;
+    }
 
-        if (1 === \count($cacheFrom)) {
-            $reference = $cacheFrom[0];
-            $type = 'registry';
-        } else {
-            foreach ($cacheFrom as $part) {
-                $from = explode('=', $part);
+    $command[] = '--set';
+    $command[] = '*.args.PHP_VERSION=' . $c['php_version'];
 
-                if (2 !== \count($from)) {
-                    continue;
-                }
-
-                if ('type' === $from[0]) {
-                    $type = $from[1];
-                }
-
-                if ('ref' === $from[0]) {
-                    $reference = $from[1];
-                }
-            }
-        }
+    foreach ($services as $service => $config) {
+        $command[] = '--set';
+        $command[] = "{$service}.cache-to={$config['build']['cache_from'][0]},mode=max";
 
         // Image name without its tag, e.g. "ghcr.io/jolicode/qotd/php"
         $image = isset($config['image']) ? preg_replace('{:[^/]+$}', '', $config['image']) : "{$registry}/{$service}";
 
-        $targets[] = [
-            'reference' => $reference,
-            'type' => $type,
-            'context' => $config['build']['context'],
-            'additional_contexts' => $config['build']['additional_contexts'] ?? [],
-            'dockerfile' => $config['build']['dockerfile'] ?? 'Dockerfile',
-            'target' => $config['build']['target'] ?? null,
-            'tags' => array_map(static fn (string $t) => "{$image}:{$t}", $tag),
-        ];
+        foreach ($tag as $t) {
+            $command[] = '--set';
+            $command[] = "{$service}.tags={$image}:{$t}";
+        }
     }
 
-    $content = \sprintf(
-        <<<'EOHCL'
-            group "default" {
-                targets = [%s]
-            }
-
-            EOHCL,
-        implode(', ', array_map(static fn ($target) => \sprintf('"%s"', $target['target']), $targets))
-    );
-
-    foreach ($targets as $target) {
-        $hclList = static fn (array $values) => implode(', ', array_map(static fn ($v) => \sprintf('"%s"', $v), $values));
-        $contexts = implode('', array_map(static fn ($name, $path) => \sprintf("\n        %s = \"%s\"", $name, $path), array_keys($target['additional_contexts']), $target['additional_contexts']));
-
-        $content .= \sprintf(
-            <<<'EOHCL'
-                target "%s" {
-                    context    = "%s"
-                    contexts   = {%s
-                    }
-                    dockerfile = "%s"
-                    cache-from = ["%s"]
-                    cache-to   = ["type=%s,ref=%s,mode=max"]
-                    target     = "%s"
-                    tags       = [%s]
-                    output     = [%s]
-                    args = {
-                        PHP_VERSION = "%s"
-                    }
-                }
-
-                EOHCL,
-            $target['target'], $target['context'], $contexts, $target['dockerfile'], $target['reference'], $target['type'], $target['reference'], $target['target'], $hclList($target['tags']), $hclList($target['tags'] ? ['type=registry'] : []), variable('php_version')
-        );
+    if ($tag) {
+        $command[] = '--push';
     }
 
     if ($dryRun) {
-        io()->write($content);
-
-        return;
+        $command[] = '--print';
     }
 
-    // write bake file in tmp file
-    $bakeFile = tempnam(sys_get_temp_dir(), 'bake');
-    file_put_contents($bakeFile, $content);
-
-    // Run bake
-    run(['docker', 'buildx', 'bake', '-f', $bakeFile]);
+    run([...$command, ...array_keys($services)], context: $c);
 }
 
 /**
@@ -655,4 +662,37 @@ function get_services(?string $profile = null): array
 function get_service_names(?string $profile = null): array
 {
     return array_keys(get_services($profile));
+}
+
+/**
+ * Autocompletion of the --service options.
+ *
+ * @return list<string>
+ */
+function complete_service_names(CompletionInput $input): array
+{
+    return get_service_names();
+}
+
+#[AsTask(description: 'Displays the ports allocated for the current project', namespace: 'docker')]
+function ports(): void
+{
+    $project = variable('project_name');
+    $domain = variable('root_domain');
+    $name = get_worktree_name();
+    $ports = get_worktree_ports($name);
+
+    io()->title('Ports');
+    $list = [['Project' => $project]];
+    foreach (get_port_specs() as $key => $spec) {
+        $scheme = 'admin' === $key ? 'http' : $key;
+        $host = 'admin' === $key ? 'localhost' : $domain;
+        $list[] = [$spec['label'] => "{$scheme}://{$host}:{$ports[$key]}"];
+    }
+
+    if ($name) {
+        array_unshift($list, ['Worktree' => $name]);
+    }
+
+    io()->definitionList(...$list);
 }
