@@ -26,7 +26,7 @@
     <div data-loading="addClass(opacity-50)">
         {% if query %}
             {% for qotd in computed.qotds %}
-                {{ include('qotd/_qotd.html.twig', { qotd }, with_context = false) }}
+                {{ include('qotd/_qotd.html.twig', {qotd: qotd}, with_context: false) }}
             {% else %}
                 <div class="card mb-2">
                     <div class="card-body">

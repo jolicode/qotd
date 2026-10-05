@@ -1,4 +1,4 @@
-{% extends "unique_block.html.twig" %}
+{% extends 'unique_block.html.twig' %}
 
 {# We defined commonly overriden modal block, feel free to add more #}
 {% block title '' %}
@@ -10,7 +10,7 @@
     <turbo-frame id="{{ get_turbo_frame() }}">
         {% if 'modal' == get_turbo_frame() %}
             {% block modal %}
-                {% component Modal with {...(modal_attributes ?? {}) } %}
+                {% component Modal with {...(modal_attributes ?? {})} %}
                     {% block title %}
                         {{ block(outerBlocks.title) }}
                     {% endblock %}

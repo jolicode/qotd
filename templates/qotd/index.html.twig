@@ -13,7 +13,7 @@
         <details {{ valid ? 'open' }}>
             <summary>Filters</summary>
             <div class="mb-3" {{ stimulus_controller('form-auto-submit') }}>
-                {{ form(form, { attr: { id: 'qotd-filters' } } ) }}
+                {{ form(form, {attr: {id: 'qotd-filters'}}) }}
                 <noscript>
                     <button type="submit" class="btn btn-primary" form="qotd-filters">Filters</button>
                 </noscript>
@@ -22,7 +22,7 @@
     {% endif %}
 
     {% for qotd in pagination %}
-        {{ include('qotd/_qotd.html.twig', { qotd }, with_context = false) }}
+        {{ include('qotd/_qotd.html.twig', {qotd: qotd}, with_context: false) }}
     {% else %}
         <div class="card mb-2">
             <div class="card-body">

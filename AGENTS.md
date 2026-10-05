@@ -43,6 +43,7 @@ The context changes how tasks are executed (`APP_ENV`, compose files, etc.):
 ```bash
 castor --context=test qa:phpunit             # APP_ENV=test, for tests
 castor --context=ci ...                      # like test, tuned for CI
+castor --context=prod ...                    # production images on a dedicated local stack (docker-compose.prod.yml)
 ```
 
 Always run tests and anything touching the database with `--context=test`.
@@ -57,6 +58,11 @@ Without option, the `default` context applies.
 - Symfony AssetMapper for JS/CSS (`importmap.php`) — no Node/yarn build step
 - A Messenger `worker` service is defined in `infrastructure/docker/docker-compose.yml` but
   currently commented out (no async transport in use yet)
+- Production ships as two images (`php` and `nginx`), built from the "Production stages" of
+  `infrastructure/docker/services/php/Dockerfile` and pushed by `.github/workflows/build-push.yml`.
+  php-fpm and nginx configuration (`services/php/php/`, `services/php/nginx/`) is shared with
+  the dev `frontend` container. The production cron job runs `bin/console qotd:run` with the
+  `php` image (the `cron` service is dev only)
 
 ## QA — before considering a task done
 

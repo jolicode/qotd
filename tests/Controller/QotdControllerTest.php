@@ -71,7 +71,7 @@ class QotdControllerTest extends WebTestCase
             self::assertResponseStatusCodeSame(302);
 
             $dbQuote = self::getContainer()->get(QotdRepository::class)->find($id);
-            $this->assertSame($initialVote + 1, $dbQuote->vote);
+            self::assertSame($initialVote + 1, $dbQuote->vote);
         } finally {
             $em = self::getContainer()->get(EntityManagerInterface::class);
             $em->clear();

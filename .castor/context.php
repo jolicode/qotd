@@ -17,7 +17,6 @@ function create_default_context(): Context
         'root_domain' => 'app.test',
         'extra_domains' => [],
         'php_version' => '8.5',
-        'registry' => null,
         'docker_compose_files' => [
             'docker-compose.yml',
             'docker-compose.dev.yml',
@@ -67,38 +66,6 @@ function create_default_context(): Context
     );
 }
 
-#[AsContext(name: 'test')]
-function create_test_context(): Context
-{
-    $c = create_default_context();
-
-    return $c->withEnvironment([
-        'APP_ENV' => 'test',
-    ]);
-}
-
-#[AsContext(name: 'ci')]
-function create_ci_context(): Context
-{
-    $c = create_test_context();
-
-    return $c
-        ->withData(
-            [
-                'docker_compose_files' => [
-                    'docker-compose.yml',
-                    // Usually, the following service is not be needed in the CI
-                    'docker-compose.dev.yml',
-                ],
-            ],
-            recursive: false
-        )
-        ->withEnvironment([
-            'COMPOSE_ANSI' => 'never',
-        ])
-    ;
-}
-
 /**
  * Production images (see the "Production stages" of the Dockerfile): the same tasks as in
  * dev, on a dedicated compose stack. E.g. `castor start -c prod`, `castor docker:push -c prod`.
@@ -112,7 +79,6 @@ function create_prod_context(): Context
         [
             // Dedicated compose project: never collides with the dev stack (containers, volumes)
             'project_name' => $c['project_name'] . '-prod',
-            'registry' => getenv('REGISTRY') ?: $c['registry'],
             'docker_compose_files' => [
                 'docker-compose.prod.yml',
             ],
@@ -121,4 +87,40 @@ function create_prod_context(): Context
         ],
         recursive: false,
     );
+}
+
+#[AsContext(name: 'test')]
+function create_test_context(): Context
+{
+    $c = create_default_context();
+
+    return $c
+        ->withEnvironment([
+            'APP_ENV' => 'test',
+        ])
+    ;
+}
+
+#[AsContext(name: 'ci')]
+function create_ci_context(): Context
+{
+    $c = create_test_context();
+
+    return $c
+        ->withData(
+            // override the default context here
+            [
+                'docker_compose_files' => [
+                    'docker-compose.yml',
+                    // Usually, the following service is not be needed in the CI
+                    'docker-compose.dev.yml',
+                    // 'docker-compose.ci.yml',
+                ],
+            ],
+            recursive: false
+        )
+        ->withEnvironment([
+            'COMPOSE_ANSI' => 'never',
+        ])
+    ;
 }

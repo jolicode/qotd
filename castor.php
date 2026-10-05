@@ -2,8 +2,6 @@
 
 use Castor\Attribute\AsTask;
 
-defined('CASTOR_USE_CHDIR') || define('CASTOR_USE_CHDIR', true);
-
 use function Castor\context;
 use function Castor\guard_min_version;
 use function Castor\import;
@@ -17,7 +15,9 @@ use function docker\docker_compose_run;
 use function docker\get_services;
 use function docker\up;
 
-guard_min_version('1.5.0');
+defined('CASTOR_USE_CHDIR') || define('CASTOR_USE_CHDIR', true);
+
+guard_min_version('1.8.0');
 
 import(__DIR__ . '/.castor');
 
@@ -29,7 +29,8 @@ function create_default_variables(): array
     return [
         'project_name' => 'qotd',
         'root_domain' => 'local.qotd.internal.jolicode.com',
-        'registry' => 'ghcr.io/jolicode/qotd',
+        // REGISTRY allows pushing the images to another registry (e.g. a fork)
+        'registry' => $_SERVER['REGISTRY'] ?? 'ghcr.io/jolicode/qotd',
     ];
 }
 
@@ -97,8 +98,16 @@ function cache_clear(bool $warm = true): void
     docker_compose_run(['rm', '-rf', 'var/cache/']);
 
     if ($warm && is_dir(variable('root_dir') . '/vendor')) {
-        docker_compose_run(['bin/console', 'cache:warmup'], c: context()->withAllowFailure());
+        cache_warmup();
     }
+}
+
+#[AsTask(description: 'Warms the application cache', namespace: 'app', aliases: ['cache-warmup'])]
+function cache_warmup(): void
+{
+    io()->title('Warming the application cache');
+
+    docker_compose_run(['bin/console', 'cache:warmup'], c: context()->withAllowFailure());
 }
 
 #[AsTask(description: 'Migrates database schema', namespace: 'app:db', aliases: ['migrate'])]

@@ -20,7 +20,7 @@ class ChallengeSubscriber implements EventSubscriberInterface
         }
 
         try {
-            $payload = json_decode($event->getRequest()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            $payload = json_decode($event->getRequest()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             return;
         }
