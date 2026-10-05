@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block body %}
-    {{ form(form, { attr: { id: 'qotd-edit' } } ) }}
+    {{ form(form, {attr: {id: 'qotd-edit'}}) }}
 
     {% if get_turbo_frame() != 'modal' %}
         {{ block('save_button') }}

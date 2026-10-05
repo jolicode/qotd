@@ -9,7 +9,7 @@ use Symfony\Component\Finder\Finder;
 class MessageRendererTest extends KernelTestCase
 {
     /**
-     * @dataProvider providerTest
+     * @dataProvider provideCases
      */
     public function test(string $basename): void
     {
@@ -29,10 +29,10 @@ class MessageRendererTest extends KernelTestCase
             throw new \RuntimeException(\sprintf('The fixture file "%s" does not exist.', $expectedFile));
         }
 
-        $this->assertStringEqualsFile($expectedFile, $output);
+        self::assertStringEqualsFile($expectedFile, $output);
     }
 
-    public static function providerTest(): iterable
+    public static function provideCases(): iterable
     {
         $finder = (new Finder())
             ->files()

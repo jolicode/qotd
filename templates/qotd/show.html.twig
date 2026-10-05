@@ -3,7 +3,7 @@
 {% block title %}QOTD #{{ qotd.id }}{% endblock %}
 
 {% block body %}
-    {{ include("qotd/_qotd.html.twig", { qotd }, with_context = false) }}
+    {{ include('qotd/_qotd.html.twig', {qotd: qotd}, with_context: false) }}
 {% endblock %}
 
 {# We use this template as the "finish point" of diverse operations, that may occurs in modals #}
@@ -14,8 +14,7 @@
 {% block frames %}
     <turbo-stream action="replace" target="qotd-{{ qotd.id }}">
         <template>
-            {{ include("qotd/_qotd.html.twig", { qotd }, with_context = false) }}
+            {{ include('qotd/_qotd.html.twig', {qotd: qotd}, with_context: false) }}
         </template>
     </turbo-stream>
 {% endblock %}
-

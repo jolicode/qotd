@@ -48,7 +48,7 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
                 $explodedEmail = explode('@', (string) $googleUser->getEmail(), 2);
                 $domain = array_pop($explodedEmail);
 
-                if (!\in_array($domain, $this->allowedDomains)) {
+                if (!\in_array($domain, $this->allowedDomains, true)) {
                     throw new AuthenticationException('You are not allowed to create an account.');
                 }
 

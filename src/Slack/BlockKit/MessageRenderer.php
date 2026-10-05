@@ -36,7 +36,7 @@ final readonly class MessageRenderer
             ]);
             $this->fs->dumpFile(
                 \sprintf('%s/error-block-render-%s.json', $this->varDirectory, date('Y-m-d-h-i-s')),
-                json_encode($message, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES)
+                json_encode($message, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             );
             if ($this->debug) {
                 throw $e;

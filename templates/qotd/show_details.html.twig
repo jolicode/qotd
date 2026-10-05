@@ -1,6 +1,6 @@
 {% extends 'base_with_frame.html.twig' %}
 
-{% import "macros/qotd/message.html.twig" as qotd_macro %}
+{% import 'macros/qotd/message.html.twig' as qotd_macro %}
 
 {% block title %}QOTD #{{ qotd.id }}{% endblock %}
 
@@ -10,7 +10,7 @@
             <th>ID</th>
             <td>
                 {{ qotd.id }}
-                <a href="{{ url('qotd_show_details', { id: qotd.id }) }}" class="text-reset" data-turbo-frame="modal"><i class="bi bi-info-circle"></i></a>
+                <a href="{{ url('qotd_show_details', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><i class="bi bi-info-circle"></i></a>
             </td>
         </tr>
         <tr>
