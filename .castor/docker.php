@@ -49,7 +49,7 @@ function about(): void
     io()->section('Available URLs for this project:');
 
     if (!has_router()) {
-        io()->listing([\sprintf('http://127.0.0.1:%s', getenv('HTTP_PORT') ?: '8080')]);
+        io()->listing([\sprintf('http://127.0.0.1:%s', getenv('HTTP_PORT') ?: '8000')]);
 
         return;
     }
@@ -496,7 +496,7 @@ function docker_compose_run(
         $params = ['bash'];
         $c = $c->toInteractive();
     } else {
-        $c = $c->withTty(false)->withPty(false)->withInput(\STDIN)->withAllowFailure();
+        $c = $c->withTty(false)->withPty(false)->withInput(STDIN)->withAllowFailure();
         $params = array_map(escapeshellarg(...), $params);
     }
 
@@ -526,7 +526,7 @@ function docker_compose_exec(
         $params = ['bash'];
         $context = $context->toInteractive();
     } else {
-        $context = $context->withTty(false)->withPty(false)->withInput(\STDIN)->withAllowFailure();
+        $context = $context->withTty(false)->withPty(false)->withInput(STDIN)->withAllowFailure();
         $params = array_map(escapeshellarg(...), $params);
     }
 
@@ -544,7 +544,7 @@ function docker_compose_exec(
 function docker_exit_code(
     array $params,
     ?Context $c = null,
-    string $service = 'builder',
+    ?string $service = null,
     bool $noDeps = true,
     ?string $workDir = null,
 ): int {
@@ -576,7 +576,7 @@ function has_router(): bool
  *
  * @param list<string> $tag
  */
-#[AsTask(description: 'Push images cache (and images, with --tag) to the registry', namespace: 'docker', name: 'push')]
+#[AsTask(description: 'Push images cache (and images, with --tag) to the registry', namespace: 'docker', name: 'push', aliases: ['push'])]
 function push(
     bool $dryRun = false,
     #[AsOption(description: 'Also push the images, with this tag (repeatable)', mode: InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED)]
@@ -588,8 +588,13 @@ function push(
         throw new \RuntimeException('You must define a registry to push images.');
     }
 
+    $services = get_services();
+
     // Only services with a cache_from can push their build cache back to the registry.
-    $services = array_filter(get_services(), static fn (array $config) => isset($config['build']['cache_from'][0]));
+    $cacheFroms = array_filter(array_map(
+        static fn (array $config) => $config['build']['cache_from'][0] ?? null,
+        $services,
+    ));
 
     $c = context()
         ->withEnvironment(get_compose_environment(context()))
@@ -609,28 +614,31 @@ function push(
     $command[] = '--set';
     $command[] = '*.args.PHP_VERSION=' . $c['php_version'];
 
-    foreach ($services as $service => $config) {
+    foreach ($cacheFroms as $service => $cacheFrom) {
         $command[] = '--set';
-        $command[] = "{$service}.cache-to={$config['build']['cache_from'][0]},mode=max";
+        $command[] = "{$service}.cache-to={$cacheFrom},mode=max";
 
-        // Image name without its tag, e.g. "ghcr.io/jolicode/qotd/php"
-        $image = isset($config['image']) ? preg_replace('{:[^/]+$}', '', $config['image']) : "{$registry}/{$service}";
+        if (!$tag) {
+            continue;
+        }
+
+        // Image name without its tag, e.g. "ghcr.io/jolicode/docker-starter/php"
+        $image = isset($services[$service]['image']) ? preg_replace('{:[^/]+$}', '', $services[$service]['image']) : "{$registry}/{$service}";
 
         foreach ($tag as $t) {
             $command[] = '--set';
             $command[] = "{$service}.tags={$image}:{$t}";
         }
-    }
 
-    if ($tag) {
-        $command[] = '--push';
+        $command[] = '--set';
+        $command[] = "{$service}.output=type=registry";
     }
 
     if ($dryRun) {
         $command[] = '--print';
     }
 
-    run([...$command, ...array_keys($services)], context: $c);
+    run([...$command, ...array_keys($cacheFroms)], context: $c);
 }
 
 /**
@@ -645,7 +653,7 @@ function get_services(?string $profile = null): array
             profiles: ['*'],
         )->getOutput(),
         true,
-        flags: \JSON_THROW_ON_ERROR,
+        flags: JSON_THROW_ON_ERROR,
     )['services'];
 
     if (null === $profile) {

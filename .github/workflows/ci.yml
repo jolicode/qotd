@@ -1,65 +1,127 @@
 name: Continuous Integration
 
 "on":
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  schedule:
-    - cron: "0 0 * * MON"
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+    schedule:
+        - cron: "0 0 * * MON"
+
+concurrency:
+    group: ci-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 permissions:
-  contents: read
-  packages: read
+    contents: read
+    packages: read
 
 env:
-  # Fix for symfony/color detection. We know GitHub Actions can handle it
-  ANSICON: 1
-  CASTOR_CONTEXT: ci
-  DS_REGISTRY: "ghcr.io/jolicode/qotd"
+    # Fix for symfony/color detection. We know GitHub Actions can handle it
+    ANSICON: 1
+    CASTOR_CONTEXT: ci
+    REGISTRY: "ghcr.io/jolicode/qotd"
 
 jobs:
-  ci:
-    name: Continuous Integration
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+    check-dockerfiles:
+        name: Check Dockerfile
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                persist-credentials: false
 
-      - name: Log in to registry
-        shell: bash
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+            - name: Check php/Dockerfile
+              uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
+              with:
+                  dockerfile: infrastructure/docker/services/php/Dockerfile
 
-      - uses: actions/checkout@v7
+    prod-images:
+        name: Test production images
+        runs-on: ubuntu-latest
+        env:
+            CASTOR_CONTEXT: prod
+        steps:
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
-      - name: setup-castor
-        uses: castor-php/setup-castor@v1.1.0
+            - name: Log in to registry
+              shell: bash
+              run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - name: "Build and start the infrastructure"
-        run: "castor start"
+            - name: setup-castor
+              uses: castor-php/setup-castor@2a495b8c91f00be6768ad8a040ba8634c797d386 # v1.1.0
 
-      - name: "Check PHP coding standards"
-        run: "castor qa:cs --dry-run"
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                persist-credentials: false
 
-      - name: "Run PHPStan"
-        run: "castor qa:phpstan"
+            - name: "Build and start the production images"
+              run: "castor start"
 
-      - name: "Load fixtures"
-        run: "castor fixtures --env=test"
+            - name: "Test HTTP server"
+              run: |
+                  set -e
+                  set -o pipefail
 
-      - name: "Run PHPUnit"
-        run: "castor qa:phpunit"
+                  # Not authenticated, we expect a redirection to the Google connect route
+                  test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:8000)" = 302
+                  curl --silent -o /dev/null -w '%{redirect_url}' http://127.0.0.1:8000 | grep "/connect/google"
+                  test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/index.php)" = 404
 
-      - name: "Test HTTP server"
-        run: |
-            set -e
-            set -o pipefail
+            - name: "Test the php image runs as a non-root user"
+              run: "castor builder -- id -u | grep -x 1000"
 
-            # Not authenticated, we expect a redirection to the Google connect route
-            status="$(curl --insecure --silent --output /dev/null --write-out "%{http_code}" -H "Host: local.qotd.internal.jolicode.com" https://127.0.0.1)"
-            echo "HTTP status: ${status}"
-            grep "302" <<<"${status}"
+    ci:
+        name: Continuous Integration
+        runs-on: ubuntu-latest
+        steps:
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
-            location="$(curl --insecure --silent --output /dev/null --write-out "%{redirect_url}" -H "Host: local.qotd.internal.jolicode.com" https://127.0.0.1)"
-            echo "Redirect location: ${location}"
-            grep "/connect/google" <<<"${location}"
+            - name: Log in to registry
+              shell: bash
+              run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+            - name: setup-castor
+              uses: castor-php/setup-castor@2a495b8c91f00be6768ad8a040ba8634c797d386 # v1.1.0
+
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                persist-credentials: false
+
+            - name: "Build and start the infrastructure"
+              run: "castor start"
+
+            - name: "Check Security issues"
+              run: "castor qa:security-audit"
+
+            - name: "Check PHP coding standards"
+              run: "castor qa:cs --dry-run"
+
+            - name: "Check Twig coding standards"
+              run: "castor qa:twig-cs --dry-run"
+
+            - name: "Run PHPStan"
+              run: "castor qa:phpstan"
+
+            - name: "Load fixtures"
+              run: "castor fixtures --env=test"
+
+            - name: "Run PHPUnit"
+              run: "castor qa:phpunit"
+
+            - name: "Test HTTP server"
+              run: |
+                  set -e
+                  set -o pipefail
+
+                  # Not authenticated, we expect a redirection to the Google connect route
+                  status="$(curl --insecure --silent --output /dev/null --write-out "%{http_code}" -H "Host: local.qotd.internal.jolicode.com" https://127.0.0.1)"
+                  echo "HTTP status: ${status}"
+                  grep "302" <<<"${status}"
+
+                  location="$(curl --insecure --silent --output /dev/null --write-out "%{redirect_url}" -H "Host: local.qotd.internal.jolicode.com" https://127.0.0.1)"
+                  echo "Redirect location: ${location}"
+                  grep "/connect/google" <<<"${location}"

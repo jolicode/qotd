@@ -29,8 +29,8 @@ Dont forget to customize the file with your own values.
 
 You'll need a pair of Google API keys to connect via oAuth. You'll need to
 configure the following URLs as a callback:
-`http://localhost:8000/connect/google/check`. You'll also need to configure the
-emails domains allowed.
+`https://local.qotd.internal.jolicode.com/connect/google/check`. You'll also
+need to configure the emails domains allowed.
 
 ```
 GOOGLE_CLIENT_ID=FIXME
@@ -43,44 +43,46 @@ But if you don't want to connect with google, you can use the
 
 ### Install the PHP application
 
-To make the application available locally at the address
-[http://localhost:8000](http://localhost:8000), first create a
-`docker-compose.override.yml` file with the following content:
+A Docker environment is provided (NGINX, PHP, PostgreSQL, Traefik, a cron
+service and a builder container with Composer). It requires these tools on your
+machine:
 
-```yaml
-services:
-    frontend:
-        ports:
-            - "8000:8080"
-```
+* Docker
+* Bash
+* [Castor](https://github.com/jolicode/castor#installation)
 
-> [!NOTE]
-> Override `APP_DEFAULT_URI` value in a `.env.local` file if you use
-> another port or another domain.
+Make the domain point to your Docker daemon (first time only):
 
-Then run the following commands:
+    echo '127.0.0.1 local.qotd.internal.jolicode.com' | sudo tee -a /etc/hosts
 
-    docker-compose up -d
-    docker-compose run --rm --user=app frontend composer install
-    docker-compose run --rm --user=app frontend bin/console asset-map:compile
-    docker-compose run --rm --user=app frontend bin/db
+Then start the stack:
+
+    castor start
     # If you want to load some fixtures
-    # docker-compose run --rm --user=app frontend bin/console doctrine:fixtures:load  --no-interaction
+    # castor fixtures
     # configure remaining parameters in .env.local
     # Enjoy
 
+The application is now available at
+[https://local.qotd.internal.jolicode.com](https://local.qotd.internal.jolicode.com).
+SSL certificates are generated on the first start (with `mkcert` if it is
+installed, so that they are trusted by your browser).
+
+> [!NOTE]
+> Override `APP_DEFAULT_URI` value in a `.env.local` file if you use
+> another domain.
+
 ### Development
 
-If you want to contribute, you can edit the `docker-compose.override.yml` file to add:
+Run `castor` to list the available tasks. The main ones:
 
-```yaml
-services:
-    frontend:
-        volumes:
-            - .:/app
-        ports:
-          - 8888:8080
-```
+    castor builder             # opens a shell with PHP and Composer
+    castor qa                  # coding standards, PHPStan and PHPUnit
+    castor stop                # stops the stack
+
+[Git worktrees](https://git-scm.com/docs/git-worktree) are supported: a
+`castor start` inside a worktree runs a fully isolated stack (project name,
+volumes, ports, see `castor docker:ports`).
 
 ## Production
 
@@ -88,19 +90,18 @@ The application ships as two self-contained Docker images, built from the
 "production stages" of `infrastructure/docker/services/php/Dockerfile`:
 
 * `php`: php-fpm listening on the unix socket `/var/run/php/php-fpm.sock`,
-  with the code, the vendors and the compiled assets baked in, `APP_ENV=prod`.
-  It is also the CLI image: the cron job (`bin/console qotd:run`) and the
-  database migrations run with it;
+  with the code, the vendors and the compiled assets baked in, `APP_ENV=prod`,
+  running as a non-root user. It is also the CLI image: the cron job
+  (`bin/console qotd:run`) and the database migrations run with it;
 * `nginx`: the official nginx image, the compiled `public/` directory and the
   site configuration, forwarding PHP requests to that socket.
 
 Both use the php-fpm and nginx configuration of the dev container
 (`services/php/php/` and `services/php/nginx/`); what production does
 differently is in `services/php/php/mods-available/app-prod.ini`. Everything
-else (secrets, database,
-Slack and Google credentials) is provided through environment variables at
-runtime, and `public/uploads` (medias downloaded from Slack) must be a volume
-shared by all the containers.
+else (secrets, database, Slack and Google credentials) is provided through
+environment variables at runtime, and `public/uploads` (medias downloaded from
+Slack) must be a volume shared by all the containers.
 
 On every push to `main` (and on every git tag), the "Build and push production
 images" workflow pushes both images to `ghcr.io/<repository>/php` and
@@ -111,11 +112,12 @@ images" workflow pushes both images to `ghcr.io/<repository>/php` and
 
 The `prod` castor context runs the usual tasks on a dedicated compose stack
 (`docker-compose.prod.yml`: postgres + the two images, no bind mount, no
-router), independent from the development one:
+router, no cron), independent from the development one:
 
     castor build -c prod       # builds the php and nginx images
     castor start -c prod       # starts the stack and runs the migrations
-    # -> http://127.0.0.1:8080 (HTTP_PORT=18080 castor start -c prod to change the port)
+    # -> http://127.0.0.1:8000 (HTTP_PORT=18000 castor start -c prod to change the port)
+    castor builder -c prod     # opens a shell in the php image
     castor destroy -c prod     # removes the containers and the volumes
 
 It uses dummy secrets: to test a real Google login or a real Slack workspace,
@@ -127,6 +129,8 @@ To push images from your machine instead of waiting for the CI (you need to be
 logged in to the registry with `docker login ghcr.io`, and a buildx builder
 able to export a registry cache, e.g. `docker buildx create --use`):
 
+    castor docker:push -c prod --tag=my-test
+    # or, to another registry (a fork for example)
     REGISTRY=ghcr.io/<org>/<repo> castor docker:push -c prod --tag=my-test
 
 ## Usage

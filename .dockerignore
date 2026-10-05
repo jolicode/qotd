@@ -23,19 +23,24 @@ rector.php
 castor.php
 .gitignore
 LICENSE
+phpunit.dist.xml
 phpunit.xml.dist
 
 # Mirrors .gitignore: local/generated files that must never end up baked
 # into the image (some carry secrets, e.g. the prod secrets decryption key)
 .castor.stub.php
 .php-cs-fixer.cache
+.twig-cs-fixer.cache
 .env.local
 .env.local.php
 .env.*.local
+.phpunit.cache
 .phpunit.result.cache
 phpunit.xml
+config/reference.php
 config/secrets/prod/prod.decrypt.private.php
 public/assets
+public/build
 public/bundles
 public/uploads
 assets/vendor
