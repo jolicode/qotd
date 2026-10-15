@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e73c03f8815c6ef901b72d5e2e97988",
+    "content-hash": "37beb38e899555e20a20bf736f4befe0",
     "packages": [
         {
             "name": "composer/semver",
@@ -1605,172 +1605,6 @@
                 }
             ],
             "time": "2026-08-24T09:13:11+00:00"
-        },
-        {
-            "name": "knplabs/knp-components",
-            "version": "v5.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/KnpLabs/knp-components.git",
-                "reference": "1c69651056fea716f5f6c60e11c59cabf6c1bf54"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/knp-components/zipball/1c69651056fea716f5f6c60e11c59cabf6c1bf54",
-                "reference": "1c69651056fea716f5f6c60e11c59cabf6c1bf54",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.2",
-                "symfony/event-dispatcher-contracts": "^3.0"
-            },
-            "conflict": {
-                "doctrine/dbal": "<4.0"
-            },
-            "require-dev": {
-                "doctrine/dbal": "^4.0",
-                "doctrine/mongodb-odm": "^2.5.5",
-                "doctrine/orm": "^3.0",
-                "doctrine/phpcr-odm": "^2.0",
-                "ext-pdo_sqlite": "*",
-                "jackalope/jackalope-doctrine-dbal": "^2.0",
-                "phpunit/phpunit": "^11.5 || ^12.5 || ^13.2",
-                "propel/propel1": "^1.7",
-                "ruflin/elastica": "^7.0",
-                "solarium/solarium": "^6.0",
-                "symfony/http-foundation": "^6.4.4 || ^7.4",
-                "symfony/http-kernel": "^6.4.4 || ^7.4",
-                "symfony/property-access": "^6.4.4 || ^7.4",
-                "symfony/var-exporter": "^6.4.4 || ^7.4"
-            },
-            "suggest": {
-                "doctrine/common": "to allow usage pagination with Doctrine ArrayCollection",
-                "doctrine/mongodb-odm": "to allow usage pagination with Doctrine ODM MongoDB",
-                "doctrine/orm": "to allow usage pagination with Doctrine ORM",
-                "doctrine/phpcr-odm": "to allow usage pagination with Doctrine ODM PHPCR",
-                "propel/propel1": "to allow usage pagination with Propel ORM",
-                "ruflin/elastica": "to allow usage pagination with ElasticSearch Client",
-                "solarium/solarium": "to allow usage pagination with Solarium Client",
-                "symfony/http-foundation": "to retrieve arguments from Request",
-                "symfony/property-access": "to allow sorting arrays"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Knp\\Component\\": "src/Knp/Component"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "KnpLabs Team",
-                    "homepage": "https://knplabs.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://github.com/KnpLabs/knp-components/contributors"
-                }
-            ],
-            "description": "Knplabs component library",
-            "homepage": "https://github.com/KnpLabs/knp-components",
-            "keywords": [
-                "components",
-                "knp",
-                "knplabs",
-                "pager",
-                "paginator"
-            ],
-            "support": {
-                "issues": "https://github.com/KnpLabs/knp-components/issues",
-                "source": "https://github.com/KnpLabs/knp-components/tree/v5.3.0"
-            },
-            "time": "2026-08-07T07:05:10+00:00"
-        },
-        {
-            "name": "knplabs/knp-paginator-bundle",
-            "version": "v6.11.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/KnpLabs/KnpPaginatorBundle.git",
-                "reference": "a91a854720df2dbfd04cbf8c44c3dad6ce22fdca"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/KnpPaginatorBundle/zipball/a91a854720df2dbfd04cbf8c44c3dad6ce22fdca",
-                "reference": "a91a854720df2dbfd04cbf8c44c3dad6ce22fdca",
-                "shasum": ""
-            },
-            "require": {
-                "knplabs/knp-components": "^5.0",
-                "php": "^8.2",
-                "symfony/config": "^6.4 || ^7.4 || ^8.0",
-                "symfony/dependency-injection": "^6.4 || ^7.4 || ^8.0",
-                "symfony/event-dispatcher": "^6.4 || ^7.4 || ^8.0",
-                "symfony/http-foundation": "^6.4 || ^7.4 || ^8.0",
-                "symfony/http-kernel": "^6.4 || ^7.4 || ^8.0",
-                "symfony/routing": "^6.4 || ^7.4 || ^8.0"
-            },
-            "require-dev": {
-                "phpstan/phpstan": "^2.2",
-                "phpstan/phpstan-strict-rules": "^2.0",
-                "phpunit/phpunit": "^11.5 || ^12.5 || ^13.2",
-                "symfony/templating": "^6.4 || ^7.4 || ^8.0",
-                "symfony/translation": "^6.4 || ^7.4 || ^8.0",
-                "twig/twig": "^3.0"
-            },
-            "suggest": {
-                "symfony/translation": "To use the templates",
-                "twig/twig": "To use the templates"
-            },
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "6.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Knp\\Bundle\\PaginatorBundle\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "KnpLabs Team",
-                    "homepage": "https://knplabs.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://github.com/KnpLabs/KnpPaginatorBundle/contributors"
-                }
-            ],
-            "description": "Paginator bundle for Symfony to automate pagination and simplify sorting and other features",
-            "homepage": "https://github.com/KnpLabs/KnpPaginatorBundle",
-            "keywords": [
-                "bundle",
-                "knp",
-                "knplabs",
-                "pager",
-                "pagination",
-                "paginator",
-                "symfony"
-            ],
-            "support": {
-                "issues": "https://github.com/KnpLabs/KnpPaginatorBundle/issues",
-                "source": "https://github.com/KnpLabs/KnpPaginatorBundle/tree/v6.11.0"
-            },
-            "time": "2026-09-11T08:30:00+00:00"
         },
         {
             "name": "knpuniversity/oauth2-client-bundle",
@@ -8265,6 +8099,109 @@
             ],
             "support": {
                 "source": "https://github.com/symfony/ux-live-component/tree/v3.6.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-10-13T08:04:44+00:00"
+        },
+        {
+            "name": "symfony/ux-pagination",
+            "version": "v3.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/ux-pagination.git",
+                "reference": "f394daa41995ad55aef6ffd30fc4bee8053b5ff5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/ux-pagination/zipball/f394daa41995ad55aef6ffd30fc4bee8053b5ff5",
+                "reference": "f394daa41995ad55aef6ffd30fc4bee8053b5ff5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4",
+                "symfony/config": "^7.4|^8.0",
+                "symfony/dependency-injection": "^7.4|^8.0",
+                "symfony/http-foundation": "^7.4|^8.0",
+                "symfony/http-kernel": "^7.4|^8.0",
+                "symfony/routing": "^7.4|^8.0",
+                "symfony/translation-contracts": "^3.0",
+                "symfony/twig-bundle": "^7.4|^8.0",
+                "twig/twig": "^3.10.3|^4.0"
+            },
+            "conflict": {
+                "doctrine/dbal": "<4.4",
+                "doctrine/orm": "<3.0",
+                "symfony/ux-live-component": "<3.0",
+                "symfony/ux-twig-component": "<3.0"
+            },
+            "require-dev": {
+                "doctrine/dbal": "^4.4",
+                "doctrine/orm": "^3.0",
+                "phpstan/phpstan": "^2.1.17",
+                "phpunit/phpunit": "^11.1|^12.0",
+                "symfony/asset-mapper": "^7.4|^8.0",
+                "symfony/browser-kit": "^7.4|^8.0",
+                "symfony/css-selector": "^7.4|^8.0",
+                "symfony/dom-crawler": "^7.4|^8.0",
+                "symfony/framework-bundle": "^7.4|^8.0",
+                "symfony/translation": "^7.4|^8.0",
+                "symfony/ux-live-component": "^3.0",
+                "symfony/ux-twig-component": "^3.0"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/ux",
+                    "name": "symfony/ux"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\UX\\Pagination\\": "src/"
+                },
+                "exclude-from-classmap": []
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Simon André",
+                    "email": "smn.andre@gmail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Cursor and numbered pagination for Symfony applications",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "pager",
+                "pagination",
+                "paginator",
+                "symfony-ux"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/ux-pagination/tree/v3.6.0"
             },
             "funding": [
                 {

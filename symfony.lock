@@ -56,9 +56,6 @@
             "migrations/.gitignore"
         ]
     },
-    "knplabs/knp-paginator-bundle": {
-        "version": "v6.1.1"
-    },
     "knpuniversity/oauth2-client-bundle": {
         "version": "2.13",
         "recipe": {
@@ -298,6 +295,9 @@
         "files": [
             "config/routes/ux_live_component.yaml"
         ]
+    },
+    "symfony/ux-pagination": {
+        "version": "v3.6.0"
     },
     "symfony/ux-turbo": {
         "version": "2.23",

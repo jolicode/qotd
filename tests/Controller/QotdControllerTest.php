@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Security\User\OAuthUser;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 
 class QotdControllerTest extends WebTestCase
 {
@@ -82,6 +83,21 @@ class QotdControllerTest extends WebTestCase
         }
     }
 
+    public function testNotVotedYetNextPage(): void
+    {
+        $client = self::createClientAndLogin();
+
+        $crawler = $client->request('GET', '/not-voted');
+        $firstPageIds = self::getQuoteIds($crawler);
+
+        $crawler = $client->click($crawler->filter('a[rel=next]')->link());
+
+        self::assertResponseIsSuccessful();
+        $nextPageIds = self::getQuoteIds($crawler);
+        self::assertCount(7, $nextPageIds);
+        self::assertSame([], array_intersect($firstPageIds, $nextPageIds));
+    }
+
     public function testShowAndVote(): void
     {
         $client = self::createClientAndLogin();
@@ -127,6 +143,17 @@ class QotdControllerTest extends WebTestCase
     public static function assertTestSelectorTextContains(string $selector, string $text, string $message = ''): void
     {
         self::assertSelectorTextContains(\sprintf('[data-test=%s]', $selector), $text, $message);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function getQuoteIds(Crawler $crawler): array
+    {
+        return $crawler
+            ->filter('[data-test=quote]')
+            ->each(static fn (Crawler $quote): string => str_replace('qotd-', '', (string) $quote->attr('id')))
+        ;
     }
 
     private function createClientAndLogin(): KernelBrowser

@@ -1,0 +1,2 @@
+ux_pagination:
+    theme: '@UXPagination/theme/bootstrap.html.twig'

@@ -22,6 +22,9 @@ doctrine:
                 alias: App
         controller_resolver:
             auto_mapping: false
+        dql:
+            string_functions:
+                JSON_GET_TEXT: App\Doctrine\Query\JsonGetText
 
 when@test:
     doctrine:

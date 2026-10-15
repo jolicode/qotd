@@ -4,16 +4,15 @@ namespace App\Repository;
 
 use App\Entity\Qotd;
 use App\Form\Model\QotdFilters;
-use App\Paginator\Mode\NativeQuery;
 use App\Repository\Model\QotdDirection;
 use App\Repository\Model\QotdVote;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use Knp\Component\Pager\Pagination\PaginationInterface;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\UX\Pagination\Pagination;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 /**
  * @extends ServiceEntityRepository<Qotd>
@@ -45,9 +44,9 @@ class QotdRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return PaginationInterface<string, Qotd>
+     * @return Pagination<Qotd>
      */
-    public function findForHomepage(int $page, QotdDirection $direction, ?QotdFilters $filters = null): PaginationInterface
+    public function findForHomepage(QotdDirection $direction, ?QotdFilters $filters = null): Pagination
     {
         $qb = $this->createQueryBuilder('q');
 
@@ -74,37 +73,33 @@ class QotdRepository extends ServiceEntityRepository
             default => throw new \InvalidArgumentException('Invalid direction'),
         };
 
-        return $this->paginator->paginate(
-            $qb->getQuery(),
-            $page,
-            self::MAX_PER_PAGE,
-        );
+        return $this->paginator
+            ->query($qb)
+            ->perPage(self::MAX_PER_PAGE)
+            ->paginate()
+        ;
     }
 
     /**
-     * @return PaginationInterface<string, Qotd>
+     * @return Pagination<Qotd>
      */
-    public function findForHomepageNotVoted(int $page, UserInterface $user): PaginationInterface
+    public function findForHomepageNotVoted(UserInterface $user): Pagination
     {
-        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
-        $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q');
+        // A cursor would keep the next page stable while the user votes, but
+        // UX Pagination does not support a DATE column as cursor field yet.
+        $qb = $this->createQueryBuilder('q')
+            ->where('COALESCE(JSON_GET_TEXT(q.voterIds, :userId), :notVoted) = :notVoted')
+            ->setParameter('userId', $user->getUserIdentifier())
+            ->setParameter('notVoted', QotdVote::Null->value)
+            ->addOrderBy('q.date', 'DESC')
+            ->addOrderBy('q.id', 'DESC')
+        ;
 
-        $select = $rsm->generateSelectClause();
-
-        $query = new NativeQuery(
-            "SELECT {$select} FROM qotd AS q WHERE coalesce(voter_ids->>:userId, :notVoted) = :notVoted",
-            [
-                'userId' => $user->getUserIdentifier(),
-                'notVoted' => QotdVote::Null->value,
-            ],
-            $rsm,
-        );
-
-        return $this->paginator->paginate(
-            $query,
-            $page,
-            self::MAX_PER_PAGE,
-        );
+        return $this->paginator
+            ->query($qb)
+            ->perPage(self::MAX_PER_PAGE)
+            ->paginate()
+        ;
     }
 
     public function search(string $query): array

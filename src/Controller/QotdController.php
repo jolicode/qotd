@@ -46,10 +46,9 @@ class QotdController extends AbstractController
             }
         }
 
-        $page = max(1, $request->query->getInt('page', 1));
         $pagination = $this
             ->qotdRepository
-            ->findForHomepage($page, $direction, $filters)
+            ->findForHomepage($direction, $filters)
         ;
 
         return $this->render('qotd/index.html.twig', [
@@ -61,12 +60,11 @@ class QotdController extends AbstractController
     }
 
     #[Route('/not-voted', name: 'qotd_index_not_voted')]
-    public function notVoted(Request $request, #[CurrentUser] UserInterface $user): Response
+    public function notVoted(#[CurrentUser] UserInterface $user): Response
     {
-        $page = max(1, $request->query->getInt('page', 1));
         $pagination = $this
             ->qotdRepository
-            ->findForHomepageNotVoted($page, $user)
+            ->findForHomepageNotVoted($user)
         ;
 
         return $this->render('qotd/index.html.twig', [

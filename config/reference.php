@@ -1483,29 +1483,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     clients?: array<string, array<string, mixed>>,
  * }
- * @psalm-type KnpPaginatorConfig = array{
- *     default_options?: array{
- *         sort_field_name?: scalar|Param|null, // Default: "sort"
- *         sort_direction_name?: scalar|Param|null, // Default: "direction"
- *         filter_field_name?: scalar|Param|null, // Default: "filterField"
- *         filter_value_name?: scalar|Param|null, // Default: "filterValue"
- *         page_name?: scalar|Param|null, // Default: "page"
- *         distinct?: bool|Param, // Default: true
- *         wrap_queries?: bool|Param, // Default: false
- *         page_out_of_range?: scalar|Param|null, // Default: "ignore"
- *         default_limit?: scalar|Param|null, // Default: 10
- *     },
- *     template?: array{
- *         pagination?: scalar|Param|null, // Default: "@KnpPaginator/Pagination/sliding.html.twig"
- *         rel_links?: scalar|Param|null, // Default: "@KnpPaginator/Pagination/rel_links.html.twig"
- *         filtration?: scalar|Param|null, // Default: "@KnpPaginator/Pagination/filtration.html.twig"
- *         sortable?: scalar|Param|null, // Default: "@KnpPaginator/Pagination/sortable_link.html.twig"
- *     },
- *     page_range?: scalar|Param|null, // Default: 5
- *     page_limit?: scalar|Param|null, // Default: null
- *     convert_exception?: bool|Param, // Default: false
- *     remove_first_page_param?: bool|Param, // Default: false
- * }
  * @psalm-type TurboConfig = array{
  *     broadcast?: bool|array{
  *         enabled?: bool|Param, // Default: true
@@ -1541,6 +1518,30 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     exclude_paths?: list<scalar|Param|null>,
  *     ignore_selectors?: list<scalar|Param|null>,
  * }
+ * @psalm-type UxPaginationConfig = array{
+ *     items_per_page?: int|Param, // Default number of items per page // Default: 20
+ *     max_offset?: int|Param, // Maximum offset accepted by numbered pagination; use cursor pagination for larger datasets // Default: 100000
+ *     page_parameter?: scalar|Param|null, // Query parameter name for page number // Default: "page"
+ *     cursor_parameter?: scalar|Param|null, // Query parameter name for the cursor (cursor-based pagination) // Default: "cursor"
+ *     navigation?: array{
+ *         mode?: value-of<\Symfony\UX\Pagination\Navigation\NavigationMode>|\Symfony\UX\Pagination\Navigation\NavigationMode|Param, // Default numbered navigation mode // Default: "sliding"
+ *         size?: int|Param, // Default navigation window size // Default: 5
+ *     },
+ *     theme?: scalar|Param|null, // Twig template used to render pagination // Default: "@UXPagination/theme/default.html.twig"
+ *     cursor?: array{
+ *         secret?: scalar|Param|null, // The secret used to sign opaque cursors // Default: "%kernel.secret%"
+ *     },
+ *     paginators?: array<string, array{ // Default: []
+ *         items_per_page?: int|Param,
+ *         max_offset?: int|Param,
+ *         page_parameter?: scalar|Param|null,
+ *         cursor_parameter?: scalar|Param|null,
+ *         navigation?: array{
+ *             mode?: value-of<\Symfony\UX\Pagination\Navigation\NavigationMode>|\Symfony\UX\Pagination\Navigation\NavigationMode|Param,
+ *             size?: int|Param,
+ *         },
+ *     }>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1553,11 +1554,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     security?: SecurityConfig,
  *     monolog?: MonologConfig,
  *     knpu_oauth2_client?: KnpuOauth2ClientConfig,
- *     knp_paginator?: KnpPaginatorConfig,
  *     turbo?: TurboConfig,
  *     twig_component?: TwigComponentConfig,
  *     live_component?: LiveComponentConfig,
  *     stimulus?: StimulusConfig,
+ *     ux_pagination?: UxPaginationConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1573,12 +1574,12 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         monolog?: MonologConfig,
  *         maker?: MakerConfig,
  *         knpu_oauth2_client?: KnpuOauth2ClientConfig,
- *         knp_paginator?: KnpPaginatorConfig,
  *         turbo?: TurboConfig,
  *         twig_component?: TwigComponentConfig,
  *         live_component?: LiveComponentConfig,
  *         stimulus?: StimulusConfig,
  *         ux_inspector?: UxInspectorConfig,
+ *         ux_pagination?: UxPaginationConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1592,11 +1593,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         monolog?: MonologConfig,
  *         knpu_oauth2_client?: KnpuOauth2ClientConfig,
- *         knp_paginator?: KnpPaginatorConfig,
  *         turbo?: TurboConfig,
  *         twig_component?: TwigComponentConfig,
  *         live_component?: LiveComponentConfig,
  *         stimulus?: StimulusConfig,
+ *         ux_pagination?: UxPaginationConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1611,11 +1612,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         monolog?: MonologConfig,
  *         knpu_oauth2_client?: KnpuOauth2ClientConfig,
- *         knp_paginator?: KnpPaginatorConfig,
  *         turbo?: TurboConfig,
  *         twig_component?: TwigComponentConfig,
  *         live_component?: LiveComponentConfig,
  *         stimulus?: StimulusConfig,
+ *         ux_pagination?: UxPaginationConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,
