@@ -20,9 +20,6 @@ services:
     App\:
         resource: '../src/'
         exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
             - '../src/**/Model/'
 
     League\CommonMark\Extension\GithubFlavoredMarkdownExtension:
