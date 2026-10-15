@@ -7,7 +7,6 @@ use App\Form\Model\QotdFilters;
 use App\Form\Type\QotdFiltersType;
 use App\Form\Type\QotdType;
 use App\Repository\Model\QotdDirection;
-use App\Repository\Model\QotdVote;
 use App\Repository\QotdRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -27,9 +26,9 @@ class QotdController extends AbstractController
     ) {
     }
 
-    #[Route('/', name: 'qotd_index', defaults: ['direction' => QotdDirection::Latest->value])]
-    #[Route('/top', name: 'qotd_index_top', defaults: ['direction' => QotdDirection::Top->value])]
-    #[Route('/flop', name: 'qotd_index_flop', defaults: ['direction' => QotdDirection::Flop->value])]
+    #[Route('/', name: 'qotd_index', defaults: ['direction' => QotdDirection::Latest->value], options: ['expose' => true])]
+    #[Route('/top', name: 'qotd_index_top', defaults: ['direction' => QotdDirection::Top->value], options: ['expose' => true])]
+    #[Route('/flop', name: 'qotd_index_flop', defaults: ['direction' => QotdDirection::Flop->value], options: ['expose' => true])]
     public function index(
         Request $request,
         QotdDirection $direction,
@@ -46,10 +45,9 @@ class QotdController extends AbstractController
             }
         }
 
-        $page = max(1, $request->query->getInt('page', 1));
         $pagination = $this
             ->qotdRepository
-            ->findForHomepage($page, $direction, $filters)
+            ->findForHomepage($direction, $filters)
         ;
 
         return $this->render('qotd/index.html.twig', [
@@ -60,13 +58,12 @@ class QotdController extends AbstractController
         ]);
     }
 
-    #[Route('/not-voted', name: 'qotd_index_not_voted')]
-    public function notVoted(Request $request, #[CurrentUser] UserInterface $user): Response
+    #[Route('/not-voted', name: 'qotd_index_not_voted', options: ['expose' => true])]
+    public function notVoted(#[CurrentUser] UserInterface $user): Response
     {
-        $page = max(1, $request->query->getInt('page', 1));
         $pagination = $this
             ->qotdRepository
-            ->findForHomepageNotVoted($page, $user)
+            ->findForHomepageNotVoted($user)
         ;
 
         return $this->render('qotd/index.html.twig', [
@@ -75,31 +72,13 @@ class QotdController extends AbstractController
         ]);
     }
 
-    #[Route('/qotd/{id}/vote/up', name: 'qotd_vote_up', methods: ['POST'], defaults: ['vote' => QotdVote::Up->value])]
-    #[Route('/qotd/{id}/vote/down', name: 'qotd_vote_down', methods: ['POST'], defaults: ['vote' => QotdVote::Down->value])]
-    #[Route('/qotd/{id}/vote/null', name: 'qotd_vote_null', methods: ['POST'], defaults: ['vote' => QotdVote::Null->value])]
-    public function vote(Request $request, Qotd $qotd, QotdVote $vote, #[CurrentUser] UserInterface $user): Response
-    {
-        if (!$this->isCsrfTokenValid('vote', (string) $request->request->get('token'))) {
-            throw $this->createAccessDeniedException('Invalid CSRF token.');
-        }
-
-        $qotd->applyVote($vote, $user);
-
-        $this->em->flush();
-
-        $this->addFlash('success', 'Thanks for your vote!');
-
-        return $this->redirectToRoute('qotd_show', ['id' => $qotd->id]);
-    }
-
-    #[Route('/search', name: 'qotd_search', methods: ['GET'])]
+    #[Route('/search', name: 'qotd_search', methods: ['GET'], options: ['expose' => true])]
     public function search(): Response
     {
         return $this->render('qotd/search.html.twig');
     }
 
-    #[Route('/qotd/{id}/edit', name: 'qotd_show_edit', methods: ['GET', 'POST'])]
+    #[Route('/qotd/{id}/edit', name: 'qotd_show_edit', methods: ['GET', 'POST'], options: ['expose' => true])]
     public function edit(
         Request $request,
         #[MapEntity()] Qotd $qotd,
@@ -122,13 +101,13 @@ class QotdController extends AbstractController
         ]);
     }
 
-    #[Route('/qotd/{id}', name: 'qotd_show', methods: ['GET'])]
+    #[Route('/qotd/{id}', name: 'qotd_show', methods: ['GET'], options: ['expose' => true])]
     #[Template('qotd/show.html.twig')]
     public function show(#[MapEntity()] Qotd $qotd): void
     {
     }
 
-    #[Route('/qotd/{id}/details', name: 'qotd_show_details', methods: ['GET'])]
+    #[Route('/qotd/{id}/details', name: 'qotd_show_details', methods: ['GET'], options: ['expose' => true])]
     #[Template('qotd/show_details.html.twig')]
     public function showDetails(#[MapEntity()] Qotd $qotd): void
     {

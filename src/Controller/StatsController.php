@@ -14,7 +14,7 @@ class StatsController extends AbstractController
     ) {
     }
 
-    #[Route('/stats', name: 'stats')]
+    #[Route('/stats', name: 'stats', options: ['expose' => true])]
     public function index(): Response
     {
         return $this->render('stats/index.html.twig', [

@@ -1,7 +1,9 @@
 import { Controller } from '@hotwired/stimulus';
 
+// The votes are hidden with CSS (see .votes-hidden in app.css), so a card
+// re-rendered by LiveComponent or Turbo stays hidden without any JS
 export default class extends Controller {
-    static targets = ['switch', 'vote', 'icon'];
+    static targets = ['switch'];
 
     connect() {
         const savedState = localStorage.getItem('hiddenModeActive');
@@ -15,11 +17,6 @@ export default class extends Controller {
     }
 
     updateUI() {
-        this.voteTargets.forEach(vote => {
-            vote.classList.toggle('d-none', this.switchTarget.checked);
-        });
-        this.iconTargets.forEach(icon => {
-            icon.classList.toggle('d-none', !this.switchTarget.checked);
-        });
+        this.element.classList.toggle('votes-hidden', this.switchTarget.checked);
     }
 }

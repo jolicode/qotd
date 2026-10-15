@@ -56,9 +56,6 @@
             "migrations/.gitignore"
         ]
     },
-    "knplabs/knp-paginator-bundle": {
-        "version": "v6.1.1"
-    },
     "knpuniversity/oauth2-client-bundle": {
         "version": "2.13",
         "recipe": {
@@ -281,8 +278,23 @@
             "templates/base.html.twig"
         ]
     },
+    "symfony/ux-autocomplete": {
+        "version": "3.6",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.6",
+            "ref": "07d9602b7231ba355f484305d6cea58310c01741"
+        },
+        "files": [
+            "config/routes/ux_autocomplete.yaml"
+        ]
+    },
     "symfony/ux-chartjs": {
         "version": "v2.7.1"
+    },
+    "symfony/ux-inspector": {
+        "version": "v3.6.0"
     },
     "symfony/ux-live-component": {
         "version": "2.7",
@@ -294,6 +306,23 @@
         },
         "files": [
             "config/routes/ux_live_component.yaml"
+        ]
+    },
+    "symfony/ux-pagination": {
+        "version": "v3.6.0"
+    },
+    "symfony/ux-router": {
+        "version": "3.6",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.6",
+            "ref": "8e8e4645ff232d470c00bc08b7e1e77c17dd0dd4"
+        },
+        "files": [
+            "assets/router.js",
+            "config/packages/ux_router.yaml",
+            "var/routes/index.js"
         ]
     },
     "symfony/ux-turbo": {

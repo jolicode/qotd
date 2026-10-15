@@ -15,3 +15,23 @@ turbo-frame [aria-busy="true"] {
     opacity: 0.75;
     pointer-events:none;
 }
+
+/* See hide-votes-controller.js */
+.qotd-vote-hidden,
+.votes-hidden .qotd-vote {
+    display: none;
+}
+
+.votes-hidden .qotd-vote-hidden {
+    display: inline-block;
+}
+
+/* LiveResponse::remove() drops the card once this transition is over */
+.qotd-card {
+    transition: opacity 300ms, translate 300ms;
+}
+
+.qotd-card[data-live-removing] {
+    opacity: 0;
+    translate: 2rem 0;
+}

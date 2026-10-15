@@ -22,7 +22,7 @@
     {% endif %}
 
     {% for qotd in pagination %}
-        {{ include('qotd/_qotd.html.twig', {qotd: qotd}, with_context: false) }}
+        <twig:QotdCard :qotd="qotd" :direction="direction" />
     {% else %}
         <div class="card mb-2">
             <div class="card-body">
@@ -32,6 +32,6 @@
     {% endfor %}
 
     <div class="navigation">
-        {{ knp_pagination_render(pagination) }}
+        {{ ux_pagination(pagination) }}
     </div>
 {% endblock %}

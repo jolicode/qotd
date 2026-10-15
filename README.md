@@ -38,8 +38,8 @@ GOOGLE_CLIENT_SECRET=FIXME
 APP_ALLOWED_EMAIL_DOMAINS='["jolicode.com", "premieroctet.com"]'
 ```
 
-But if you don't want to connect with google, you can use the
-`YoloAuthenticator`, see `config/packages/security.yaml` file.
+In the `dev` environment, you don't need them: the `YoloAuthenticator` logs you
+in automatically as `yolo`. Google OAuth is only used in the other environments.
 
 ### Install the PHP application
 

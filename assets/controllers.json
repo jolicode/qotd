@@ -1,5 +1,16 @@
 {
     "controllers": {
+        "@symfony/ux-autocomplete": {
+            "autocomplete": {
+                "enabled": true,
+                "fetch": "eager",
+                "autoimport": {
+                    "tom-select/dist/css/tom-select.default.css": false,
+                    "tom-select/dist/css/tom-select.bootstrap4.css": false,
+                    "tom-select/dist/css/tom-select.bootstrap5.css": true
+                }
+            }
+        },
         "@symfony/ux-chartjs": {
             "chart": {
                 "enabled": true,
@@ -18,7 +29,10 @@
         "@symfony/ux-turbo": {
             "turbo-core": {
                 "enabled": true,
-                "fetch": "eager"
+                "fetch": "eager",
+                "autoimport": {
+                    "@symfony/ux-turbo/dist/mercure_stream_source_element.js": false
+                }
             },
             "mercure-turbo-stream": {
                 "enabled": false,

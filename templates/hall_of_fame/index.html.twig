@@ -40,7 +40,7 @@
                         </div>
                         <div class="card-body">
                             {% if qotd %}
-                                {{ include('qotd/_qotd.html.twig', {qotd: qotd}, with_context: false) }}
+                                <twig:QotdCard :qotd="qotd" />
                             {% else %}
                                 No QOTD for this period.
                             {% endif %}

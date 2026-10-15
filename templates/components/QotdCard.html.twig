@@ -1,0 +1,51 @@
+{% import 'macros/qotd/message.html.twig' as qotd_macro %}
+
+<div {{ attributes.defaults({class: 'card mb-2 qotd-card'}) }} data-qotd-id="{{ qotd.id }}" {{ tt('quote') }}>
+    <div class="card-body">
+        {{ qotd_macro.message(qotd) }}
+        {% for imageUrl in qotd.imageUrls %}
+            <img class="mw-100" src="{{ asset(imageUrl) }}" alt="" />
+        {% endfor %}
+        {% for videoUrl in qotd.videoUrls %}
+            <video class="mw-100" controls>
+                <source src="{{ asset(videoUrl) }}" />
+            </video>
+        {% endfor %}
+    </div>
+    <div class="card-footer text-muted">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="me-auto">
+                <a href="{{ url('qotd_show', {id: qotd.id}) }}" class="text-reset">
+                    {{ qotd.date|date('Y-m-d') }} by {{ qotd.username }}
+                </a>
+            </div>
+            <div class="mx-1">
+                <a href="{{ url('qotd_show_details', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><i class="bi bi-info-circle"></i></a>
+            </div>
+            <div class="mx-1">
+                <a href="{{ url('qotd_show_edit', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><i class="bi bi-pencil"></i></a>
+            </div>
+            <div class="mx-1">
+                <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
+            </div>
+            <button
+                type="button"
+                class="{{ html_classes('btn', 'btn-sm', 'mx-1', 'qotd-vote-down', {'btn-outline-primary': qotd.hasVotedDown(app.user)}) }}"
+                {{ qotd.hasVotedDown(app.user) ? live_action('resetVote') : live_action('vote', {vote: 'down'}) }}
+                data-loading="addAttribute(disabled)"
+                {{ tt('vote-down') }}
+            >👎</button>
+            <div class="mx-1 badge bg-primary" {{ tt('quote-vote') }}>
+                <span class="qotd-vote">{{ qotd.vote }}</span>
+                <i class="qotd-vote-hidden bi bi-eye-slash-fill align-middle"></i>
+            </div>
+            <button
+                type="button"
+                class="{{ html_classes('btn', 'btn-sm', 'qotd-vote-up', {'btn-outline-primary': qotd.hasVotedUp(app.user)}) }}"
+                {{ qotd.hasVotedUp(app.user) ? live_action('resetVote') : live_action('vote', {vote: 'up'}) }}
+                data-loading="addAttribute(disabled)"
+                {{ tt('vote-up') }}
+            >👍</button>
+        </div>
+    </div>
+</div>

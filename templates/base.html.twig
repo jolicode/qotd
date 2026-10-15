@@ -10,10 +10,15 @@
         {% endblock %}
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
-            {{ importmap('app') }}
         {% endblock %}
     </head>
-    <body class="d-flex flex-column h-100">
+    <body
+        class="d-flex flex-column h-100"
+        {{ stimulus_controller('keyboard-shortcuts', {
+            shortcuts: enum_cases('App\\KeyboardShortcut\\KeyboardShortcut')|map(shortcut => shortcut.toStimulus()),
+        }) }}
+        {{ stimulus_action('keyboard-shortcuts', 'handle', 'keydown@window') }}
+    >
         <main class="flex-shrink-0">
             {% for message in app.flashes('success') %}
                 <div class="alert alert-success" role="alert">
@@ -56,6 +61,7 @@
                                         <a class="nav-link {{ 'stats' == active ? 'active' }}" href="{{ url('stats') }}">📈 Stats</a>
                                     </li>
                                 </ul>
+                                <a href="{{ path('keyboard_shortcuts') }}" class="nav-link me-3" data-turbo-frame="modal" title="Keyboard shortcuts (h)">⌨️</a>
                                 <div class="form-check form-switch">
                                     <input
                                         class="form-check-input" type="checkbox" role="switch" id="hideVotesSwitch"

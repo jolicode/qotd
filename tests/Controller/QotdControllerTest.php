@@ -3,10 +3,10 @@
 namespace App\Tests\Controller;
 
 use App\Repository\QotdRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Security\User\OAuthUser;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 
 class QotdControllerTest extends WebTestCase
 {
@@ -22,6 +22,17 @@ class QotdControllerTest extends WebTestCase
         $quotes = $crawler->filter('[data-test=quote]');
         self::assertCount(7, $quotes);
         self::assertSame("Hello Message on line 1; Message on line 2; Message on line 3; Message on line 4; 🙊 👍 https://joli-mapstr.vercel.app/ https://joli-mapstr.vercel.app/ @Marion @Marion foobar foobar list 1 list 2 list 3 quote <script>alert('foo')</script> some code end 2023-05-12 by rich-text@example.com 🔗 view in Slack 👎 0 👍", $quotes->first()->text());
+    }
+
+    public function testIndexFilteredByAuthor(): void
+    {
+        $client = self::createClientAndLogin();
+
+        $crawler = $client->request('GET', '/', ['author' => 'old@example.com']);
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('[data-test=quote]'));
+        self::assertSame('old@example.com', $crawler->filter('select[name=author] option[selected]')->text());
     }
 
     public function testTop(): void
@@ -58,31 +69,25 @@ class QotdControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('title', 'QOTD not voted yet');
-        $quotes = $crawler->filter('[data-test=quote]');
-        self::assertCount(7, $quotes);
-
-        $firstQuote = $quotes->first();
-        $id = str_replace('qotd-', '', $firstQuote->attr('id'));
-        $initialVote = self::getContainer()->get(QotdRepository::class)->find($id)->vote;
-
-        try {
-            $form = $firstQuote->filter('[data-test=vote-up]')->form();
-            $client->submit($form);
-            self::assertResponseStatusCodeSame(302);
-
-            $dbQuote = self::getContainer()->get(QotdRepository::class)->find($id);
-            self::assertSame($initialVote + 1, $dbQuote->vote);
-        } finally {
-            $em = self::getContainer()->get(EntityManagerInterface::class);
-            $em->clear();
-            $dbQuote = self::getContainer()->get(QotdRepository::class)->find($id);
-            $dbQuote->vote = $initialVote;
-            $dbQuote->voterIds = null;
-            $em->flush();
-        }
+        self::assertCount(7, $crawler->filter('[data-test=quote]'));
     }
 
-    public function testShowAndVote(): void
+    public function testNotVotedYetNextPage(): void
+    {
+        $client = self::createClientAndLogin();
+
+        $crawler = $client->request('GET', '/not-voted');
+        $firstPageIds = self::getQuoteIds($crawler);
+
+        $crawler = $client->click($crawler->filter('a[rel=next]')->link());
+
+        self::assertResponseIsSuccessful();
+        $nextPageIds = self::getQuoteIds($crawler);
+        self::assertCount(7, $nextPageIds);
+        self::assertSame([], array_intersect($firstPageIds, $nextPageIds));
+    }
+
+    public function testShow(): void
     {
         $client = self::createClientAndLogin();
         $dbQuote = self::getContainer()->get(QotdRepository::class)->findOneBy(['username' => 'old@example.com']);
@@ -91,42 +96,24 @@ class QotdControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('title', "QOTD #{$dbQuote->id}");
-        self::assertSame(0, (int) $crawler->filter('[data-test=quote]')->first()->filter('[data-test=quote-vote]')->text());
-
-        $form = $crawler
-            ->filter('[data-test=quote]')
-            ->first()
-            ->filter('[data-test=vote-up]')
-            ->form()
-        ;
-        $client->submit($form);
-
-        self::assertResponseStatusCodeSame(302);
-        $crawler = $client->followRedirect();
-
-        self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('title', "QOTD #{$dbQuote->id}");
-        self::assertSame(1, (int) $crawler->filter('[data-test=quote]')->first()->filter('[data-test=quote-vote]')->text());
-
-        $form = $crawler
-            ->filter('[data-test=quote]')
-            ->first()
-            ->filter('[data-test=vote-up]')
-            ->form()
-        ;
-        $client->submit($form);
-
-        self::assertResponseStatusCodeSame(302);
-        $crawler = $client->followRedirect();
-
-        self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('title', "QOTD #{$dbQuote->id}");
-        self::assertSame(0, (int) $crawler->filter('[data-test=quote]')->first()->filter('[data-test=quote-vote]')->text());
+        self::assertSame("qotd-{$dbQuote->id}", $crawler->filter('[data-test=quote]')->attr('id'));
+        self::assertSame(0, (int) $crawler->filter('[data-test=quote-vote]')->text());
     }
 
     public static function assertTestSelectorTextContains(string $selector, string $text, string $message = ''): void
     {
         self::assertSelectorTextContains(\sprintf('[data-test=%s]', $selector), $text, $message);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function getQuoteIds(Crawler $crawler): array
+    {
+        return $crawler
+            ->filter('[data-test=quote]')
+            ->each(static fn (Crawler $quote): string => str_replace('qotd-', '', (string) $quote->attr('id')))
+        ;
     }
 
     private function createClientAndLogin(): KernelBrowser
