@@ -39,6 +39,7 @@
         "symfony/string": "^8.1.2",
         "symfony/translation": "^8.1.5",
         "symfony/twig-bundle": "^8.1.2",
+        "symfony/ux-autocomplete": "^3.6",
         "symfony/ux-chartjs": "^3.6",
         "symfony/ux-live-component": "^3.6",
         "symfony/ux-pagination": "^3.6",

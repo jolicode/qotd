@@ -20,4 +20,5 @@ return [
     Symfony\UX\StimulusBundle\StimulusBundle::class => ['all' => true],
     Symfony\UX\Inspector\UXInspectorBundle::class => ['dev' => true],
     Symfony\UX\Pagination\UXPaginationBundle::class => ['all' => true],
+    Symfony\UX\Autocomplete\AutocompleteBundle::class => ['all' => true],
 ];

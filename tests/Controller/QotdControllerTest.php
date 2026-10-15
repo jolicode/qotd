@@ -24,6 +24,17 @@ class QotdControllerTest extends WebTestCase
         self::assertSame("Hello Message on line 1; Message on line 2; Message on line 3; Message on line 4; 🙊 👍 https://joli-mapstr.vercel.app/ https://joli-mapstr.vercel.app/ @Marion @Marion foobar foobar list 1 list 2 list 3 quote <script>alert('foo')</script> some code end 2023-05-12 by rich-text@example.com 🔗 view in Slack 👎 0 👍", $quotes->first()->text());
     }
 
+    public function testIndexFilteredByAuthor(): void
+    {
+        $client = self::createClientAndLogin();
+
+        $crawler = $client->request('GET', '/', ['author' => 'old@example.com']);
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('[data-test=quote]'));
+        self::assertSame('old@example.com', $crawler->filter('select[name=author] option[selected]')->text());
+    }
+
     public function testTop(): void
     {
         $client = self::createClientAndLogin();

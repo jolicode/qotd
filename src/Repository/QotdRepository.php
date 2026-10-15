@@ -428,6 +428,41 @@ class QotdRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @return list<string>
+     */
+    public function searchAuthors(string $query, int $limit, int $offset): array
+    {
+        return $this->createQueryBuilder('q')
+            ->select('q.username', 'count(q.username) as HIDDEN count')
+            ->where('LOWER(q.username) LIKE :query')
+            ->setParameter('query', '%' . addcslashes(mb_strtolower($query), '%_\\') . '%')
+            ->addOrderBy('count', 'DESC')
+            ->addOrderBy('q.username', 'ASC')
+            ->groupBy('q.username')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult(Query::HYDRATE_SCALAR_COLUMN)
+        ;
+    }
+
+    /**
+     * @param list<string> $authors
+     *
+     * @return list<string> The given authors that exist
+     */
+    public function filterAuthors(array $authors): array
+    {
+        return $this->createQueryBuilder('q')
+            ->select('DISTINCT q.username')
+            ->where('q.username IN (:authors)')
+            ->setParameter('authors', $authors)
+            ->getQuery()
+            ->getResult(Query::HYDRATE_SCALAR_COLUMN)
+        ;
+    }
+
     public function findRandom(): ?Qotd
     {
         // This is not efficient but i don't want to create a custom function for this
