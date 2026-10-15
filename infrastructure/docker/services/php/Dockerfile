@@ -114,7 +114,7 @@ RUN phpenmod app-default \
     && phpenmod app-builder
 
 # Composer
-COPY --from=composer/composer:2.10.0 /usr/bin/composer /usr/bin/composer
+COPY --from=composer/composer:2.10.3 /usr/bin/composer /usr/bin/composer
 
 # Pie
 RUN curl -L --output /usr/local/bin/pie https://github.com/php/pie/releases/download/1.4.5/pie.phar \
@@ -239,7 +239,7 @@ HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
 
 CMD ["sh", "-c", "exec /usr/sbin/php-fpm${PHP_VERSION}"]
 
-FROM nginx:1.29-alpine AS nginx
+FROM nginx:1.31-alpine AS nginx
 
 COPY nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 
