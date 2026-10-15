@@ -36,7 +36,7 @@ class QotdRepository extends ServiceEntityRepository
     public function findLast(): ?Qotd
     {
         return $this->createQueryBuilder('q')
-            ->orderBy('q.date', 'DESC')
+            ->orderBy('q.date', \SortDirection::Descending)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
@@ -67,9 +67,9 @@ class QotdRepository extends ServiceEntityRepository
         }
 
         match ($direction) {
-            QotdDirection::Top => $qb->addOrderBy('q.vote', 'DESC')->addOrderBy('q.date', 'DESC'),
-            QotdDirection::Flop => $qb->addOrderBy('q.vote', 'ASC')->addOrderBy('q.date', 'DESC'),
-            QotdDirection::Latest => $qb->addOrderBy('q.date', 'DESC')->addOrderBy('q.vote', 'DESC'),
+            QotdDirection::Top => $qb->addOrderBy('q.vote', \SortDirection::Descending)->addOrderBy('q.date', \SortDirection::Descending),
+            QotdDirection::Flop => $qb->addOrderBy('q.vote', \SortDirection::Ascending)->addOrderBy('q.date', \SortDirection::Descending),
+            QotdDirection::Latest => $qb->addOrderBy('q.date', \SortDirection::Descending)->addOrderBy('q.vote', \SortDirection::Descending),
             default => throw new \InvalidArgumentException('Invalid direction'),
         };
 
@@ -91,8 +91,8 @@ class QotdRepository extends ServiceEntityRepository
             ->where('COALESCE(JSON_GET_TEXT(q.voterIds, :userId), :notVoted) = :notVoted')
             ->setParameter('userId', $user->getUserIdentifier())
             ->setParameter('notVoted', QotdVote::Null->value)
-            ->addOrderBy('q.date', 'DESC')
-            ->addOrderBy('q.id', 'DESC')
+            ->addOrderBy('q.date', \SortDirection::Descending)
+            ->addOrderBy('q.id', \SortDirection::Descending)
         ;
 
         return $this->paginator
@@ -420,8 +420,8 @@ class QotdRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('q')
             ->select('q.username', 'count(q.username) as HIDDEN count')
-            ->addOrderBy('count', 'DESC')
-            ->addOrderBy('q.username', 'ASC')
+            ->addOrderBy('count', \SortDirection::Descending)
+            ->addOrderBy('q.username', \SortDirection::Ascending)
             ->groupBy('q.username')
             ->getQuery()
             ->getResult(Query::HYDRATE_SCALAR_COLUMN)
@@ -437,8 +437,8 @@ class QotdRepository extends ServiceEntityRepository
             ->select('q.username', 'count(q.username) as HIDDEN count')
             ->where('LOWER(q.username) LIKE :query')
             ->setParameter('query', '%' . addcslashes(mb_strtolower($query), '%_\\') . '%')
-            ->addOrderBy('count', 'DESC')
-            ->addOrderBy('q.username', 'ASC')
+            ->addOrderBy('count', \SortDirection::Descending)
+            ->addOrderBy('q.username', \SortDirection::Ascending)
             ->groupBy('q.username')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
@@ -481,7 +481,7 @@ class QotdRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('q')
             ->setFirstResult($offset)
             ->setMaxResults(1)
-            ->addOrderBy('q.id', 'ASC')
+            ->addOrderBy('q.id', \SortDirection::Ascending)
             ->getQuery()
             ->getSingleResult()
         ;

@@ -5,7 +5,7 @@ security:
 
     firewalls:
         dev:
-            pattern: ^/(_(profiler|ux|wdt)|css|images|js)/
+            pattern: ^/(_profiler|_ux|_wdt|assets|build)/
             security: false
         api:
             pattern: ^/api
