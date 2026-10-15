@@ -63,6 +63,7 @@
         "symfony/maker-bundle": "^1.64.0",
         "symfony/phpunit-bridge": "^8.1.5",
         "symfony/stopwatch": "^8.1",
+        "symfony/ux-inspector": "^3.6",
         "symfony/web-profiler-bundle": "^8.1.5"
     },
     "replace": {

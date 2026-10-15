@@ -284,6 +284,9 @@
     "symfony/ux-chartjs": {
         "version": "v2.7.1"
     },
+    "symfony/ux-inspector": {
+        "version": "v3.6.0"
+    },
     "symfony/ux-live-component": {
         "version": "2.7",
         "recipe": {

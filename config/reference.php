@@ -1535,6 +1535,12 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     controller_paths?: list<scalar|Param|null>,
  *     controllers_json?: scalar|Param|null, // Default: "%kernel.project_dir%/assets/controllers.json"
  * }
+ * @psalm-type UxInspectorConfig = array{
+ *     enabled?: bool|Param, // Enable the inspector. It stays off when kernel.debug is false. // Default: true
+ *     pull_tab?: bool|Param, // Display a small pull tab on the right edge of the screen to open the Inspector. // Default: true
+ *     exclude_paths?: list<scalar|Param|null>,
+ *     ignore_selectors?: list<scalar|Param|null>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1572,6 +1578,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_component?: TwigComponentConfig,
  *         live_component?: LiveComponentConfig,
  *         stimulus?: StimulusConfig,
+ *         ux_inspector?: UxInspectorConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
