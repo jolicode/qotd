@@ -48,4 +48,5 @@ return [
     'tom-select/dist/css/tom-select.default.css' => ['version' => '2.6.2', 'type' => 'css'],
     'tom-select/dist/css/tom-select.bootstrap4.css' => ['version' => '2.6.2', 'type' => 'css'],
     'tom-select/dist/css/tom-select.bootstrap5.css' => ['version' => '2.6.2', 'type' => 'css'],
+    '@symfony/ux-router' => ['path' => './vendor/symfony/ux-router/assets/dist/router_controller.js'],
 ];

@@ -1,0 +1,20 @@
+{% extends 'base_with_frame.html.twig' %}
+
+{% block title 'Keyboard shortcuts' %}
+
+{% block body %}
+    <table class="table table-sm align-middle mb-0">
+        <tbody>
+            {% for shortcut in enum_cases('App\\KeyboardShortcut\\KeyboardShortcut') %}
+                <tr {{ tt('keyboard-shortcut') }}>
+                    <td class="text-nowrap">
+                        {% for key in shortcut.value|split(' ') %}
+                            {{ not loop.first ? 'then' }} <kbd>{{ key }}</kbd>
+                        {% endfor %}
+                    </td>
+                    <td>{{ shortcut.description }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

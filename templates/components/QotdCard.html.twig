@@ -1,6 +1,6 @@
 {% import 'macros/qotd/message.html.twig' as qotd_macro %}
 
-<div {{ attributes.defaults({class: 'card mb-2 qotd-card'}) }} {{ tt('quote') }}>
+<div {{ attributes.defaults({class: 'card mb-2 qotd-card'}) }} data-qotd-id="{{ qotd.id }}" {{ tt('quote') }}>
     <div class="card-body">
         {{ qotd_macro.message(qotd) }}
         {% for imageUrl in qotd.imageUrls %}
@@ -30,7 +30,7 @@
             </div>
             <button
                 type="button"
-                class="{{ html_classes('btn', 'btn-sm', 'mx-1', {'btn-outline-primary': qotd.hasVotedDown(app.user)}) }}"
+                class="{{ html_classes('btn', 'btn-sm', 'mx-1', 'qotd-vote-down', {'btn-outline-primary': qotd.hasVotedDown(app.user)}) }}"
                 {{ qotd.hasVotedDown(app.user) ? live_action('resetVote') : live_action('vote', {vote: 'down'}) }}
                 data-loading="addAttribute(disabled)"
                 {{ tt('vote-down') }}
@@ -41,7 +41,7 @@
             </div>
             <button
                 type="button"
-                class="{{ html_classes('btn', 'btn-sm', {'btn-outline-primary': qotd.hasVotedUp(app.user)}) }}"
+                class="{{ html_classes('btn', 'btn-sm', 'qotd-vote-up', {'btn-outline-primary': qotd.hasVotedUp(app.user)}) }}"
                 {{ qotd.hasVotedUp(app.user) ? live_action('resetVote') : live_action('vote', {vote: 'up'}) }}
                 data-loading="addAttribute(disabled)"
                 {{ tt('vote-up') }}

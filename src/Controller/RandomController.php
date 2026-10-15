@@ -15,7 +15,7 @@ class RandomController extends AbstractController
     ) {
     }
 
-    #[Route('/random', name: 'random')]
+    #[Route('/random', name: 'random', options: ['expose' => true])]
     public function index(): Response
     {
         $qotd = $this->qotdRepository->findRandom();

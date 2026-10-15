@@ -43,6 +43,7 @@
         "symfony/ux-chartjs": "^3.6",
         "symfony/ux-live-component": "^3.6",
         "symfony/ux-pagination": "^3.6",
+        "symfony/ux-router": "^3.6",
         "symfony/ux-turbo": "^3.6",
         "symfony/ux-twig-component": "^3.6",
         "symfony/validator": "^8.1.5",

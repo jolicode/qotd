@@ -14,7 +14,7 @@ class HallOfFameController extends AbstractController
     ) {
     }
 
-    #[Route('/hall-of-fame', name: 'hall_of_fame')]
+    #[Route('/hall-of-fame', name: 'hall_of_fame', options: ['expose' => true])]
     public function index(): Response
     {
         $bestsOverWeeks = $this->qotdRepository->findBestsOver('week');

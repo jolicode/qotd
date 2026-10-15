@@ -14,7 +14,7 @@ class AwardsController extends AbstractController
     ) {
     }
 
-    #[Route('/awards', name: 'awards')]
+    #[Route('/awards', name: 'awards', options: ['expose' => true])]
     public function index(): Response
     {
         return $this->render('awards/index.html.twig', [

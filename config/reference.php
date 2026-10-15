@@ -1542,6 +1542,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         },
  *     }>,
  * }
+ * @psalm-type UxRouterConfig = array{
+ *     dump_directory?: scalar|Param|null, // The directory where routes and TypeScript types are dumped. // Default: "%kernel.project_dir%/var/routes"
+ *     dump_typescript?: bool|Param, // Control whether TypeScript types are dumped alongside routes. Disable this if you do not use TypeScript (e.g. in production when using AssetMapper). // Default: true
+ *     routes?: Param|string|list<scalar|Param|null>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1559,6 +1564,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     live_component?: LiveComponentConfig,
  *     stimulus?: StimulusConfig,
  *     ux_pagination?: UxPaginationConfig,
+ *     ux_router?: UxRouterConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1580,6 +1586,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         stimulus?: StimulusConfig,
  *         ux_inspector?: UxInspectorConfig,
  *         ux_pagination?: UxPaginationConfig,
+ *         ux_router?: UxRouterConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1598,6 +1605,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         live_component?: LiveComponentConfig,
  *         stimulus?: StimulusConfig,
  *         ux_pagination?: UxPaginationConfig,
+ *         ux_router?: UxRouterConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1617,6 +1625,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         live_component?: LiveComponentConfig,
  *         stimulus?: StimulusConfig,
  *         ux_pagination?: UxPaginationConfig,
+ *         ux_router?: UxRouterConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,
