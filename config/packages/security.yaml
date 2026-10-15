@@ -18,10 +18,8 @@ security:
             security: false
         main:
             custom_authenticators:
+                # Replaced by App\Security\YoloAuthenticator in the "dev" environment
                 - App\Security\GoogleAuthenticator
-            # # Uncomment the next two line if you can not login with Google, and comment the previous one
-            #     - App\Security\YoloAuthenticator
-            # stateless: true
 
     access_control:
         - { path: ^/, roles: ROLE_USER }
