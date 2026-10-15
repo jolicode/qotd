@@ -7,7 +7,6 @@ use App\Form\Model\QotdFilters;
 use App\Form\Type\QotdFiltersType;
 use App\Form\Type\QotdType;
 use App\Repository\Model\QotdDirection;
-use App\Repository\Model\QotdVote;
 use App\Repository\QotdRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -71,24 +70,6 @@ class QotdController extends AbstractController
             'pagination' => $pagination,
             'direction' => QotdDirection::NotVoted,
         ]);
-    }
-
-    #[Route('/qotd/{id}/vote/up', name: 'qotd_vote_up', methods: ['POST'], defaults: ['vote' => QotdVote::Up->value])]
-    #[Route('/qotd/{id}/vote/down', name: 'qotd_vote_down', methods: ['POST'], defaults: ['vote' => QotdVote::Down->value])]
-    #[Route('/qotd/{id}/vote/null', name: 'qotd_vote_null', methods: ['POST'], defaults: ['vote' => QotdVote::Null->value])]
-    public function vote(Request $request, Qotd $qotd, QotdVote $vote, #[CurrentUser] UserInterface $user): Response
-    {
-        if (!$this->isCsrfTokenValid('vote', (string) $request->request->get('token'))) {
-            throw $this->createAccessDeniedException('Invalid CSRF token.');
-        }
-
-        $qotd->applyVote($vote, $user);
-
-        $this->em->flush();
-
-        $this->addFlash('success', 'Thanks for your vote!');
-
-        return $this->redirectToRoute('qotd_show', ['id' => $qotd->id]);
     }
 
     #[Route('/search', name: 'qotd_search', methods: ['GET'])]
