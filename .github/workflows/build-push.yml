@@ -18,6 +18,9 @@ env:
 jobs:
     build-push:
         name: Build and push production images
+        # Set the PUSH_PRODUCTION_IMAGES repository variable to "true"
+        # (Settings > Secrets and variables > Actions > Variables) to enable it
+        if: vars.PUSH_PRODUCTION_IMAGES == 'true'
         runs-on: ubuntu-latest
         steps:
             - name: Set up Docker Buildx
