@@ -48,3 +48,7 @@ updates:
       docker-dependencies:
         patterns:
           - "*"
+      docker-security:
+        applies-to: security-updates
+        patterns:
+          - "*"

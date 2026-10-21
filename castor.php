@@ -17,7 +17,7 @@ use function docker\up;
 
 defined('CASTOR_USE_CHDIR') || define('CASTOR_USE_CHDIR', true);
 
-guard_min_version('1.8.0');
+guard_min_version('1.9.0');
 
 import(__DIR__ . '/.castor');
 
@@ -29,8 +29,10 @@ function create_default_variables(): array
     return [
         'project_name' => 'qotd',
         'root_domain' => 'local.qotd.internal.jolicode.com',
-        // REGISTRY allows pushing the images to another registry (e.g. a fork)
-        'registry' => $_SERVER['REGISTRY'] ?? 'ghcr.io/jolicode/qotd',
+        // REGISTRY allows pushing the images to another registry (e.g. a fork).
+        // Docker requires lowercase image names, but `${{ github.repository }}`
+        // (GitHub Actions) keeps the case of the owner and of the repository
+        'registry' => strtolower($_SERVER['REGISTRY'] ?? 'ghcr.io/jolicode/qotd'),
     ];
 }
 
