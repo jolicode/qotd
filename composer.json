@@ -28,7 +28,7 @@
         "symfony/framework-bundle": "^8.1.9",
         "symfony/http-client": "^8.1.9",
         "symfony/intl": "^8.1.5",
-        "symfony/mime": "^8.1.5",
+        "symfony/mime": "^8.1.10",
         "symfony/monolog-bundle": "^4.0.2",
         "symfony/process": "^8.1.5",
         "symfony/property-access": "^8.1.4",
