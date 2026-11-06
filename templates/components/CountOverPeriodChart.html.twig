@@ -1,0 +1,23 @@
+<div {{ attributes }}>
+    <h2 class="text-center">Number of QOTD Vote over a period</h2>
+
+    <ul class="nav nav-tabs mb-3">
+        {% for statsPeriod in enum_cases('App\\Stats\\StatsPeriod') %}
+            <li class="nav-item">
+                <button
+                    type="button"
+                    class="{{ html_classes('nav-link', {active: statsPeriod == period}) }}"
+                    {{ live_action('showPeriod', {period: statsPeriod.value}) }}
+                >{{ statsPeriod.label }}</button>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div data-loading="addClass(opacity-50)">
+        {{ render_chart(this.chart) }}
+    </div>
+</div>
+
+{% macro placeholder(props) %}
+    <p class="placeholder-glow text-center"><span class="placeholder col-6"></span></p>
+{% endmacro %}

@@ -36,73 +36,18 @@ class ChartBuilder
     ) {
     }
 
-    public function buildMostQuotedUsers(): Chart
+    public function buildUsersChart(UsersChartType $type): Chart
     {
-        $counts = $this->qotdRepository->countMostQuotedUsers();
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
-
-        $chart->setData([
-            'labels' => array_column($counts, 'username'),
-            'datasets' => [
-                [
-                    'data' => array_column($counts, 'count'),
-                    'backgroundColor' => $this->getColors($counts),
-                ],
-            ],
-        ]);
-
-        return $chart;
+        return match ($type) {
+            UsersChartType::MostQuoted => $this->buildMostQuotedUsers(),
+            UsersChartType::MostUpVoted => $this->buildMostUpVotedUsers(),
+            UsersChartType::BiggestVoting => $this->buildBiggestVotingUsers(),
+        };
     }
 
-    public function buildMostUpVotedUsers(): Chart
+    public function buildCountOverPeriod(StatsPeriod $period): Chart
     {
-        $counts = $this->qotdRepository->countMostUpVotedUsers();
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
-
-        $chart->setData([
-            'labels' => array_column($counts, 'username'),
-            'datasets' => [
-                [
-                    'data' => array_column($counts, 'vote'),
-                    'backgroundColor' => $this->getColors($counts),
-                ],
-            ],
-        ]);
-
-        return $chart;
-    }
-
-    public function buildBiggestVotingUsers(): Chart
-    {
-        $counts = $this->qotdRepository->countBiggestVotingUsers();
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
-
-        $labels = [];
-        foreach ($counts as ['username' => $username]) {
-            $p = strpos((string) $username, '@');
-            if ($p) {
-                $labels[] = substr((string) $username, 0, $p);
-            } else {
-                $labels[] = $username;
-            }
-        }
-
-        $chart->setData([
-            'labels' => $labels,
-            'datasets' => [
-                [
-                    'data' => array_column($counts, 'vote'),
-                    'backgroundColor' => $this->getColors($counts),
-                ],
-            ],
-        ]);
-
-        return $chart;
-    }
-
-    public function buildCountOverPeriod(string $period): Chart
-    {
-        $counts = $this->qotdRepository->countOver($period);
+        $counts = $this->qotdRepository->countOver($period->value);
         $chart = $this->chartBuilder->createChart(Chart::TYPE_LINE);
         $labels = array_map(static fn (array $item): string => $item['period']->format('y-m-d'), $counts);
 
@@ -131,6 +76,70 @@ class ChartBuilder
             'scales' => [
                 'y1' => [
                     'position' => 'right',
+                ],
+            ],
+        ]);
+
+        return $chart;
+    }
+
+    private function buildMostQuotedUsers(): Chart
+    {
+        $counts = $this->qotdRepository->countMostQuotedUsers();
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+
+        $chart->setData([
+            'labels' => array_column($counts, 'username'),
+            'datasets' => [
+                [
+                    'data' => array_column($counts, 'count'),
+                    'backgroundColor' => $this->getColors($counts),
+                ],
+            ],
+        ]);
+
+        return $chart;
+    }
+
+    private function buildMostUpVotedUsers(): Chart
+    {
+        $counts = $this->qotdRepository->countMostUpVotedUsers();
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+
+        $chart->setData([
+            'labels' => array_column($counts, 'username'),
+            'datasets' => [
+                [
+                    'data' => array_column($counts, 'vote'),
+                    'backgroundColor' => $this->getColors($counts),
+                ],
+            ],
+        ]);
+
+        return $chart;
+    }
+
+    private function buildBiggestVotingUsers(): Chart
+    {
+        $counts = $this->qotdRepository->countBiggestVotingUsers();
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+
+        $labels = [];
+        foreach ($counts as ['username' => $username]) {
+            $p = strpos((string) $username, '@');
+            if ($p) {
+                $labels[] = substr((string) $username, 0, $p);
+            } else {
+                $labels[] = $username;
+            }
+        }
+
+        $chart->setData([
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'data' => array_column($counts, 'vote'),
+                    'backgroundColor' => $this->getColors($counts),
                 ],
             ],
         ]);
