@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d76cf8f9cc9ec8885ad408612d30510d",
+    "content-hash": "4ecd2ff3c18db861850ebfe3aafe09d7",
     "packages": [
         {
             "name": "composer/semver",
@@ -7216,16 +7216,16 @@
         },
         {
             "name": "symfony/stimulus-bundle",
-            "version": "v3.6.0",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/stimulus-bundle.git",
-                "reference": "3a042de9aff0ce706990c8cccd70661222c06e9e"
+                "reference": "1ec378de88cd2414a57504b77a1c64712d09355c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/stimulus-bundle/zipball/3a042de9aff0ce706990c8cccd70661222c06e9e",
-                "reference": "3a042de9aff0ce706990c8cccd70661222c06e9e",
+                "url": "https://api.github.com/repos/symfony/stimulus-bundle/zipball/1ec378de88cd2414a57504b77a1c64712d09355c",
+                "reference": "1ec378de88cd2414a57504b77a1c64712d09355c",
                 "shasum": ""
             },
             "require": {
@@ -7268,7 +7268,7 @@
                 "symfony-ux"
             ],
             "support": {
-                "source": "https://github.com/symfony/stimulus-bundle/tree/v3.6.0"
+                "source": "https://github.com/symfony/stimulus-bundle/tree/v3.7.0"
             },
             "funding": [
                 {
@@ -7288,7 +7288,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-13T08:04:44+00:00"
+            "time": "2026-11-04T08:53:23+00:00"
         },
         {
             "name": "symfony/stopwatch",
@@ -7897,16 +7897,16 @@
         },
         {
             "name": "symfony/ux-autocomplete",
-            "version": "v3.6.0",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-autocomplete.git",
-                "reference": "4f3e3fe54dea997556642ba5abdd09d48e1e8b45"
+                "reference": "792a81716e8d34c2cf6a20a1076ed73829e28f02"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-autocomplete/zipball/4f3e3fe54dea997556642ba5abdd09d48e1e8b45",
-                "reference": "4f3e3fe54dea997556642ba5abdd09d48e1e8b45",
+                "url": "https://api.github.com/repos/symfony/ux-autocomplete/zipball/792a81716e8d34c2cf6a20a1076ed73829e28f02",
+                "reference": "792a81716e8d34c2cf6a20a1076ed73829e28f02",
                 "shasum": ""
             },
             "require": {
@@ -7970,7 +7970,7 @@
                 "symfony-ux"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-autocomplete/tree/v3.6.0"
+                "source": "https://github.com/symfony/ux-autocomplete/tree/v3.7.0"
             },
             "funding": [
                 {
@@ -7990,20 +7990,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-13T08:04:44+00:00"
+            "time": "2026-11-04T08:53:23+00:00"
         },
         {
             "name": "symfony/ux-chartjs",
-            "version": "v3.6.0",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-chartjs.git",
-                "reference": "e57a7e129ed1ac055af2fcc55bb4491ab825b0fb"
+                "reference": "f1b7fec2a47bf4d5adc234bd19ee2014ab57f70d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-chartjs/zipball/e57a7e129ed1ac055af2fcc55bb4491ab825b0fb",
-                "reference": "e57a7e129ed1ac055af2fcc55bb4491ab825b0fb",
+                "url": "https://api.github.com/repos/symfony/ux-chartjs/zipball/f1b7fec2a47bf4d5adc234bd19ee2014ab57f70d",
+                "reference": "f1b7fec2a47bf4d5adc234bd19ee2014ab57f70d",
                 "shasum": ""
             },
             "require": {
@@ -8055,7 +8055,7 @@
                 "symfony-ux"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-chartjs/tree/v3.6.0"
+                "source": "https://github.com/symfony/ux-chartjs/tree/v3.7.0"
             },
             "funding": [
                 {
@@ -8075,20 +8075,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-13T08:04:44+00:00"
+            "time": "2026-11-04T08:53:23+00:00"
         },
         {
             "name": "symfony/ux-live-component",
-            "version": "v3.6.0",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-live-component.git",
-                "reference": "088a2b95d6e7c95fd91f5b198d72f5d972fd7b50"
+                "reference": "efd54b6a1e7afff9ddc8e98b72187ec0bab98a25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-live-component/zipball/088a2b95d6e7c95fd91f5b198d72f5d972fd7b50",
-                "reference": "088a2b95d6e7c95fd91f5b198d72f5d972fd7b50",
+                "url": "https://api.github.com/repos/symfony/ux-live-component/zipball/efd54b6a1e7afff9ddc8e98b72187ec0bab98a25",
+                "reference": "efd54b6a1e7afff9ddc8e98b72187ec0bab98a25",
                 "shasum": ""
             },
             "require": {
@@ -8157,7 +8157,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-live-component/tree/v3.6.0"
+                "source": "https://github.com/symfony/ux-live-component/tree/v3.7.0"
             },
             "funding": [
                 {
@@ -8177,20 +8177,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-13T08:04:44+00:00"
+            "time": "2026-11-04T08:53:23+00:00"
         },
         {
             "name": "symfony/ux-pagination",
-            "version": "v3.6.0",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-pagination.git",
-                "reference": "f394daa41995ad55aef6ffd30fc4bee8053b5ff5"
+                "reference": "8b0b6e4c2138263598963a99088665b1e641379c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-pagination/zipball/f394daa41995ad55aef6ffd30fc4bee8053b5ff5",
-                "reference": "f394daa41995ad55aef6ffd30fc4bee8053b5ff5",
+                "url": "https://api.github.com/repos/symfony/ux-pagination/zipball/8b0b6e4c2138263598963a99088665b1e641379c",
+                "reference": "8b0b6e4c2138263598963a99088665b1e641379c",
                 "shasum": ""
             },
             "require": {
@@ -8218,9 +8218,11 @@
                 "symfony/asset-mapper": "^7.4|^8.0",
                 "symfony/browser-kit": "^7.4|^8.0",
                 "symfony/css-selector": "^7.4|^8.0",
+                "symfony/doctrine-bridge": "^7.4|^8.0",
                 "symfony/dom-crawler": "^7.4|^8.0",
                 "symfony/framework-bundle": "^7.4|^8.0",
                 "symfony/translation": "^7.4|^8.0",
+                "symfony/uid": "^7.4|^8.0",
                 "symfony/ux-live-component": "^3.0",
                 "symfony/ux-twig-component": "^3.0"
             },
@@ -8260,7 +8262,7 @@
                 "symfony-ux"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-pagination/tree/v3.6.0"
+                "source": "https://github.com/symfony/ux-pagination/tree/v3.7.0"
             },
             "funding": [
                 {
@@ -8280,20 +8282,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-13T08:04:44+00:00"
+            "time": "2026-11-04T08:53:23+00:00"
         },
         {
             "name": "symfony/ux-router",
-            "version": "v3.6.0",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-router.git",
-                "reference": "6f62e6937baa9a4393c99329a659533a37c104c2"
+                "reference": "5a0e5c94ae5dfa5dce9a009fd1cde45e9c49bf67"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-router/zipball/6f62e6937baa9a4393c99329a659533a37c104c2",
-                "reference": "6f62e6937baa9a4393c99329a659533a37c104c2",
+                "url": "https://api.github.com/repos/symfony/ux-router/zipball/5a0e5c94ae5dfa5dce9a009fd1cde45e9c49bf67",
+                "reference": "5a0e5c94ae5dfa5dce9a009fd1cde45e9c49bf67",
                 "shasum": ""
             },
             "require": {
@@ -8344,7 +8346,7 @@
                 "symfony-ux"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-router/tree/v3.6.0"
+                "source": "https://github.com/symfony/ux-router/tree/v3.7.0"
             },
             "funding": [
                 {
@@ -8364,24 +8366,25 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-13T07:43:43+00:00"
+            "time": "2026-11-04T08:53:23+00:00"
         },
         {
             "name": "symfony/ux-turbo",
-            "version": "v3.6.0",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-turbo.git",
-                "reference": "b6417fb7a6c06ac3e9dfe2ec82342ce6ae9857c0"
+                "reference": "0a21824980e0e6d79da464d7ad3b9d3beb9a46af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-turbo/zipball/b6417fb7a6c06ac3e9dfe2ec82342ce6ae9857c0",
-                "reference": "b6417fb7a6c06ac3e9dfe2ec82342ce6ae9857c0",
+                "url": "https://api.github.com/repos/symfony/ux-turbo/zipball/0a21824980e0e6d79da464d7ad3b9d3beb9a46af",
+                "reference": "0a21824980e0e6d79da464d7ad3b9d3beb9a46af",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.4",
+                "psr/log": "^1|^2|^3",
                 "symfony/stimulus-bundle": "^2.9.1|^3.0"
             },
             "conflict": {
@@ -8406,7 +8409,9 @@
                 "symfony/stopwatch": "^7.4|^8.0",
                 "symfony/twig-bundle": "^7.4|^8.0",
                 "symfony/ux-twig-component": "^2.21|^3.0",
-                "symfony/web-profiler-bundle": "^7.4|^8.0"
+                "symfony/web-profiler-bundle": "^7.4|^8.0",
+                "twig/html-extra": "^3.29|^4.0",
+                "twig/twig": "^3.24|^4.0"
             },
             "type": "symfony-bundle",
             "extra": {
@@ -8445,7 +8450,7 @@
                 "turbo-stream"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-turbo/tree/v3.6.0"
+                "source": "https://github.com/symfony/ux-turbo/tree/v3.7.0"
             },
             "funding": [
                 {
@@ -8465,20 +8470,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-13T08:04:44+00:00"
+            "time": "2026-11-04T08:53:23+00:00"
         },
         {
             "name": "symfony/ux-twig-component",
-            "version": "v3.6.0",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-twig-component.git",
-                "reference": "2af0f2664509c8fa8f8a6c2118d8ee4fc8f951c4"
+                "reference": "9d12ad81d5722f0ebc1ef0608ed92cf5b7d9e2a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-twig-component/zipball/2af0f2664509c8fa8f8a6c2118d8ee4fc8f951c4",
-                "reference": "2af0f2664509c8fa8f8a6c2118d8ee4fc8f951c4",
+                "url": "https://api.github.com/repos/symfony/ux-twig-component/zipball/9d12ad81d5722f0ebc1ef0608ed92cf5b7d9e2a7",
+                "reference": "9d12ad81d5722f0ebc1ef0608ed92cf5b7d9e2a7",
                 "shasum": ""
             },
             "require": {
@@ -8534,7 +8539,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-twig-component/tree/v3.6.0"
+                "source": "https://github.com/symfony/ux-twig-component/tree/v3.7.0"
             },
             "funding": [
                 {
@@ -8554,7 +8559,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-12T20:12:07+00:00"
+            "time": "2026-11-03T19:17:45+00:00"
         },
         {
             "name": "symfony/validator",
@@ -10240,16 +10245,16 @@
         },
         {
             "name": "symfony/ux-inspector",
-            "version": "v3.6.0",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-inspector.git",
-                "reference": "fa0102542a5671aabebb9eb51b0cc9cc187b9326"
+                "reference": "d7ef57f037eef2815f52da25dd419c19d65a320d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-inspector/zipball/fa0102542a5671aabebb9eb51b0cc9cc187b9326",
-                "reference": "fa0102542a5671aabebb9eb51b0cc9cc187b9326",
+                "url": "https://api.github.com/repos/symfony/ux-inspector/zipball/d7ef57f037eef2815f52da25dd419c19d65a320d",
+                "reference": "d7ef57f037eef2815f52da25dd419c19d65a320d",
                 "shasum": ""
             },
             "require": {
@@ -10304,7 +10309,7 @@
                 "ux"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-inspector/tree/v3.6.0"
+                "source": "https://github.com/symfony/ux-inspector/tree/v3.7.0"
             },
             "funding": [
                 {
@@ -10324,7 +10329,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-13T07:43:43+00:00"
+            "time": "2026-11-02T15:47:45+00:00"
         },
         {
             "name": "symfony/web-profiler-bundle",
