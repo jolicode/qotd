@@ -22,7 +22,7 @@
     {% endif %}
 
     {% for qotd in pagination %}
-        <twig:QotdCard :qotd="qotd" :direction="direction" />
+        <twig:QotdCard :qotd :direction />
     {% else %}
         <div class="card mb-2">
             <div class="card-body">
