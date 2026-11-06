@@ -4,7 +4,8 @@ namespace App\Form\Model;
 
 class QotdFilters
 {
-    public ?string $author = null;
+    /** @var list<string> */
+    public array $authors = [];
     public ?bool $withImage = null;
     public ?bool $withVideo = null;
 }

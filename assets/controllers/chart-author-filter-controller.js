@@ -17,7 +17,7 @@ export default class extends Controller {
             const author = getAuthor(elements);
 
             if (author) {
-                visit(path('qotd_index', { author }));
+                visit(path('qotd_index', { authors: [author] }));
             }
         };
         chart.options.onHover = (event, elements) => {
