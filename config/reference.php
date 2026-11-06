@@ -1584,6 +1584,20 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         kits?: list<scalar|Param|null>,
  *     },
  * }
+ * @psalm-type UxImageConfig = array{
+ *     provider?: scalar|Param|null, // Default: null
+ *     formats?: list<scalar|Param|null>,
+ *     resolutions?: list<int|Param>,
+ *     quality?: int|Param, // The quality of every generated image that sets none itself; null leaves it to the provider. // Default: null
+ *     presets?: array<string, array{ // Default: []
+ *         width?: int|Param,
+ *         height?: int|Param,
+ *         fit?: scalar|Param|null,
+ *         format?: string|Param,
+ *         quality?: int|Param,
+ *         operations?: array<string, array<string, scalar|Param|null>>,
+ *     }>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1603,6 +1617,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     ux_pagination?: UxPaginationConfig,
  *     ux_router?: UxRouterConfig,
  *     ux_icons?: UxIconsConfig,
+ *     ux_image?: UxImageConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1627,6 +1642,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         ux_router?: UxRouterConfig,
  *         ux_icons?: UxIconsConfig,
  *         ux_toolkit?: UxToolkitConfig,
+ *         ux_image?: UxImageConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1647,6 +1663,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         ux_pagination?: UxPaginationConfig,
  *         ux_router?: UxRouterConfig,
  *         ux_icons?: UxIconsConfig,
+ *         ux_image?: UxImageConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1669,6 +1686,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         ux_router?: UxRouterConfig,
  *         ux_icons?: UxIconsConfig,
  *         ux_toolkit?: UxToolkitConfig,
+ *         ux_image?: UxImageConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

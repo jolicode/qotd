@@ -43,6 +43,8 @@
         "symfony/ux-chartjs": "^3.7",
         "symfony/ux-dropzone": "^3.7",
         "symfony/ux-icons": "^3.7",
+        "symfony/ux-image": "^3.7",
+        "symfony/ux-ipx-image": "^3.7",
         "symfony/ux-live-component": "^3.7",
         "symfony/ux-pagination": "^3.7",
         "symfony/ux-router": "^3.7",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4ab56678e2fb32e65ea4397ac05717df",
+    "content-hash": "2c3c90146c9dc7a70ba4cf6a63d5d96d",
     "packages": [
         {
             "name": "composer/semver",
@@ -8258,6 +8258,168 @@
                 }
             ],
             "time": "2026-10-18T10:57:24+00:00"
+        },
+        {
+            "name": "symfony/ux-image",
+            "version": "v3.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/ux-image.git",
+                "reference": "60c14ec7cd5d9a4de3a835bdc58d612de9b2e939"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/ux-image/zipball/60c14ec7cd5d9a4de3a835bdc58d612de9b2e939",
+                "reference": "60c14ec7cd5d9a4de3a835bdc58d612de9b2e939",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4",
+                "symfony/config": "^7.4|^8.0",
+                "symfony/dependency-injection": "^7.4|^8.0",
+                "symfony/http-kernel": "^7.4|^8.0",
+                "symfony/options-resolver": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^12.0",
+                "spatie/phpunit-snapshot-assertions": "^5.2.3",
+                "symfony/error-handler": "^7.4.17|^8.1.5",
+                "symfony/framework-bundle": "^7.4|^8.0",
+                "symfony/twig-bundle": "^7.4|^8.0",
+                "symfony/ux-twig-component": "^3.5",
+                "twig/html-extra": "^3.29"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/ux",
+                    "name": "symfony/ux"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\UX\\Image\\": "src/"
+                },
+                "exclude-from-classmap": []
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hugo Alliaume",
+                    "email": "hugo@alliau.me"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Responsive images for Symfony, delivered through URL-based image providers",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "cdn",
+                "image",
+                "responsive",
+                "symfony-ux"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/ux-image/tree/v3.7.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-10-31T08:28:41+00:00"
+        },
+        {
+            "name": "symfony/ux-ipx-image",
+            "version": "v3.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/ux-ipx-image.git",
+                "reference": "c77a16f843cfc3923311d2191c0d44ded99fe656"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/ux-ipx-image/zipball/c77a16f843cfc3923311d2191c0d44ded99fe656",
+                "reference": "c77a16f843cfc3923311d2191c0d44ded99fe656",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4",
+                "symfony/ux-image": "^3.7"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^12.0",
+                "spatie/phpunit-snapshot-assertions": "^5.2.3"
+            },
+            "type": "symfony-ux-image-bridge",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\UX\\Image\\Bridge\\Ipx\\": "src/"
+                },
+                "exclude-from-classmap": []
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hugo Alliaume",
+                    "email": "hugo@alliau.me"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony UX Image IPX Bridge",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "image",
+                "ipx",
+                "responsive",
+                "symfony-ux"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/ux-ipx-image/tree/v3.7.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-10-29T21:57:08+00:00"
         },
         {
             "name": "symfony/ux-live-component",

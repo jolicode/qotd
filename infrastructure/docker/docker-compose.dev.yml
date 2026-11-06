@@ -1,4 +1,27 @@
 services:
+    frontend:
+        environment:
+            - UX_IMAGE_DSN=ipx://${PROJECT_ROOT_DOMAIN}:${PROJECT_HTTPS_PORT:-443}/_ipx
+
+    ipx:
+        image: node:26-alpine
+        command: npx --yes ipx@4 serve
+        environment:
+            - IPX_ALLOWED_MODIFIERS=width,height,resize,fit,format,quality
+            - IPX_FS_DIR=/srv/public
+        volumes:
+            - "../../public:/srv/public:ro"
+        profiles:
+            - default
+        labels:
+            - "traefik.enable=true"
+            - "project-name=${PROJECT_NAME}"
+            - "traefik.http.middlewares.${PROJECT_NAME}-ipx.stripprefix.prefixes=/_ipx"
+            - "traefik.http.routers.${PROJECT_NAME}-ipx.middlewares=${PROJECT_NAME}-ipx"
+            - "traefik.http.routers.${PROJECT_NAME}-ipx.rule=Host(${PROJECT_DOMAINS}) && PathPrefix(`/_ipx`)"
+            - "traefik.http.routers.${PROJECT_NAME}-ipx.tls=true"
+            - "traefik.http.services.${PROJECT_NAME}-ipx.loadbalancer.server.port=3000"
+
     router:
         build: services/router
         volumes:

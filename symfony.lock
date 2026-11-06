@@ -306,8 +306,29 @@
             "config/packages/ux_icons.yaml"
         ]
     },
+    "symfony/ux-image": {
+        "version": "3.7",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.6",
+            "ref": "b09c206ff0dcb000fec1cf6931aa18c2fc7a2057"
+        },
+        "files": [
+            "config/packages/ux_image.yaml"
+        ]
+    },
     "symfony/ux-inspector": {
         "version": "v3.6.0"
+    },
+    "symfony/ux-ipx-image": {
+        "version": "3.7",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.7",
+            "ref": "ba2064ebb36e3b9dd6f3a36929dac57e2e3238d8"
+        }
     },
     "symfony/ux-live-component": {
         "version": "3.6",
