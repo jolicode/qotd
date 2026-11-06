@@ -3,6 +3,7 @@
 namespace App\Stats;
 
 use App\Repository\QotdRepository;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
 use Symfony\UX\Chartjs\Model\Chart;
 
@@ -33,6 +34,7 @@ class ChartBuilder
     public function __construct(
         private readonly QotdRepository $qotdRepository,
         private readonly ChartBuilderInterface $chartBuilder,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -55,7 +57,7 @@ class ChartBuilder
             'labels' => $labels,
             'datasets' => [
                 [
-                    'label' => '# Qotd',
+                    'label' => $this->translator->trans('# Qotd'),
                     'data' => array_column($counts, 'count'),
                     'backgroundColor' => self::DIMMED_COLORS[1],
                     'borderColor' => self::DIMMED_COLORS[1],
@@ -63,7 +65,7 @@ class ChartBuilder
                     'yAxisID' => 'y',
                 ],
                 [
-                    'label' => '# Votes',
+                    'label' => $this->translator->trans('# Votes'),
                     'data' => array_column($counts, 'vote'),
                     'backgroundColor' => self::DIMMED_COLORS[0],
                     'borderColor' => self::DIMMED_COLORS[0],

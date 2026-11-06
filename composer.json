@@ -53,6 +53,7 @@
         "symfony/ux-notify": "^3.7",
         "symfony/ux-pagination": "^3.7",
         "symfony/ux-router": "^3.7",
+        "symfony/ux-translator": "^3.7",
         "symfony/ux-turbo": "^3.7",
         "symfony/ux-twig-component": "^3.7",
         "symfony/validator": "^8.1.11",

@@ -4,6 +4,7 @@ namespace App\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Image;
 use Symfony\UX\Dropzone\Form\DropzoneType;
@@ -21,7 +22,7 @@ class QotdImagesType extends AbstractType
                 'label' => false,
                 'max_files' => self::MAX_FILES,
                 'multiple' => true,
-                'placeholder' => \sprintf('Drop up to %d images here, or browse', self::MAX_FILES),
+                'placeholder' => new TranslatableMessage('Drop up to %count% images here, or browse', ['%count%' => self::MAX_FILES]),
             ])
         ;
     }

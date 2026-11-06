@@ -23,7 +23,7 @@
                         <twig:ui:Modal:Body>{{ modal_body }}</twig:ui:Modal:Body>
                         <twig:ui:Modal:Footer>
                             {{ modal_footer_pre }}
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Close'|trans }}</button>
                             {{ modal_footer_post }}
                         </twig:ui:Modal:Footer>
                     {% endblock %}
@@ -38,8 +38,8 @@
                 <turbo-stream action="append" target="toasts">
                     <template>
                         <twig:ui:Toast :show="false" role="alert" live="assertive" data-controller="toast">
-                            <twig:ui:Toast:Header title="✅ Saved!" />
-                            <twig:ui:Toast:Body>{{ flash }}</twig:ui:Toast:Body>
+                            <twig:ui:Toast:Header :title="'✅ Saved!'|trans" />
+                            <twig:ui:Toast:Body>{{ flash|trans }}</twig:ui:Toast:Body>
                         </twig:ui:Toast>
                     </template>
                 </turbo-stream>

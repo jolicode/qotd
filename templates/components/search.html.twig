@@ -1,11 +1,11 @@
 <div {{ attributes }}>
     <form class="mb-3">
-        <label for="query" class="form-label d-none">Search</label>
+        <label for="query" class="form-label d-none">{{ 'Search'|trans }}</label>
         <div class="input-group">
             <div class="input-group-text">
                 <span data-loading="addClass(visually-hidden)">🔍</span>
                 <div class="spinner-border spinner-border-sm text-primary" role="status" data-loading>
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden">{{ 'Loading...'|trans }}</span>
                 </div>
             </div>
             <input
@@ -15,10 +15,10 @@
                 id="query"
                 class="form-control"
                 autocomplete="off"
-                placeholder="Search"
+                placeholder="{{ 'Search'|trans }}"
             >
             <button class="btn btn-primary">
-                Search
+                {{ 'Search'|trans }}
             </button>
         </div>
     </form>
@@ -30,7 +30,7 @@
             {% else %}
                 <div class="card mb-2">
                     <div class="card-body">
-                        This query did not match any QOTD
+                        {{ 'This query did not match any QOTD'|trans }}
                     </div>
                 </div>
             {% endfor %}
@@ -40,13 +40,13 @@
                     {{ ux_pagination(this.pagination, link_attributes: this.paginationLinkAttributes) }}
                 </div>
                 <button type="button" class="btn btn-sm btn-outline-secondary" {{ live_action('exportCsv') }} data-loading="addAttribute(disabled)">
-                    <twig:ux:icon name="bi:download" /> Export as CSV
+                    <twig:ux:icon name="bi:download" /> {{ 'Export as CSV'|trans }}
                 </button>
             {% endif %}
         {% else %}
             <div class="card mb-2">
                 <div class="card-body">
-                    Please, type something to search
+                    {{ 'Please, type something to search'|trans }}
                 </div>
             </div>
         {% endif %}

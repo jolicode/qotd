@@ -1,9 +1,9 @@
 {% extends 'base_with_frame.html.twig' %}
 
-{% block title 'Edit QOTD #' ~ qotd.id %}
+{% block title 'Edit QOTD #%id%'|trans({'%id%': qotd.id}) %}
 
 {% block save_button %}
-    <button type="submit" class="btn btn-primary" form="qotd-edit">Save</button>
+    <button type="submit" class="btn btn-primary" form="qotd-edit">{{ 'Save'|trans }}</button>
 {% endblock %}
 
 {% block body %}

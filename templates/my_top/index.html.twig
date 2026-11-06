@@ -2,10 +2,10 @@
 
 {% set active = 'my_top' %}
 
-{% block title %}My top{% endblock %}
+{% block title %}{{ 'My top'|trans }}{% endblock %}
 
 {% block body %}
-    <h2 class="text-center">My top</h2>
+    <h2 class="text-center">{{ 'My top'|trans }}</h2>
 
     <twig:MyTopList />
 {% endblock %}

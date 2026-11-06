@@ -7,7 +7,7 @@
     }}) }}
         {{ form_row(form.context) }}
         <div class="{{ html_classes('form-text', 'text-end', {'text-danger': this.remainingContextLength < 0}) }}" {{ tt('context-remaining') }}>
-            {{ this.remainingContextLength }} characters left
+            {{ '%count% characters left'|trans({'%count%': this.remainingContextLength}) }}
         </div>
     {{ form_end(form) }}
 </div>

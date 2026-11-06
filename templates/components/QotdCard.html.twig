@@ -16,7 +16,7 @@
         <div class="d-flex align-items-center justify-content-between">
             <div class="me-auto">
                 <a href="{{ url('qotd_show', {id: qotd.id}) }}" class="text-reset">
-                    {{ qotd.date|date('Y-m-d') }} by {{ qotd.username }}
+                    {{ '%date% by %author%'|trans({'%date%': qotd.date|date('Y-m-d'), '%author%': qotd.username}) }}
                 </a>
             </div>
             <div class="mx-1">
@@ -24,7 +24,7 @@
                 <button
                     type="button"
                     class="btn btn-link btn-sm p-0 text-reset"
-                    title="{{ in_my_top ? 'Remove from my top' : 'Add to my top' }}"
+                    title="{{ (in_my_top ? 'Remove from my top' : 'Add to my top')|trans }}"
                     {{ live_action('toggleMyTop') }}
                     {# data-loading removes the "disabled" attribute once loaded, they cannot be used together #}
                     {% if not in_my_top and this.myTop.full %}disabled{% else %}data-loading="addAttribute(disabled)"{% endif %}
@@ -32,7 +32,7 @@
                 ><twig:ux:icon :name="in_my_top ? 'bi:star-fill' : 'bi:star'" /></button>
             </div>
             <div class="mx-1">
-                <button type="button" class="btn btn-link btn-sm p-0 text-reset" title="Copy the QOTD" {{ stimulus_action('ui--clipboard', 'copy') }} {{ tt('copy') }}>
+                <button type="button" class="btn btn-link btn-sm p-0 text-reset" title="{{ 'Copy the QOTD'|trans }}" {{ stimulus_action('ui--clipboard', 'copy') }} {{ tt('copy') }}>
                     <span {{ stimulus_target('ui--clipboard', 'idle') }}><twig:ux:icon name="bi:clipboard" /></span>
                     {# "hidden" in the HTML: the controller only sets it on connect, a Live re-render would remove it #}
                     <span {{ stimulus_target('ui--clipboard', 'success') }} hidden><twig:ux:icon name="bi:clipboard-check" /></span>
@@ -45,10 +45,10 @@
                 <a href="{{ url('qotd_show_edit', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><twig:ux:icon name="bi:pencil" /></a>
             </div>
             <div class="mx-1">
-                <a href="{{ url('qotd_show_images', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal" title="Add images"><twig:ux:icon name="bi:image" /></a>
+                <a href="{{ url('qotd_show_images', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal" title="{{ 'Add images'|trans }}"><twig:ux:icon name="bi:image" /></a>
             </div>
             <div class="mx-1">
-                <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
+                <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 {{ 'view in Slack'|trans }}</a>
             </div>
             <button
                 type="button"

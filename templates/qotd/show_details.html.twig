@@ -14,7 +14,7 @@
             </td>
         </tr>
         <tr>
-            <th>Raw Message</th>
+            <th>{{ 'Raw Message'|trans }}</th>
             <td>
                 <div class="overflow-x-scroll" style="max-width:calc(var(--bs-modal-width) - 10em)">
                     <pre><code>{{ qotd.message|nl2br }}</code></pre>
@@ -23,7 +23,7 @@
         </tr>
         {% if qotd.messageRendered %}
             <tr>
-                <th>Raw Message Renderer</th>
+                <th>{{ 'Raw Message Renderer'|trans }}</th>
                 <td>
                     <div class="overflow-x-scroll" style="max-width:calc(var(--bs-modal-width) - 10em)">
                         <pre><code>{{ qotd.messageRendered|nl2br }}</code></pre>
@@ -32,7 +32,7 @@
             </tr>
         {% endif %}
         <tr>
-            <th>Raw Context</th>
+            <th>{{ 'Raw Context'|trans }}</th>
             <td>
                 <div class="overflow-x-scroll" style="max-width:calc(var(--bs-modal-width) - 10em)">
                     <pre><code>{{ qotd.context|nl2br }}</code></pre>
@@ -40,11 +40,11 @@
             </td>
         </tr>
         <tr>
-            <th>Message</th>
+            <th>{{ 'Message'|trans }}</th>
             <td>{{ qotd_macro.message(qotd) }}</td>
         </tr>
         <tr>
-            <th>Images</th>
+            <th>{{ 'Images'|trans }}</th>
             <th>
                 {% for image in qotd.imageUrls %}
                     {% set url = asset(image) %}
@@ -52,44 +52,44 @@
                         <twig:ux:image :src="url" alt="" width="100" height="100" fit="contain" />
                     </a>
                 {% else %}
-                    None
+                    {{ 'None'|trans }}
                 {% endfor %}
             </th>
         </tr>
         <tr>
-            <th>Videos</th>
+            <th>{{ 'Videos'|trans }}</th>
             <th>
                 {% for video in qotd.videoUrls %}
                     <video controls width="250">
                         <source src="{{ asset(video) }}" />
                     </video>
                 {% else %}
-                    None
+                    {{ 'None'|trans }}
                 {% endfor %}
             </th>
         </tr>
         <tr>
-            <th>Date</th>
+            <th>{{ 'Date'|trans }}</th>
             <td>{{ qotd.date|date('Y-m-d') }}</td>
         </tr>
         <tr>
-            <th>Author</th>
+            <th>{{ 'Author'|trans }}</th>
             <td>{{ qotd.username }}</td>
         </tr>
         <tr>
-            <th>Permalink (on this app)</th>
+            <th>{{ 'Permalink (on this app)'|trans }}</th>
             <td><a href="{{ url('qotd_show', {id: qotd.id}) }}">{{ url('qotd_show', {id: qotd.id}) }}</a></td>
         </tr>
         <tr>
-            <th>Permalink (on slack)</th>
+            <th>{{ 'Permalink (on slack)'|trans }}</th>
             <td><a href="{{ qotd.permalink }}">{{ qotd.permalink }}</a></td>
         </tr>
         <tr>
-            <th>Vote</th>
+            <th>{{ 'Vote'|trans }}</th>
             <td>{{ qotd.vote }}</td>
         </tr>
         <tr>
-            <th>Voters</th>
+            <th>{{ 'Voters'|trans }}</th>
             <td>{{ qotd.voterIds|keys|join(', ') }}</td>
         </tr>
     </table>
