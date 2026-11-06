@@ -30,11 +30,22 @@ class QotdControllerTest extends WebTestCase
     {
         $client = self::createClientAndLogin();
 
-        $crawler = $client->request('GET', '/', ['author' => 'old@example.com']);
+        $crawler = $client->request('GET', '/', ['authors' => ['old@example.com']]);
 
         self::assertResponseIsSuccessful();
         self::assertCount(1, $crawler->filter('[data-test=quote]'));
-        self::assertSame('old@example.com', $crawler->filter('select[name=author] option[selected]')->text());
+        self::assertSame('old@example.com', $crawler->filter('select[name="authors[]"] option[selected]')->text());
+    }
+
+    public function testIndexFilteredBySeveralAuthors(): void
+    {
+        $client = self::createClientAndLogin();
+
+        $crawler = $client->request('GET', '/', ['authors' => ['old@example.com', 'rich-text@example.com']]);
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(2, $crawler->filter('[data-test=quote]'));
+        self::assertCount(2, $crawler->filter('select[name="authors[]"] option'));
     }
 
     public function testTop(): void

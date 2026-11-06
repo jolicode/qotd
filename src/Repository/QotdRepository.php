@@ -31,6 +31,7 @@ class QotdRepository extends ServiceEntityRepository
     /** The slice of the users outside of the ones a stat lists. */
     public const string OTHER_USERS_LABEL = 'other';
 
+    private const int MAX_FAVORITE_AUTHORS = 5;
     private const int MAX_PER_PAGE = 7;
     private const int SEARCH_MAX_PER_PAGE = 15;
 
@@ -59,8 +60,8 @@ class QotdRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('q');
 
         if ($filters) {
-            if ($filters->author) {
-                $qb->andWhere('q.username = :author')->setParameter('author', $filters->author);
+            if ($filters->authors) {
+                $qb->andWhere('q.username IN (:authors)')->setParameter('authors', $filters->authors);
             }
             match ($filters->withImage) {
                 true => $qb->andWhere('q.images != \'[]\''),
@@ -448,33 +449,17 @@ class QotdRepository extends ServiceEntityRepository
     /**
      * @return list<string>
      */
-    public function searchAuthors(string $query, int $limit, int $offset): array
+    public function getFavoriteAuthors(UserInterface $user): array
     {
         return $this->createQueryBuilder('q')
             ->select('q.username', 'count(q.username) as HIDDEN count')
-            ->where('LOWER(q.username) LIKE :query')
-            ->setParameter('query', '%' . addcslashes(mb_strtolower($query), '%_\\') . '%')
+            ->where('JSON_GET_TEXT(q.voterIds, :userId) = :up')
+            ->setParameter('userId', $user->getUserIdentifier())
+            ->setParameter('up', QotdVote::Up->value)
             ->addOrderBy('count', \SortDirection::Descending)
             ->addOrderBy('q.username', \SortDirection::Ascending)
             ->groupBy('q.username')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery()
-            ->getResult(Query::HYDRATE_SCALAR_COLUMN)
-        ;
-    }
-
-    /**
-     * @param list<string> $authors
-     *
-     * @return list<string> The given authors that exist
-     */
-    public function filterAuthors(array $authors): array
-    {
-        return $this->createQueryBuilder('q')
-            ->select('DISTINCT q.username')
-            ->where('q.username IN (:authors)')
-            ->setParameter('authors', $authors)
+            ->setMaxResults(self::MAX_FAVORITE_AUTHORS)
             ->getQuery()
             ->getResult(Query::HYDRATE_SCALAR_COLUMN)
         ;
