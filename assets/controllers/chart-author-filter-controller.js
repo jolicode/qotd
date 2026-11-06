@@ -2,26 +2,18 @@ import { Controller } from '@hotwired/stimulus';
 import { visit } from '@hotwired/turbo';
 import { path } from '../router.js';
 
-/* Clicking on a slice lists the QOTD of the author it stands for */
+/* Clicking on a bar lists the QOTD of its author */
 export default class extends Controller {
-    static values = { otherUsersLabel: String };
-
     connectChart({ detail: { chart } }) {
-        const getAuthor = (elements) => {
-            const label = chart.data.labels[elements[0]?.index];
-
-            return label === this.otherUsersLabelValue ? undefined : label;
-        };
-
         chart.options.onClick = (event, elements) => {
-            const author = getAuthor(elements);
-
-            if (author) {
-                visit(path('qotd_index', { authors: [author] }));
+            if (0 === elements.length) {
+                return;
             }
+
+            visit(path('qotd_index', { authors: [chart.data.datasets[0].usernames[elements[0].index]] }));
         };
         chart.options.onHover = (event, elements) => {
-            event.native.target.style.cursor = getAuthor(elements) ? 'pointer' : 'default';
+            event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
         };
     }
 }

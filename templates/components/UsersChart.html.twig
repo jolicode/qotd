@@ -1,15 +1,15 @@
 <div {{ attributes }}>
-    <h2 class="text-center">{{ type.title|trans }}</h2>
+    <h2 class="h5 text-center">{{ type.title|trans }}</h2>
     {% if type.hasAuthorLabels %}
-        <div {{ stimulus_controller('chart-author-filter', {otherUsersLabel: constant('App\\Repository\\QotdRepository::OTHER_USERS_LABEL')}) }} {{ stimulus_action('chart-author-filter', 'connectChart', 'chartjs:connect') }}>
-            {{ render_chart(this.chart) }}
+        <div {{ stimulus_controller('chart-author-filter') }} {{ stimulus_action('chart-author-filter', 'connectChart', 'chartjs:connect') }}>
+            {{ render_chart(this.chart, {role: 'img', 'aria-label': type.title|trans}) }}
         </div>
     {% else %}
-        {{ render_chart(this.chart) }}
+        {{ render_chart(this.chart, {role: 'img', 'aria-label': type.title|trans}) }}
     {% endif %}
 </div>
 
 {% macro placeholder(props) %}
-    <h2 class="text-center">{{ props.type.title|trans }}</h2>
+    <h2 class="h5 text-center">{{ props.type.title|trans }}</h2>
     <p class="placeholder-glow text-center"><span class="placeholder col-6"></span></p>
 {% endmacro %}

@@ -1,5 +1,5 @@
 <div {{ attributes }}>
-    <h2 class="text-center">{{ 'Number of QOTD Vote over a period'|trans }}</h2>
+    <h2 class="h5 text-center">{{ 'Number of QOTD Vote over a period'|trans }}</h2>
 
     <ul class="nav nav-tabs mb-3">
         {% for statsPeriod in enum_cases('App\\Stats\\StatsPeriod') %}
@@ -13,8 +13,12 @@
         {% endfor %}
     </ul>
 
-    <div data-loading="addClass(opacity-50)">
-        {{ render_chart(this.chart) }}
+    <div class="row" data-loading="addClass(opacity-50)">
+        {% for chart in this.charts %}
+            <div class="col-lg-6">
+                {{ render_chart(chart, {role: 'img', 'aria-label': chart.options.plugins.title.text}) }}
+            </div>
+        {% endfor %}
     </div>
 </div>
 

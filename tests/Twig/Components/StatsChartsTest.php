@@ -28,6 +28,25 @@ class StatsChartsTest extends KernelTestCase
         }
     }
 
+    public function testRanksOnlyUsers(): void
+    {
+        $view = $this
+            ->createLiveComponent('UsersChart', ['type' => UsersChartType::MostQuoted])
+            ->actingAs(new OAuthUser('test-user', ['ROLE_USER', 'ROLE_OAUTH_USER']))
+            ->render()
+            ->crawler()
+            ->filter('canvas')
+            ->attr('data-symfony--ux-chartjs--chart-view-value')
+        ;
+
+        $data = json_decode((string) $view, true, flags: JSON_THROW_ON_ERROR)['data'];
+
+        self::assertCount(10, $data['labels']);
+        self::assertNotContains('other', $data['labels']);
+        self::assertStringContainsString('@', $data['datasets'][0]['usernames'][0]);
+        self::assertStringNotContainsString('@', $data['labels'][0]);
+    }
+
     public function testShowPeriod(): void
     {
         $chart = $this
@@ -36,6 +55,7 @@ class StatsChartsTest extends KernelTestCase
         ;
 
         self::assertSame('Monthly', $chart->render()->crawler()->filter('.nav-link.active')->text());
+        self::assertCount(2, $chart->render()->crawler()->filter('canvas'));
         $monthlyView = $chart->render()->crawler()->filter('canvas')->attr('data-symfony--ux-chartjs--chart-view-value');
 
         $chart->call('showPeriod', ['period' => StatsPeriod::Year->value]);

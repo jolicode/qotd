@@ -50,7 +50,9 @@ No QOTD found.: Aucune QOTD trouvée.
 No awards found.: Aucun trophée trouvé.
 No vote yet: Aucun vote pour l'instant
 Not voted yet: À voter
+Number of QOTD: Nombre de QOTD
 Number of QOTD Vote over a period: Nombre de QOTD et de votes sur une période
+Number of votes: Nombre de votes
 Open the selected QOTD: Ouvrir la QOTD sélectionnée
 Please, type something to search: Saisissez quelque chose à rechercher
 Preview: Aperçu
@@ -99,6 +101,4 @@ Your images have been added!: Vos images ont été ajoutées !
 'Your top is empty: use the ⭐ of a QOTD to add it.': 'Votre top est vide : utilisez le ⭐ d''une QOTD pour l''ajouter.'
 then: puis
 week_pattern: "'Semaine' ww 'de' y"
-'# Qotd': '# QOTD'
-'# Votes': '# Votes'
 '✅ Saved!': '✅ Enregistré !'
