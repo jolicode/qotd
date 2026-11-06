@@ -66,12 +66,8 @@
                                     </li>
                                 </ul>
                                 <a href="{{ path('keyboard_shortcuts') }}" class="nav-link me-3" data-turbo-frame="modal" title="{{ 'Keyboard shortcuts'|trans }} (h)">⌨️</a>
-                                {% for locale in app.enabled_locales %}
-                                    <a
-                                        href="{{ path('locale_switch', {locale: locale}) }}"
-                                        class="{{ html_classes('nav-link', 'me-2', 'text-uppercase', {'fw-bold': locale == app.request.locale}) }}"
-                                        data-turbo="false"
-                                    >{{ locale }}</a>
+                                {% for locale in app.enabled_locales|filter(locale => locale != app.request.locale) %}
+                                    <a href="{{ path('locale_switch', {locale: locale}) }}" class="nav-link me-3 text-uppercase" data-turbo="false">{{ locale }}</a>
                                 {% endfor %}
                                 <div class="form-check form-switch">
                                     <input

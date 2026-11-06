@@ -24,7 +24,7 @@ class LocaleControllerTest extends WebTestCase
 
         $client->request('GET', '/awards', server: ['HTTP_ACCEPT_LANGUAGE' => 'fr-FR,fr;q=0.9']);
 
-        self::assertSelectorTextContains('html title', 'Récompenses');
+        self::assertSelectorTextContains('html title', 'Trophées');
     }
 
     public function testSwitchWinsOverTheBrowser(): void
@@ -37,7 +37,7 @@ class LocaleControllerTest extends WebTestCase
 
         $client->request('GET', '/awards', server: ['HTTP_ACCEPT_LANGUAGE' => 'en-US']);
 
-        self::assertSelectorTextContains('html title', 'Récompenses');
+        self::assertSelectorTextContains('html title', 'Trophées');
         self::assertSame('fr', $client->getCrawler()->filter('html')->attr('lang'));
     }
 
