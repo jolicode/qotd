@@ -81,7 +81,7 @@
                 {% block body %}{% endblock %}
             </div>
         </main>
-        <div {{ stimulus_controller('modal') }}>
+        <div {{ stimulus_controller('modal') }} {{ stimulus_action('modal', 'visit', 'modal:visit@window') }}>
             <turbo-frame id="modal" {{ stimulus_target('modal', 'frame') }}></turbo-frame>
             <template {{ stimulus_target('modal', 'loadingTemplate') }}>
                 <twig:LoadingModal />

@@ -5,10 +5,8 @@ namespace App\Controller;
 use App\Entity\Qotd;
 use App\Form\Model\QotdFilters;
 use App\Form\Type\QotdFiltersType;
-use App\Form\Type\QotdType;
 use App\Repository\Model\QotdDirection;
 use App\Repository\QotdRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +20,6 @@ class QotdController extends AbstractController
 {
     public function __construct(
         private readonly QotdRepository $qotdRepository,
-        private readonly EntityManagerInterface $em,
     ) {
     }
 
@@ -78,27 +75,10 @@ class QotdController extends AbstractController
         return $this->render('qotd/search.html.twig');
     }
 
-    #[Route('/qotd/{id}/edit', name: 'qotd_show_edit', methods: ['GET', 'POST'], options: ['expose' => true])]
-    public function edit(
-        Request $request,
-        #[MapEntity()] Qotd $qotd,
-    ): Response {
-        $form = $this->createForm(QotdType::class, $qotd, [
-            'action' => $this->generateUrl('qotd_show_edit', ['id' => $qotd->id]),
-        ]);
-
-        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
-            $this->em->flush();
-
-            $this->addFlash('success', 'Your changes have been saved!');
-
-            return $this->redirectToRoute('qotd_show', ['id' => $qotd->id]);
-        }
-
-        return $this->render('qotd/edit.html.twig', [
-            'form' => $form,
-            'qotd' => $qotd,
-        ]);
+    #[Route('/qotd/{id}/edit', name: 'qotd_show_edit', methods: ['GET'], options: ['expose' => true])]
+    #[Template('qotd/edit.html.twig')]
+    public function edit(#[MapEntity()] Qotd $qotd): void
+    {
     }
 
     #[Route('/qotd/{id}', name: 'qotd_show', methods: ['GET'], options: ['expose' => true])]
