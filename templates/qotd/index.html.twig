@@ -5,10 +5,13 @@
 {% endif %}
 
 {% set active = direction.toTwigActiveSection %}
+{% set live_updates_topics = [constant('App\\Qotd\\LiveUpdates::VOTES_TOPIC'), constant('App\\Qotd\\LiveUpdates::LATEST_TOPIC')] %}
 
 {% block title %}{{ direction.toTitle }}{% endblock %}
 
 {% block body %}
+    <div id="qotd-latest-banner"></div>
+
     {% if form ?? false %}
         <details {{ valid ? 'open' }}>
             <summary>Filters</summary>

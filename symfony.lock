@@ -174,6 +174,39 @@
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
     },
+    "symfony/mercure-bundle": {
+        "version": "0.6",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "0.6",
+            "ref": "4b113d4f04479ba9db846f27296c91a0264083f4"
+        },
+        "files": [
+            "config/packages/mercure.yaml"
+        ]
+    },
+    "symfony/mercure-notifier": {
+        "version": "8.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.3",
+            "ref": "4eaf30b6f48b69934a49e26dd0348e6ebfb97f12"
+        }
+    },
+    "symfony/messenger": {
+        "version": "8.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.0",
+            "ref": "d8936e2e2230637ef97e5eecc0eea074eecae58b"
+        },
+        "files": [
+            "config/packages/messenger.yaml"
+        ]
+    },
     "symfony/monolog-bundle": {
         "version": "4.1",
         "recipe": {
@@ -184,6 +217,18 @@
         },
         "files": [
             "config/packages/monolog.yaml"
+        ]
+    },
+    "symfony/notifier": {
+        "version": "8.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.0",
+            "ref": "b912054fd9639f5fad62493cc24439048c2fd045"
+        },
+        "files": [
+            "config/packages/notifier.yaml"
         ]
     },
     "symfony/phpunit-bridge": {
@@ -341,6 +386,9 @@
         "files": [
             "config/routes/ux_live_component.yaml"
         ]
+    },
+    "symfony/ux-notify": {
+        "version": "v3.7.0"
     },
     "symfony/ux-pagination": {
         "version": "v3.6.0"

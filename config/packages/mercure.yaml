@@ -1,0 +1,15 @@
+mercure:
+    hubs:
+        default:
+            url: '%env(MERCURE_URL)%'
+            public_url: '%env(MERCURE_PUBLIC_URL)%'
+            # The default name of the hub. Otherwise, the bundle picks another one when
+            # kernel.debug is on, and the hub ignores the cookie
+            cookie_name: '__Secure-mercure_access_token'
+            jwt:
+                secret: '%env(MERCURE_JWT_SECRET)%'
+                publish: '*'
+                claims:
+                    iss: '%env(MERCURE_JWT_ISSUER)%'
+                    sub: 'app'
+                    client_id: 'app'

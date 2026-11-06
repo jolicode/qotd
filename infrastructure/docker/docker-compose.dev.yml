@@ -1,7 +1,13 @@
 services:
     frontend:
         environment:
+            - MERCURE_PUBLIC_URL=https://${PROJECT_ROOT_DOMAIN}:${PROJECT_HTTPS_PORT:-443}/.well-known/mercure
             - UX_IMAGE_DSN=ipx://${PROJECT_ROOT_DOMAIN}:${PROJECT_HTTPS_PORT:-443}/_ipx
+
+    worker_messenger:
+        environment:
+            # The audience of the tokens the worker publishes with
+            - MERCURE_PUBLIC_URL=https://${PROJECT_ROOT_DOMAIN}:${PROJECT_HTTPS_PORT:-443}/.well-known/mercure
 
     ipx:
         image: node:26-alpine
@@ -21,6 +27,28 @@ services:
             - "traefik.http.routers.${PROJECT_NAME}-ipx.rule=Host(${PROJECT_DOMAINS}) && PathPrefix(`/_ipx`)"
             - "traefik.http.routers.${PROJECT_NAME}-ipx.tls=true"
             - "traefik.http.services.${PROJECT_NAME}-ipx.loadbalancer.server.port=3000"
+
+    mercure:
+        image: dunglas/mercure
+        environment:
+            # Keep in sync with .env.dev
+            - MERCURE_PUBLISHER_JWT_KEY=!ChangeThisMercureHubJWTSecretKey!
+            - MERCURE_SUBSCRIBER_JWT_KEY=!ChangeThisMercureHubJWTSecretKey!
+            - MERCURE_TRUSTED_ISSUERS=https://localhost
+            - SERVER_NAME=:80
+            # "anonymous": the notifications of UX Notify have no token.
+            # "resource_identifier": behind Traefik, the hub would see itself in HTTP, and refuse the audience of the tokens
+            - |
+                MERCURE_EXTRA_DIRECTIVES=anonymous
+                resource_identifier https://${PROJECT_ROOT_DOMAIN}:${PROJECT_HTTPS_PORT:-443}/.well-known/mercure
+        profiles:
+            - default
+        labels:
+            - "traefik.enable=true"
+            - "project-name=${PROJECT_NAME}"
+            - "traefik.http.routers.${PROJECT_NAME}-mercure.rule=Host(${PROJECT_DOMAINS}) && PathPrefix(`/.well-known/mercure`)"
+            - "traefik.http.routers.${PROJECT_NAME}-mercure.tls=true"
+            - "traefik.http.services.${PROJECT_NAME}-mercure.loadbalancer.server.port=80"
 
     router:
         build: services/router

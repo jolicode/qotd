@@ -5,6 +5,7 @@ namespace App\Twig\Components;
 use App\Entity\MyTop;
 use App\Entity\Qotd;
 use App\Qotd\Exception\MyTopFullException;
+use App\Qotd\LiveUpdates;
 use App\Repository\Model\QotdDirection;
 use App\Repository\Model\QotdVote;
 use App\Repository\MyTopRepository;
@@ -39,9 +40,10 @@ final class QotdCard
     public ?QotdDirection $direction = null;
 
     public function __construct(
+        private readonly LiveUpdates $liveUpdates,
+        private readonly LoggerInterface $logger,
         private readonly MyTopRepository $myTopRepository,
         private readonly Security $security,
-        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -71,6 +73,7 @@ final class QotdCard
         $em->flush();
 
         $this->emit(self::VOTED_EVENT);
+        $this->liveUpdates->publishVote($this->qotd);
 
         // A voted QOTD leaves the list of QOTD not voted yet
         if (QotdDirection::NotVoted === $this->direction && QotdVote::Null !== $this->qotd->getVote($user)) {
@@ -118,5 +121,6 @@ final class QotdCard
         $em->flush();
 
         $this->emit(self::VOTED_EVENT);
+        $this->liveUpdates->publishVote($this->qotd);
     }
 }

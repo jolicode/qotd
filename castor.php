@@ -14,6 +14,7 @@ use function docker\build;
 use function docker\docker_compose_run;
 use function docker\get_services;
 use function docker\up;
+use function docker\workers_start;
 
 defined('CASTOR_USE_CHDIR') || define('CASTOR_USE_CHDIR', true);
 
@@ -45,6 +46,10 @@ function start(): void
     install();
     up(profiles: ['default']); // We can't start worker now, they are not installed
     migrate();
+
+    if (get_services('worker')) {
+        workers_start();
+    }
 
     notify('The stack is now up and running.');
     io()->success('The stack is now up and running.');

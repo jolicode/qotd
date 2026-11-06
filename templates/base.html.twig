@@ -97,5 +97,18 @@
             <turbo-frame id="toasts">
             </turbo-frame>
         </div>
+        {% if live_updates_enabled() %}
+            {% set live_updates_votes_topic = constant('App\\Qotd\\LiveUpdates::VOTES_TOPIC') %}
+            {% set live_updates_topics = live_updates_topics ?? [live_updates_votes_topic] %}
+            {# "subscribe": one cookie grants the topics of every tab, whatever the last page rendered listens to #}
+            <twig:Turbo:Stream:From
+                :topics="live_updates_topics"
+                :subscribe="[live_updates_votes_topic, constant('App\\Qotd\\LiveUpdates::LATEST_TOPIC')]"
+                private
+                :id="'private-' ~ live_updates_topics|join('-')|replace({':': '-'}) ~ '-stream'"
+                data-turbo-permanent
+            />
+            {{ stream_notifications([constant('App\\Qotd\\LiveUpdates::NOTIFICATIONS_TOPIC')]) }}
+        {% endif %}
     </body>
 </html>

@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Qotd\LiveUpdates;
 use App\Qotd\QotdCreator;
 use App\Repository\QotdRepository;
 use App\Slack\MessageFetcher;
@@ -41,6 +42,7 @@ class QotdRunCommand extends Command
         private readonly QotdCreator $qotdCreator,
         private readonly UrlGeneratorInterface $router,
         private readonly EntityManagerInterface $em,
+        private readonly LiveUpdates $liveUpdates,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
         parent::__construct();
@@ -139,6 +141,7 @@ class QotdRunCommand extends Command
             }
 
             $this->qotdCreator->createQotd($bestMessage, $date);
+            $this->liveUpdates->publishElection();
 
             $this->botClient->request('POST', 'chat.postMessage', [
                 'json' => [

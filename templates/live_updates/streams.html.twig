@@ -1,0 +1,16 @@
+{% block vote %}
+    <turbo-stream action="update" targets="#qotd-{{ qotd.id }} .qotd-vote">
+        <template>{{ qotd.vote }}</template>
+    </turbo-stream>
+{% endblock %}
+
+{# Rendered by a worker: without user, it cannot render a QotdCard #}
+{% block elected %}
+    <turbo-stream action="update" target="qotd-latest-banner">
+        <template>
+            <div class="alert alert-info">
+                A new QOTD has been elected! <a class="alert-link" href="{{ path('qotd_index') }}">Show it</a>
+            </div>
+        </template>
+    </turbo-stream>
+{% endblock %}
