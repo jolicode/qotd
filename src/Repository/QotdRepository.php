@@ -136,6 +136,27 @@ class QotdRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @return iterable<array{date: string, username: string, vote: int, message: string}>
+     */
+    public function iterateSearch(string $query): iterable
+    {
+        $searchQuery = $this->createSearchQuery($query);
+
+        $sql = <<<EOSQL
+                SELECT date, username, vote, message
+                FROM qotd AS q
+                WHERE {$searchQuery->whereSql}
+                ORDER BY {$searchQuery->orderBySql}
+            EOSQL;
+
+        return $this
+            ->getEntityManager()
+            ->getConnection()
+            ->iterateAssociative($sql, ['query' => $searchQuery->query])
+        ;
+    }
+
     public function countMostQuotedUsers(): array
     {
         $sql = <<<'EOSQL'

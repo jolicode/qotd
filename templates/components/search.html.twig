@@ -39,6 +39,9 @@
                 <div class="navigation">
                     {{ ux_pagination(this.pagination, link_attributes: this.paginationLinkAttributes) }}
                 </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" {{ live_action('exportCsv') }} data-loading="addAttribute(disabled)">
+                    <twig:ux:icon name="bi:download" /> Export as CSV
+                </button>
             {% endif %}
         {% else %}
             <div class="card mb-2">
