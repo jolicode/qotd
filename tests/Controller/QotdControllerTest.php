@@ -122,6 +122,18 @@ class QotdControllerTest extends WebTestCase
         }
     }
 
+    public function testShowDetails(): void
+    {
+        $client = self::createClientAndLogin();
+        $dbQuote = self::getContainer()->get(QotdRepository::class)->findOneBy(['username' => 'rich-text@example.com']);
+
+        $crawler = $client->request('GET', "/qotd/{$dbQuote->id}/details");
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('title', 'QOTD of May 12, 2023');
+        self::assertSame($dbQuote->message, $crawler->filter('[data-test=raw-data]')->first()->text(normalizeWhitespace: false));
+    }
+
     public function testShow(): void
     {
         $client = self::createClientAndLogin();

@@ -2,95 +2,87 @@
 
 {% import 'macros/qotd/message.html.twig' as qotd_macro %}
 
-{% block title %}QOTD #{{ qotd.id }}{% endblock %}
+{% set modal_attributes = {
+    scrollable: true,
+} %}
+
+{% block title %}{{ 'QOTD of %date%'|trans({'%date%': qotd.date|format_date('long')}) }}{% endblock %}
 
 {% block body %}
-    <table class="table table-striped table-sm">
-        <tr>
-            <th>ID</th>
-            <td>
-                {{ qotd.id }}
-                <a href="{{ url('qotd_show_details', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><twig:ux:icon name="bi:info-circle" /></a>
-            </td>
-        </tr>
-        <tr>
-            <th>{{ 'Raw Message'|trans }}</th>
-            <td>
-                <div class="overflow-x-scroll" style="max-width:calc(var(--bs-modal-width) - 10em)">
-                    <pre><code>{{ qotd.message|nl2br }}</code></pre>
+    <dl class="row mb-3">
+        <dt class="col-sm-3">{{ 'Author'|trans }}</dt>
+        <dd class="col-sm-9">{{ qotd.username }}</dd>
+
+        <dt class="col-sm-3">{{ 'Vote'|trans }}</dt>
+        <dd class="col-sm-9"><twig:ui:Badge>{{ qotd.vote }}</twig:ui:Badge></dd>
+
+        <dt class="col-sm-3">{{ 'Voters'|trans }}</dt>
+        <dd class="col-sm-9 d-flex flex-wrap gap-1">
+            {% for voter, vote in qotd.votesByVoter %}
+                <twig:ui:Badge color="light" class="border fw-normal">{{ 'up' == vote.value ? '👍' : '👎' }} {{ voter }}</twig:ui:Badge>
+            {% else %}
+                <span class="text-body-secondary">{{ 'No vote yet'|trans }}</span>
+            {% endfor %}
+        </dd>
+
+        <dt class="col-sm-3">{{ 'Links'|trans }}</dt>
+        <dd class="col-sm-9 d-flex flex-wrap gap-2">
+            <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 {{ 'view in Slack'|trans }}</a>
+            <a href="{{ url('qotd_show', {id: qotd.id}) }}" class="btn btn-sm btn-outline-secondary" data-turbo-frame="_top">{{ 'QOTD page'|trans }}</a>
+        </dd>
+
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9 mb-0"><code>{{ qotd.id }}</code></dd>
+    </dl>
+
+    {% if qotd.imageUrls or qotd.videoUrls %}
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            {% for image in qotd.imageUrls %}
+                {% set url = asset(image) %}
+                <a href="{{ url }}" target="_blank">
+                    <twig:ux:image :src="url" alt="" width="100" height="100" fit="contain" class="rounded border" />
+                </a>
+            {% endfor %}
+            {% for video in qotd.videoUrls %}
+                <video class="rounded border" controls width="250">
+                    <source src="{{ asset(video) }}" />
+                </video>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% set raw_tabs = [
+        {label: 'Raw message', content: qotd.message},
+        {label: 'Rendered message', content: qotd.messageRendered},
+        {label: 'Context', content: qotd.context},
+    ]|filter(tab => tab.content) %}
+    {# Macros and "loop" do not exist inside a nested component #}
+    {% set preview %}{{ qotd_macro.message(qotd) }}{% endset %}
+
+    <twig:ui:Nav type="tabs" role="tablist" class="mb-2">
+        <twig:ui:Nav:Item presentation>
+            <twig:ui:Nav:Link tag="button" id="preview-tab" target="#preview" active>{{ 'Preview'|trans }}</twig:ui:Nav:Link>
+        </twig:ui:Nav:Item>
+        {% for tab in raw_tabs %}
+            {% set tab_id = 'raw-' ~ loop.index %}
+            <twig:ui:Nav:Item presentation>
+                <twig:ui:Nav:Link tag="button" :id="tab_id ~ '-tab'" :target="'#' ~ tab_id">{{ tab.label|trans }}</twig:ui:Nav:Link>
+            </twig:ui:Nav:Item>
+        {% endfor %}
+    </twig:ui:Nav>
+    <twig:ui:TabContent>
+        <twig:ui:TabPane id="preview" labelledBy="preview-tab" active>{{ preview }}</twig:ui:TabPane>
+        {% for tab in raw_tabs %}
+            {% set tab_id = 'raw-' ~ loop.index %}
+            <twig:ui:TabPane :id="tab_id" :labelledBy="tab_id ~ '-tab'">
+                <div class="position-relative" {{ stimulus_controller('ui--clipboard') }}>
+                    <pre class="qotd-raw" {{ stimulus_target('ui--clipboard', 'source') }} {{ tt('raw-data') }}><code>{{ tab.content }}</code></pre>
+                    <button type="button" class="btn btn-sm btn-light border position-absolute top-0 end-0 m-2" title="{{ 'Copy'|trans }}" {{ stimulus_action('ui--clipboard', 'copy') }}>
+                        <span {{ stimulus_target('ui--clipboard', 'idle') }}><twig:ux:icon name="bi:clipboard" /></span>
+                        <span {{ stimulus_target('ui--clipboard', 'success') }} hidden><twig:ux:icon name="bi:clipboard-check" /></span>
+                    </button>
                 </div>
-            </td>
-        </tr>
-        {% if qotd.messageRendered %}
-            <tr>
-                <th>{{ 'Raw Message Renderer'|trans }}</th>
-                <td>
-                    <div class="overflow-x-scroll" style="max-width:calc(var(--bs-modal-width) - 10em)">
-                        <pre><code>{{ qotd.messageRendered|nl2br }}</code></pre>
-                    </div>
-                </td>
-            </tr>
-        {% endif %}
-        <tr>
-            <th>{{ 'Raw Context'|trans }}</th>
-            <td>
-                <div class="overflow-x-scroll" style="max-width:calc(var(--bs-modal-width) - 10em)">
-                    <pre><code>{{ qotd.context|nl2br }}</code></pre>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <th>{{ 'Message'|trans }}</th>
-            <td>{{ qotd_macro.message(qotd) }}</td>
-        </tr>
-        <tr>
-            <th>{{ 'Images'|trans }}</th>
-            <th>
-                {% for image in qotd.imageUrls %}
-                    {% set url = asset(image) %}
-                    <a href="{{ url }}" target="_blank">
-                        <twig:ux:image :src="url" alt="" width="100" height="100" fit="contain" />
-                    </a>
-                {% else %}
-                    {{ 'None'|trans }}
-                {% endfor %}
-            </th>
-        </tr>
-        <tr>
-            <th>{{ 'Videos'|trans }}</th>
-            <th>
-                {% for video in qotd.videoUrls %}
-                    <video controls width="250">
-                        <source src="{{ asset(video) }}" />
-                    </video>
-                {% else %}
-                    {{ 'None'|trans }}
-                {% endfor %}
-            </th>
-        </tr>
-        <tr>
-            <th>{{ 'Date'|trans }}</th>
-            <td>{{ qotd.date|date('Y-m-d') }}</td>
-        </tr>
-        <tr>
-            <th>{{ 'Author'|trans }}</th>
-            <td>{{ qotd.username }}</td>
-        </tr>
-        <tr>
-            <th>{{ 'Permalink (on this app)'|trans }}</th>
-            <td><a href="{{ url('qotd_show', {id: qotd.id}) }}">{{ url('qotd_show', {id: qotd.id}) }}</a></td>
-        </tr>
-        <tr>
-            <th>{{ 'Permalink (on slack)'|trans }}</th>
-            <td><a href="{{ qotd.permalink }}">{{ qotd.permalink }}</a></td>
-        </tr>
-        <tr>
-            <th>{{ 'Vote'|trans }}</th>
-            <td>{{ qotd.vote }}</td>
-        </tr>
-        <tr>
-            <th>{{ 'Voters'|trans }}</th>
-            <td>{{ qotd.voterIds|keys|join(', ') }}</td>
-        </tr>
-    </table>
+            </twig:ui:TabPane>
+        {% endfor %}
+    </twig:ui:TabContent>
 {% endblock %}
