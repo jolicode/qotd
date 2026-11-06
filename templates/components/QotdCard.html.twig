@@ -20,10 +20,10 @@
                 </a>
             </div>
             <div class="mx-1">
-                <a href="{{ url('qotd_show_details', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><i class="bi bi-info-circle"></i></a>
+                <a href="{{ url('qotd_show_details', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><twig:ux:icon name="bi:info-circle" /></a>
             </div>
             <div class="mx-1">
-                <a href="{{ url('qotd_show_edit', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><i class="bi bi-pencil"></i></a>
+                <a href="{{ url('qotd_show_edit', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><twig:ux:icon name="bi:pencil" /></a>
             </div>
             <div class="mx-1">
                 <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
@@ -37,7 +37,7 @@
             >👎</button>
             <div class="mx-1 badge bg-primary" {{ tt('quote-vote') }}>
                 <span class="qotd-vote">{{ qotd.vote }}</span>
-                <i class="qotd-vote-hidden bi bi-eye-slash-fill align-middle"></i>
+                <twig:ux:icon name="bi:eye-slash-fill" class="qotd-vote-hidden align-middle" />
             </div>
             <button
                 type="button"
