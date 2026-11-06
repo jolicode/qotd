@@ -24,4 +24,5 @@ return [
     Symfony\UX\Router\UXRouterBundle::class => ['all' => true],
     Symfony\UX\Icons\UXIconsBundle::class => ['all' => true],
     Symfony\UX\Toolkit\UXToolkitBundle::class => ['dev' => true, 'test' => true],
+    Symfony\UX\Dropzone\DropzoneBundle::class => ['all' => true],
 ];

@@ -290,6 +290,9 @@
     "symfony/ux-chartjs": {
         "version": "v2.7.1"
     },
+    "symfony/ux-dropzone": {
+        "version": "v3.7.0"
+    },
     "symfony/ux-icons": {
         "version": "3.7",
         "recipe": {

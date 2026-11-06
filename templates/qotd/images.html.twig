@@ -1,0 +1,31 @@
+{% extends 'base_with_frame.html.twig' %}
+
+{% form_theme form 'form/dropzone_theme.html.twig' %}
+
+{% block title 'Add images to QOTD #' ~ qotd.id %}
+
+{% block save_button %}
+    <button type="submit" class="btn btn-primary" form="qotd-images">Add</button>
+{% endblock %}
+
+{% block body %}
+    <div
+        {{ stimulus_controller('image-dropzone') }}
+        {{ stimulus_action('image-dropzone', 'resize', 'dropzone:pre-add')|stimulus_action('image-dropzone', 'explainRejection', 'dropzone:reject')|stimulus_action('image-dropzone', 'hideRejection', 'dropzone:remove') }}
+    >
+        {{ form(form, {action: path('qotd_show_images', {id: qotd.id}), attr: {id: 'qotd-images'}}) }}
+        <p class="text-danger" {{ stimulus_target('image-dropzone', 'message') }} hidden></p>
+    </div>
+
+    {% if get_turbo_frame() != 'modal' %}
+        {{ block('save_button') }}
+    {% endif %}
+{% endblock %}
+
+{% set modal_attributes = {
+    'disable-loader': true,
+} %}
+
+{% block modal_footer_post %}
+    {{ block('save_button') }}
+{% endblock %}

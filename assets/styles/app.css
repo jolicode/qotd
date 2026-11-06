@@ -35,3 +35,23 @@ turbo-frame [aria-busy="true"] {
     opacity: 0;
     translate: 2rem 0;
 }
+
+.dropzone-container[data-state="dragging"] {
+    border-color: var(--bs-primary);
+}
+
+.dropzone-container[data-state="processing"] {
+    opacity: 0.5;
+}
+
+.dropzone-container .dropzone-preview-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.qotd-image-preview {
+    width: 8rem;
+    height: 8rem;
+    object-fit: cover;
+}
