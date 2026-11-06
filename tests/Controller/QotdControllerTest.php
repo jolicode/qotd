@@ -3,6 +3,8 @@
 namespace App\Tests\Controller;
 
 use App\Repository\QotdRepository;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use KnpU\OAuth2ClientBundle\Security\User\OAuthUser;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -85,6 +87,28 @@ class QotdControllerTest extends WebTestCase
         $nextPageIds = self::getQuoteIds($crawler);
         self::assertCount(7, $nextPageIds);
         self::assertSame([], array_intersect($firstPageIds, $nextPageIds));
+    }
+
+    public function testNotVotedYetNextPageIsStableWhileVoting(): void
+    {
+        $client = self::createClientAndLogin();
+
+        $crawler = $client->request('GET', '/not-voted');
+        $firstPageIds = self::getQuoteIds($crawler);
+        $nextPageLink = $crawler->filter('a[rel=next]')->link();
+        $nextPageIds = self::getQuoteIds($client->click($nextPageLink));
+
+        $connection = self::getContainer()->get(Connection::class);
+        $vote = 'UPDATE qotd SET voter_ids = :voterIds WHERE id IN (:ids)';
+        $types = ['ids' => ArrayParameterType::STRING];
+
+        try {
+            $connection->executeStatement($vote, ['voterIds' => '{"test-user":"up"}', 'ids' => $firstPageIds], $types);
+
+            self::assertSame($nextPageIds, self::getQuoteIds($client->click($nextPageLink)));
+        } finally {
+            $connection->executeStatement($vote, ['voterIds' => null, 'ids' => $firstPageIds], $types);
+        }
     }
 
     public function testShow(): void

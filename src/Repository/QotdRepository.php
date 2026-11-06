@@ -11,6 +11,7 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\UX\Pagination\CursorPagination;
 use Symfony\UX\Pagination\Pagination;
 use Symfony\UX\Pagination\PaginatorInterface;
 
@@ -81,22 +82,21 @@ class QotdRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Pagination<Qotd>
+     * A cursor keeps the next page stable while voted QOTD leave the list.
+     *
+     * @return CursorPagination<Qotd>
      */
-    public function findForHomepageNotVoted(UserInterface $user): Pagination
+    public function findForHomepageNotVoted(UserInterface $user): CursorPagination
     {
-        // A cursor would keep the next page stable while the user votes, but
-        // UX Pagination does not support a DATE column as cursor field yet.
         $qb = $this->createQueryBuilder('q')
             ->where('COALESCE(JSON_GET_TEXT(q.voterIds, :userId), :notVoted) = :notVoted')
             ->setParameter('userId', $user->getUserIdentifier())
             ->setParameter('notVoted', QotdVote::Null->value)
-            ->addOrderBy('q.date', \SortDirection::Descending)
-            ->addOrderBy('q.id', \SortDirection::Descending)
         ;
 
         return $this->paginator
-            ->query($qb)
+            ->cursor($qb)
+            ->orderBy(['date', 'id'], 'DESC')
             ->perPage(self::MAX_PER_PAGE)
             ->paginate()
         ;
