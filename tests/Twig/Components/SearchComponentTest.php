@@ -25,6 +25,7 @@ class SearchComponentTest extends KernelTestCase
         $crawler = self::createSearch('nothing-matches-this')->render()->crawler();
 
         self::assertStringContainsString('This query did not match any QOTD', $crawler->text());
+        self::assertCount(0, $crawler->filter('[data-live-action-param="exportCsv"]'));
     }
 
     public function testNextPageShowsOtherQotd(): void
@@ -46,6 +47,17 @@ class SearchComponentTest extends KernelTestCase
         $search->set('query', 'et');
 
         self::assertSame(1, $search->component()->page);
+    }
+
+    public function testExportCsv(): void
+    {
+        $search = self::createSearch('Hello');
+
+        $search->call('exportCsv');
+
+        $response = $search->response();
+        self::assertSame('qotd-search.csv', $response->headers->get('X-Live-Download-Filename'));
+        self::assertSame('text/csv', $response->headers->get('X-Live-Download-Type'));
     }
 
     /**
