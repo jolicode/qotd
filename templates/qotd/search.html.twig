@@ -5,5 +5,5 @@
 {% block title %}Search a QOTD{% endblock %}
 
 {% block body %}
-    {{ component('search') }}
+    {{ component('search', {paginationRoute: 'qotd_search'}) }}
 {% endblock %}

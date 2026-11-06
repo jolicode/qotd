@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Qotd;
 use App\Form\Model\QotdFilters;
 use App\Repository\Model\QotdDirection;
+use App\Repository\Model\QotdSearchQuery;
 use App\Repository\Model\QotdVote;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query;
@@ -13,6 +14,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\UX\Pagination\CursorPagination;
 use Symfony\UX\Pagination\Pagination;
+use Symfony\UX\Pagination\PaginationBuilder;
 use Symfony\UX\Pagination\PaginatorInterface;
 
 /**
@@ -26,6 +28,7 @@ use Symfony\UX\Pagination\PaginatorInterface;
 class QotdRepository extends ServiceEntityRepository
 {
     private const int MAX_PER_PAGE = 7;
+    private const int SEARCH_MAX_PER_PAGE = 15;
 
     public function __construct(
         ManagerRegistry $registry,
@@ -102,52 +105,34 @@ class QotdRepository extends ServiceEntityRepository
         ;
     }
 
-    public function search(string $query): array
+    public function paginateSearch(string $query): PaginationBuilder
     {
-        if (!$query) {
-            return [];
-        }
+        $searchQuery = $this->createSearchQuery($query);
 
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q');
 
-        $select = $rsm->generateSelectClause();
-
         $sql = <<<EOSQL
-                SELECT {$select}
+                SELECT {$rsm->generateSelectClause()}
                 FROM qotd AS q
-                WHERE message_ts @@ websearch_to_tsquery(:query)
-                ORDER BY ts_rank(message_ts, websearch_to_tsquery(:query)) DESC
-                LIMIT 15
+                WHERE {$searchQuery->whereSql}
+                ORDER BY {$searchQuery->orderBySql}
+                LIMIT :limit OFFSET :offset
             EOSQL;
 
-        $results = $this
-            ->getEntityManager()
-            ->createNativeQuery($sql, $rsm)
-            ->execute([
-                'query' => $query,
-            ])
-        ;
-
-        if ($results) {
-            return $results;
-        }
-
-        $sql = <<<EOSQL
-                SELECT {$select}, word_similarity(message, :query) AS sml
-                FROM qotd AS q
-                WHERE q.message ~~* :query2
-                ORDER BY sml DESC, date DESC
-                LIMIT 15
-            EOSQL;
-
-        return $this
-            ->getEntityManager()
-            ->createNativeQuery($sql, $rsm)
-            ->execute([
-                'query' => $query,
-                'query2' => "%{$query}%",
-            ])
+        return $this->paginator
+            ->fromCallbacks(
+                fn (int $offset, int $limit): array => $this
+                    ->getEntityManager()
+                    ->createNativeQuery($sql, $rsm)
+                    ->execute([
+                        'query' => $searchQuery->query,
+                        'limit' => $limit,
+                        'offset' => $offset,
+                    ]),
+                fn (): int => $this->countSearch($searchQuery),
+            )
+            ->perPage(self::SEARCH_MAX_PER_PAGE)
         ;
     }
 
@@ -484,6 +469,37 @@ class QotdRepository extends ServiceEntityRepository
             ->addOrderBy('q.id', \SortDirection::Ascending)
             ->getQuery()
             ->getSingleResult()
+        ;
+    }
+
+    /**
+     * A full text search, or a substring search when it finds nothing.
+     */
+    private function createSearchQuery(string $query): QotdSearchQuery
+    {
+        $fullTextQuery = new QotdSearchQuery(
+            $query,
+            'message_ts @@ websearch_to_tsquery(:query)',
+            'ts_rank(message_ts, websearch_to_tsquery(:query)) DESC, date DESC, id DESC',
+        );
+
+        if ($this->countSearch($fullTextQuery)) {
+            return $fullTextQuery;
+        }
+
+        return new QotdSearchQuery(
+            $query,
+            "message ~~* ('%' || :query || '%')",
+            'word_similarity(message, :query) DESC, date DESC, id DESC',
+        );
+    }
+
+    private function countSearch(QotdSearchQuery $searchQuery): int
+    {
+        return (int) $this
+            ->getEntityManager()
+            ->getConnection()
+            ->fetchOne("SELECT count(*) FROM qotd AS q WHERE {$searchQuery->whereSql}", ['query' => $searchQuery->query])
         ;
     }
 }
