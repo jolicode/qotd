@@ -30,7 +30,10 @@ final class CountOverPeriodChart
         $this->period = $period;
     }
 
-    public function getChart(): Chart
+    /**
+     * @return list<Chart>
+     */
+    public function getCharts(): array
     {
         return $this->chartBuilder->buildCountOverPeriod($this->period);
     }

@@ -28,9 +28,6 @@ use Symfony\UX\Pagination\PaginatorInterface;
  */
 class QotdRepository extends ServiceEntityRepository
 {
-    /** The slice of the users outside of the ones a stat lists. */
-    public const string OTHER_USERS_LABEL = 'other';
-
     private const int MAX_FAVORITE_AUTHORS = 5;
     private const int MAX_PER_PAGE = 7;
     private const int SEARCH_MAX_PER_PAGE = 15;
@@ -169,26 +166,11 @@ class QotdRepository extends ServiceEntityRepository
     public function countMostQuotedUsers(): array
     {
         $sql = <<<'EOSQL'
-                WITH
-                    most_quoted_users AS (
-                        SELECT username, COUNT(username) AS count
-                        FROM qotd
-                        GROUP BY username
-                        ORDER BY count DESC, username ASC
-                        LIMIT 9
-                    ),
-                    others AS (
-                        SELECT CAST(:other AS text) AS username, COUNT(id) AS count
-                        FROM qotd q
-                            LEFT JOIN most_quoted_users m ON m.username = q.username
-                        WHERE m.username IS NULL
-                    )
-                SELECT *
-                FROM most_quoted_users
-                UNION
-                    SELECT *
-                    FROM others
+                SELECT username, COUNT(username) AS count
+                FROM qotd
+                GROUP BY username
                 ORDER BY count DESC, username ASC
+                LIMIT 10
             EOSQL;
 
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
@@ -198,7 +180,6 @@ class QotdRepository extends ServiceEntityRepository
         return $this
             ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
-            ->setParameters(['other' => self::OTHER_USERS_LABEL])
             ->getResult()
         ;
     }
@@ -206,26 +187,11 @@ class QotdRepository extends ServiceEntityRepository
     public function countMostUpVotedUsers(): array
     {
         $sql = <<<'EOSQL'
-                WITH
-                    most_up_voted_users AS (
-                        SELECT username, SUM(vote) AS vote
-                        FROM qotd
-                        GROUP BY username
-                        ORDER BY vote DESC, username ASC
-                        LIMIT 9
-                    ),
-                    others AS (
-                        SELECT CAST(:other AS text) AS username, SUM(q.vote) AS vote
-                        FROM qotd q
-                            LEFT JOIN most_up_voted_users m ON m.username = q.username
-                        WHERE m.username IS NULL
-                    )
-                SELECT *
-                FROM most_up_voted_users
-                UNION
-                    SELECT *
-                    FROM others
+                SELECT username, SUM(vote) AS vote
+                FROM qotd
+                GROUP BY username
                 ORDER BY vote DESC, username ASC
+                LIMIT 10
             EOSQL;
 
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
@@ -235,7 +201,6 @@ class QotdRepository extends ServiceEntityRepository
         return $this
             ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
-            ->setParameters(['other' => self::OTHER_USERS_LABEL])
             ->getResult()
         ;
     }
@@ -243,29 +208,12 @@ class QotdRepository extends ServiceEntityRepository
     public function countBiggestVotingUsers(): array
     {
         $sql = <<<'EOSQL'
-                WITH
-                    biggest_voter_users AS (
-                        SELECT
-                            jsonb_object_keys(voter_ids) as voter_username,
-                            count(username) as vote
-                        FROM qotd
-                        WHERE voter_ids IS NOT NULL
-                        GROUP BY voter_username
-                        ORDER BY vote DESC, voter_username ASC
-                        LIMIT 9
-                    ),
-                    others AS (
-                        SELECT CAST(:other AS text) AS voter_username, SUM(q.vote) AS vote
-                        FROM qotd q
-                            LEFT JOIN biggest_voter_users b ON b.voter_username = q.username
-                        WHERE b.voter_username IS NULL
-                    )
-                SELECT *
-                FROM biggest_voter_users
-                UNION
-                    SELECT *
-                    FROM others
+                SELECT jsonb_object_keys(voter_ids) AS voter_username, COUNT(username) AS vote
+                FROM qotd
+                WHERE voter_ids IS NOT NULL
+                GROUP BY voter_username
                 ORDER BY vote DESC, voter_username ASC
+                LIMIT 10
             EOSQL;
 
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
@@ -275,7 +223,6 @@ class QotdRepository extends ServiceEntityRepository
         return $this
             ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
-            ->setParameters(['other' => self::OTHER_USERS_LABEL])
             ->getResult()
         ;
     }
@@ -283,11 +230,15 @@ class QotdRepository extends ServiceEntityRepository
     public function countOver(string $period): array
     {
         $sql = <<<'EOSQL'
-                SELECT date_trunc(:period, date) AS period, COUNT(id) AS count, SUM(vote) AS vote
-                FROM qotd
-                GROUP BY period
+                SELECT *
+                FROM (
+                    SELECT date_trunc(:period, date) AS period, COUNT(id) AS count, SUM(vote) AS vote
+                    FROM qotd
+                    GROUP BY period
+                    ORDER BY period DESC
+                    LIMIT 100
+                ) AS latest_periods
                 ORDER BY period
-                limit 100
             EOSQL;
 
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());

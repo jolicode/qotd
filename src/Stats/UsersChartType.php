@@ -18,7 +18,7 @@ enum UsersChartType: string
     }
 
     /**
-     * The biggest voting users are voters, there is no QOTD to list by label.
+     * The biggest voting users are voters: they may have no QOTD to list.
      */
     public function hasAuthorLabels(): bool
     {
