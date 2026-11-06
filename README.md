@@ -44,8 +44,8 @@ in automatically as `yolo`. Google OAuth is only used in the other environments.
 ### Install the PHP application
 
 A Docker environment is provided (NGINX, PHP, PostgreSQL, Traefik, a cron
-service and a builder container with Composer). It requires these tools on your
-machine:
+service, a Messenger worker, a Mercure hub, an IPX image server and a builder
+container with Composer). It requires these tools on your machine:
 
 * Docker
 * Bash
