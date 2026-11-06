@@ -12,8 +12,9 @@
     {% if form ?? false %}
         <details {{ valid ? 'open' }}>
             <summary>Filters</summary>
-            <div class="mb-3" {{ stimulus_controller('form-auto-submit') }}>
-                {{ form(form, {attr: {id: 'qotd-filters'}}) }}
+            {# Permanent: morphing would remove the DOM added by Tom Select #}
+            <div id="qotd-filters-container" class="mb-3" data-turbo-permanent {{ stimulus_controller('form-auto-submit') }}>
+                {{ form(form, {attr: {id: 'qotd-filters', 'data-turbo-action': 'replace'}}) }}
                 <noscript>
                     <button type="submit" class="btn btn-primary" form="qotd-filters">Filters</button>
                 </noscript>
