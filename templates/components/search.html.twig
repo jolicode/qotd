@@ -25,7 +25,7 @@
 
     <div data-loading="addClass(opacity-50)">
         {% if query %}
-            {% for qotd in computed.qotds %}
+            {% for qotd in this.pagination %}
                 <twig:QotdCard :qotd />
             {% else %}
                 <div class="card mb-2">
@@ -34,6 +34,12 @@
                     </div>
                 </div>
             {% endfor %}
+
+            {% if not this.pagination.empty %}
+                <div class="navigation">
+                    {{ ux_pagination(this.pagination, link_attributes: this.paginationLinkAttributes) }}
+                </div>
+            {% endif %}
         {% else %}
             <div class="card mb-2">
                 <div class="card-body">
