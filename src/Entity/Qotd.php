@@ -107,6 +107,19 @@ class Qotd
         return QotdVote::from($this->voterIds[$user->getUserIdentifier()]);
     }
 
+    /**
+     * A voter who cancelled a vote stays in $voterIds, with the null vote.
+     *
+     * @return array<string, QotdVote>
+     */
+    public function getVotesByVoter(): array
+    {
+        return array_filter(
+            array_map(QotdVote::from(...), $this->voterIds ?? []),
+            static fn (QotdVote $vote): bool => QotdVote::Null !== $vote,
+        );
+    }
+
     #[Groups(['qotd:read'])]
     public function getImageUrls(): array
     {

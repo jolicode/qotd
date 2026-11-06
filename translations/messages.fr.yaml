@@ -11,6 +11,7 @@ Awards: Trophées
 Biggest Voting Users: Plus gros votants
 Close: Fermer
 Context: Contexte
+Copy: Copier
 Copy the QOTD: Copier la QOTD
 Date: Date
 Day: Jour
@@ -35,6 +36,7 @@ Hide votes: Masquer les votes
 Images: Images
 Keyboard shortcuts: Raccourcis clavier
 Latest QOTD: Dernières QOTD
+Links: Liens
 Loading...: Chargement…
 Message: Message
 Monthly: Mensuel
@@ -46,25 +48,25 @@ No: Non
 No QOTD for this period.: Aucune QOTD pour cette période.
 No QOTD found.: Aucune QOTD trouvée.
 No awards found.: Aucun trophée trouvé.
-None: Aucune
+No vote yet: Aucun vote pour l'instant
 Not voted yet: À voter
 Number of QOTD Vote over a period: Nombre de QOTD et de votes sur une période
 Open the selected QOTD: Ouvrir la QOTD sélectionnée
-Permalink (on slack): Permalien (sur Slack)
-Permalink (on this app): Permalien (sur cette application)
 Please, type something to search: Saisissez quelque chose à rechercher
+Preview: Aperçu
 QOTD not voted yet: QOTD pas encore votées
+'QOTD of %date%': 'QOTD du %date%'
 QOTD of the month: QOTD du mois
 QOTD of the week: QOTD de la semaine
 QOTD of the year: QOTD de l'année
+QOTD page: Page de la QOTD
 Random: Hasard
 Random QOTD: QOTD au hasard
 Ranks: Rangs
-Raw Context: Contexte brut
-Raw Message: Message brut
-Raw Message Renderer: Rendu du message brut
+Raw message: Message brut
 Remove: Retirer
 Remove from my top: Retirer de mon top
+Rendered message: Message rendu
 Save: Enregistrer
 Score: Score
 Search: Rechercher
