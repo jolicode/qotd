@@ -3,7 +3,7 @@
 {% block title %}QOTD #{{ qotd.id }}{% endblock %}
 
 {% block body %}
-    <twig:QotdCard :qotd="qotd" />
+    <twig:QotdCard :qotd />
 {% endblock %}
 
 {# We use this template as the "finish point" of diverse operations, that may occurs in modals #}
@@ -14,7 +14,7 @@
 {% block frames %}
     <turbo-stream action="replace" target="qotd-{{ qotd.id }}">
         <template>
-            <twig:QotdCard :qotd="qotd" />
+            <twig:QotdCard :qotd />
         </template>
     </turbo-stream>
 {% endblock %}
