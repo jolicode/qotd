@@ -1,10 +1,10 @@
 {% import 'macros/qotd/message.html.twig' as qotd_macro %}
 
-<div {{ attributes.defaults({class: 'card mb-2 qotd-card'}) }} data-qotd-id="{{ qotd.id }}" {{ tt('quote') }}>
-    <div class="card-body">
+<div {{ attributes.defaults({class: 'card mb-2 qotd-card', 'data-controller': 'ui--clipboard'}) }} data-qotd-id="{{ qotd.id }}" {{ tt('quote') }}>
+    <div class="card-body" {{ stimulus_target('ui--clipboard', 'source') }}>
         {{ qotd_macro.message(qotd) }}
         {% for imageUrl in qotd.imageUrls %}
-            <img class="mw-100" src="{{ asset(imageUrl) }}" alt="" />
+            <twig:ux:image :src="asset(imageUrl)" alt="" width="1000" />
         {% endfor %}
         {% for videoUrl in qotd.videoUrls %}
             <video class="mw-100" controls>
@@ -16,17 +16,39 @@
         <div class="d-flex align-items-center justify-content-between">
             <div class="me-auto">
                 <a href="{{ url('qotd_show', {id: qotd.id}) }}" class="text-reset">
-                    {{ qotd.date|date('Y-m-d') }} by {{ qotd.username }}
+                    {{ '%date% by %author%'|trans({'%date%': qotd.date|date('Y-m-d'), '%author%': qotd.username}) }}
                 </a>
             </div>
             <div class="mx-1">
-                <a href="{{ url('qotd_show_details', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><i class="bi bi-info-circle"></i></a>
+                {% set in_my_top = this.myTop.has(qotd) %}
+                <button
+                    type="button"
+                    class="btn btn-link btn-sm p-0 text-reset"
+                    title="{{ (in_my_top ? 'Remove from my top' : 'Add to my top')|trans }}"
+                    {{ live_action('toggleMyTop') }}
+                    {# data-loading removes the "disabled" attribute once loaded, they cannot be used together #}
+                    {% if not in_my_top and this.myTop.full %}disabled{% else %}data-loading="addAttribute(disabled)"{% endif %}
+                    {{ tt('my-top-toggle') }}
+                ><twig:ux:icon :name="in_my_top ? 'bi:star-fill' : 'bi:star'" /></button>
             </div>
             <div class="mx-1">
-                <a href="{{ url('qotd_show_edit', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><i class="bi bi-pencil"></i></a>
+                <button type="button" class="btn btn-link btn-sm p-0 text-reset" title="{{ 'Copy the QOTD'|trans }}" {{ stimulus_action('ui--clipboard', 'copy') }} {{ tt('copy') }}>
+                    <span {{ stimulus_target('ui--clipboard', 'idle') }}><twig:ux:icon name="bi:clipboard" /></span>
+                    {# "hidden" in the HTML: the controller only sets it on connect, a Live re-render would remove it #}
+                    <span {{ stimulus_target('ui--clipboard', 'success') }} hidden><twig:ux:icon name="bi:clipboard-check" /></span>
+                </button>
             </div>
             <div class="mx-1">
-                <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
+                <a href="{{ url('qotd_show_details', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><twig:ux:icon name="bi:info-circle" /></a>
+            </div>
+            <div class="mx-1">
+                <a href="{{ url('qotd_show_edit', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><twig:ux:icon name="bi:pencil" /></a>
+            </div>
+            <div class="mx-1">
+                <a href="{{ url('qotd_show_images', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal" title="{{ 'Add images'|trans }}"><twig:ux:icon name="bi:image" /></a>
+            </div>
+            <div class="mx-1">
+                <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 {{ 'view in Slack'|trans }}</a>
             </div>
             <button
                 type="button"
@@ -37,7 +59,7 @@
             >👎</button>
             <div class="mx-1 badge bg-primary" {{ tt('quote-vote') }}>
                 <span class="qotd-vote">{{ qotd.vote }}</span>
-                <i class="qotd-vote-hidden bi bi-eye-slash-fill align-middle"></i>
+                <twig:ux:icon name="bi:eye-slash-fill" class="qotd-vote-hidden align-middle" />
             </div>
             <button
                 type="button"

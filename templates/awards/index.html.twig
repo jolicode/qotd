@@ -2,7 +2,7 @@
 
 {% set active = 'awards' %}
 
-{% block title %}Awards{% endblock %}
+{% block title %}{{ 'Awards'|trans }}{% endblock %}
 
 {% set period_to_badges = {
     year: 'danger',
@@ -18,19 +18,19 @@
 } %}
 
 {% block body %}
-    <h2 class="text-center">Awards</h2>
+    <h2 class="text-center">{{ 'Awards'|trans }}</h2>
 
     <table class="table table-striped table-sm">
         <thead>
             <tr>
                 <th></th>
-                <th>Ranks</th>
-                <th>Username</th>
-                <th>Score</th>
-                <th>Year</th>
-                <th>Month</th>
-                <th>Week</th>
-                <th>Day</th>
+                <th>{{ 'Ranks'|trans }}</th>
+                <th>{{ 'Username'|trans }}</th>
+                <th>{{ 'Score'|trans }}</th>
+                <th>{{ 'Year'|trans }}</th>
+                <th>{{ 'Month'|trans }}</th>
+                <th>{{ 'Week'|trans }}</th>
+                <th>{{ 'Day'|trans }}</th>
             </tr>
         </thead>
         <tbody>
@@ -57,7 +57,7 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="4">No awards found.</td>
+                    <td colspan="4">{{ 'No awards found.'|trans }}</td>
                 </tr>
             {% endfor %}
         </tbody>

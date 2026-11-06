@@ -3,134 +3,101 @@
 namespace App\Stats;
 
 use App\Repository\QotdRepository;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
 use Symfony\UX\Chartjs\Model\Chart;
 
 class ChartBuilder
 {
-    // from: https://github.com/chartjs/Chart.js/blob/c0bf05f87df431202c991cfb5f3ee34106d9b6f4/src/plugins/plugin.colors.ts#L14-L22
-    // see also https://github.com/symfony/ux/issues/763
-    private const array COLORS = [
-        'rgb(54, 162, 235)', // blue
-        'rgb(255, 99, 132)', // red
-        'rgb(255, 159, 64)', // orange
-        'rgb(255, 205, 86)', // yellow
-        'rgb(75, 192, 192)', // green
-        'rgb(153, 102, 255)', // purple
-        'rgb(201, 203, 207)', // grey
-    ];
+    private const string GRID_COLOR = 'rgba(0, 0, 0, 0.08)';
+    private const string SERIES_AREA_COLOR = 'rgba(42, 120, 214, 0.12)';
+    private const string SERIES_COLOR = '#2a78d6';
+    private const string SERIES_HOVER_COLOR = '#1f5fb3';
+    private const string TEXT_COLOR = '#52514e';
 
-    private const array DIMMED_COLORS = [
-        'rgb(54, 162, 235, 0.4)', // blue
-        'rgb(255, 99, 132, 0.4)', // red
-        'rgb(255, 159, 64, 0.4)', // orange
-        'rgb(255, 205, 86, 0.4)', // yellow
-        'rgb(75, 192, 192, 0.4)', // green
-        'rgb(153, 102, 255, 0.4)', // purple
-        'rgb(201, 203, 207, 0.4)', // grey
+    private const array TOOLTIP = [
+        'backgroundColor' => '#212529',
+        'cornerRadius' => 4,
+        'displayColors' => false,
+        'padding' => 8,
     ];
 
     public function __construct(
         private readonly QotdRepository $qotdRepository,
         private readonly ChartBuilderInterface $chartBuilder,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
-    public function buildMostQuotedUsers(): Chart
+    public function buildUsersChart(UsersChartType $type): Chart
     {
-        $counts = $this->qotdRepository->countMostQuotedUsers();
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
-
-        $chart->setData([
-            'labels' => array_column($counts, 'username'),
-            'datasets' => [
-                [
-                    'data' => array_column($counts, 'count'),
-                    'backgroundColor' => $this->getColors($counts),
-                ],
-            ],
-        ]);
-
-        return $chart;
+        return match ($type) {
+            UsersChartType::MostQuoted => $this->createRankingChart($this->qotdRepository->countMostQuotedUsers(), 'count'),
+            UsersChartType::MostUpVoted => $this->createRankingChart($this->qotdRepository->countMostUpVotedUsers(), 'vote'),
+            UsersChartType::BiggestVoting => $this->createRankingChart($this->qotdRepository->countBiggestVotingUsers(), 'vote'),
+        };
     }
 
-    public function buildMostUpVotedUsers(): Chart
+    /**
+     * One chart by measure: on two axes, the alignment of the scales would be arbitrary.
+     *
+     * @return list<Chart>
+     */
+    public function buildCountOverPeriod(StatsPeriod $period): array
     {
-        $counts = $this->qotdRepository->countMostUpVotedUsers();
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+        $counts = $this->qotdRepository->countOver($period->value);
+        $formatter = new \IntlDateFormatter($this->translator->getLocale(), pattern: $period->getDatePattern());
+        $labels = array_map(static fn (array $item): string => (string) $formatter->format($item['period']), $counts);
 
-        $chart->setData([
-            'labels' => array_column($counts, 'username'),
-            'datasets' => [
-                [
-                    'data' => array_column($counts, 'vote'),
-                    'backgroundColor' => $this->getColors($counts),
-                ],
-            ],
-        ]);
-
-        return $chart;
+        return [
+            $this->createTrendChart($this->translator->trans('Number of QOTD'), $labels, array_column($counts, 'count')),
+            $this->createTrendChart($this->translator->trans('Number of votes'), $labels, array_column($counts, 'vote')),
+        ];
     }
 
-    public function buildBiggestVotingUsers(): Chart
+    /**
+     * @param list<array<string, mixed>> $counts
+     */
+    private function createRankingChart(array $counts, string $measure): Chart
     {
-        $counts = $this->qotdRepository->countBiggestVotingUsers();
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+        $usernames = array_column($counts, 'username');
 
-        $labels = [];
-        foreach ($counts as ['username' => $username]) {
-            $p = strpos((string) $username, '@');
-            if ($p) {
-                $labels[] = substr((string) $username, 0, $p);
-            } else {
-                $labels[] = $username;
-            }
-        }
-
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_BAR);
         $chart->setData([
-            'labels' => $labels,
+            'labels' => array_map(static fn (string $username): string => strstr($username, '@', true) ?: $username, $usernames),
             'datasets' => [
                 [
-                    'data' => array_column($counts, 'vote'),
-                    'backgroundColor' => $this->getColors($counts),
-                ],
-            ],
-        ]);
-
-        return $chart;
-    }
-
-    public function buildCountOverPeriod(string $period): Chart
-    {
-        $counts = $this->qotdRepository->countOver($period);
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_LINE);
-        $labels = array_map(static fn (array $item): string => $item['period']->format('y-m-d'), $counts);
-
-        $chart->setData([
-            'labels' => $labels,
-            'datasets' => [
-                [
-                    'label' => '# Qotd',
-                    'data' => array_column($counts, 'count'),
-                    'backgroundColor' => self::DIMMED_COLORS[1],
-                    'borderColor' => self::DIMMED_COLORS[1],
-                    'tension' => 0.4,
-                    'yAxisID' => 'y',
-                ],
-                [
-                    'label' => '# Votes',
-                    'data' => array_column($counts, 'vote'),
-                    'backgroundColor' => self::DIMMED_COLORS[0],
-                    'borderColor' => self::DIMMED_COLORS[0],
-                    'tension' => 0.4,
-                    'yAxisID' => 'y1',
+                    'backgroundColor' => self::SERIES_COLOR,
+                    'borderRadius' => 4,
+                    'borderSkipped' => 'start',
+                    'data' => array_column($counts, $measure),
+                    'hoverBackgroundColor' => self::SERIES_HOVER_COLOR,
+                    'maxBarThickness' => 20,
+                    // The labels are shortened: see assets/controllers/chart-author-filter-controller.js
+                    'usernames' => $usernames,
                 ],
             ],
         ]);
         $chart->setOptions([
+            'aspectRatio' => 1.2,
+            'indexAxis' => 'y',
+            'interaction' => ['axis' => 'y', 'intersect' => false, 'mode' => 'nearest'],
+            'locale' => $this->translator->getLocale(),
+            'plugins' => [
+                'legend' => ['display' => false],
+                'tooltip' => self::TOOLTIP,
+            ],
             'scales' => [
-                'y1' => [
-                    'position' => 'right',
+                'x' => [
+                    'beginAtZero' => true,
+                    'border' => ['display' => false],
+                    'grid' => ['color' => self::GRID_COLOR],
+                    'ticks' => ['color' => self::TEXT_COLOR, 'precision' => 0],
+                ],
+                'y' => [
+                    'border' => ['display' => false],
+                    'grid' => ['display' => false],
+                    'ticks' => ['autoSkip' => false, 'color' => self::TEXT_COLOR],
                 ],
             ],
         ]);
@@ -138,17 +105,60 @@ class ChartBuilder
         return $chart;
     }
 
-    // Keeps an affinity between a username and a color
-    private function getColors(array $counts): array
+    /**
+     * @param list<string> $labels
+     * @param list<int>    $values
+     */
+    private function createTrendChart(string $title, array $labels, array $values): Chart
     {
-        static $savedColors = [];
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_LINE);
+        $chart->setData([
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'backgroundColor' => self::SERIES_AREA_COLOR,
+                    'borderColor' => self::SERIES_COLOR,
+                    'borderWidth' => 2,
+                    // Unlike "tension", it never draws a curve above the real values
+                    'cubicInterpolationMode' => 'monotone',
+                    'data' => $values,
+                    'fill' => true,
+                    'label' => $title,
+                    'pointHoverRadius' => 4,
+                    'pointRadius' => 0,
+                ],
+            ],
+        ]);
+        $chart->setOptions([
+            'aspectRatio' => 1.8,
+            'interaction' => ['intersect' => false, 'mode' => 'index'],
+            'locale' => $this->translator->getLocale(),
+            'plugins' => [
+                'legend' => ['display' => false],
+                'title' => [
+                    'align' => 'start',
+                    'color' => self::TEXT_COLOR,
+                    'display' => true,
+                    'font' => ['size' => 14, 'weight' => 'normal'],
+                    'text' => $title,
+                ],
+                'tooltip' => self::TOOLTIP,
+            ],
+            'scales' => [
+                'x' => [
+                    'border' => ['display' => false],
+                    'grid' => ['display' => false],
+                    'ticks' => ['autoSkipPadding' => 24, 'color' => self::TEXT_COLOR, 'maxRotation' => 0],
+                ],
+                'y' => [
+                    'beginAtZero' => true,
+                    'border' => ['display' => false],
+                    'grid' => ['color' => self::GRID_COLOR],
+                    'ticks' => ['color' => self::TEXT_COLOR, 'precision' => 0],
+                ],
+            ],
+        ]);
 
-        $i = 0;
-        $newColor = [];
-        foreach ($counts as ['username' => $username]) {
-            $newColor[] = $savedColors[$username] ??= self::COLORS[$i++ % \count(self::COLORS)];
-        }
-
-        return $newColor;
+        return $chart;
     }
 }

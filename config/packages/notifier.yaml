@@ -1,0 +1,4 @@
+framework:
+    notifier:
+        chatter_transports:
+            mercure: '%env(MERCURE_DSN)%'

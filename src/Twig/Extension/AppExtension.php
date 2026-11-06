@@ -2,6 +2,7 @@
 
 namespace App\Twig\Extension;
 
+use App\Qotd\LiveUpdates;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Emoji\EmojiTransliterator;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -15,6 +16,7 @@ class AppExtension extends AbstractExtension
 
     public function __construct(
         private readonly RequestStack $requestStack,
+        private readonly LiveUpdates $liveUpdates,
         #[Autowire('%kernel.environment%')]
         private readonly string $env,
     ) {
@@ -24,6 +26,7 @@ class AppExtension extends AbstractExtension
     {
         yield new TwigFunction('tt', $this->whenTest(...));
         yield new TwigFunction('get_turbo_frame', $this->getTurboFrame(...));
+        yield new TwigFunction('live_updates_enabled', $this->liveUpdates->isEnabled(...));
     }
 
     public function getFilters(): iterable

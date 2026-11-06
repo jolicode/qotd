@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[HasLifecycleCallbacks]
 class Qotd
 {
+    public const int CONTEXT_MAX_LENGTH = 2048;
+
     #[Groups(['qotd:read'])]
     #[ORM\Id]
     #[ORM\Column(type: Types::GUID)]
@@ -36,7 +38,7 @@ class Qotd
     #[ORM\Column(type: Types::JSON, options: ['jsonb' => true])]
     public array $videos = [];
 
-    #[Assert\Length(max: 2048)]
+    #[Assert\Length(max: self::CONTEXT_MAX_LENGTH)]
     #[ORM\Column(type: Types::TEXT)]
     public string $context = '';
 
@@ -66,6 +68,11 @@ class Qotd
     ) {
         $this->id = uuid_create();
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function addImage(string $imageName): void
+    {
+        $this->images[] = $imageName;
     }
 
     public function applyVote(QotdVote $vote, UserInterface $user): void
@@ -98,6 +105,19 @@ class Qotd
         }
 
         return QotdVote::from($this->voterIds[$user->getUserIdentifier()]);
+    }
+
+    /**
+     * A voter who cancelled a vote stays in $voterIds, with the null vote.
+     *
+     * @return array<string, QotdVote>
+     */
+    public function getVotesByVoter(): array
+    {
+        return array_filter(
+            array_map(QotdVote::from(...), $this->voterIds ?? []),
+            static fn (QotdVote $vote): bool => QotdVote::Null !== $vote,
+        );
     }
 
     #[Groups(['qotd:read'])]

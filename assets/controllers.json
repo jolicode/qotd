@@ -3,7 +3,7 @@
         "@symfony/ux-autocomplete": {
             "autocomplete": {
                 "enabled": true,
-                "fetch": "eager",
+                "fetch": "lazy",
                 "autoimport": {
                     "tom-select/dist/css/tom-select.default.css": false,
                     "tom-select/dist/css/tom-select.bootstrap4.css": false,
@@ -14,7 +14,16 @@
         "@symfony/ux-chartjs": {
             "chart": {
                 "enabled": true,
-                "fetch": "eager"
+                "fetch": "lazy"
+            }
+        },
+        "@symfony/ux-dropzone": {
+            "dropzone": {
+                "enabled": true,
+                "fetch": "lazy",
+                "autoimport": {
+                    "@symfony/ux-dropzone/dist/style.min.css": true
+                }
             }
         },
         "@symfony/ux-live-component": {
@@ -26,12 +35,18 @@
                 }
             }
         },
+        "@symfony/ux-notify": {
+            "notify": {
+                "enabled": true,
+                "fetch": "lazy"
+            }
+        },
         "@symfony/ux-turbo": {
             "turbo-core": {
                 "enabled": true,
                 "fetch": "eager",
                 "autoimport": {
-                    "@symfony/ux-turbo/dist/mercure_stream_source_element.js": false
+                    "@symfony/ux-turbo/dist/mercure_stream_source_element.js": true
                 }
             },
             "mercure-turbo-stream": {

@@ -5,13 +5,17 @@ namespace App\Repository;
 use App\Entity\Qotd;
 use App\Form\Model\QotdFilters;
 use App\Repository\Model\QotdDirection;
+use App\Repository\Model\QotdSearchQuery;
 use App\Repository\Model\QotdVote;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\UX\Pagination\CursorPagination;
 use Symfony\UX\Pagination\Pagination;
+use Symfony\UX\Pagination\PaginationBuilder;
 use Symfony\UX\Pagination\PaginatorInterface;
 
 /**
@@ -24,7 +28,9 @@ use Symfony\UX\Pagination\PaginatorInterface;
  */
 class QotdRepository extends ServiceEntityRepository
 {
+    private const int MAX_FAVORITE_AUTHORS = 5;
     private const int MAX_PER_PAGE = 7;
+    private const int SEARCH_MAX_PER_PAGE = 15;
 
     public function __construct(
         ManagerRegistry $registry,
@@ -51,8 +57,8 @@ class QotdRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('q');
 
         if ($filters) {
-            if ($filters->author) {
-                $qb->andWhere('q.username = :author')->setParameter('author', $filters->author);
+            if ($filters->authors) {
+                $qb->andWhere('q.username IN (:authors)')->setParameter('authors', $filters->authors);
             }
             match ($filters->withImage) {
                 true => $qb->andWhere('q.images != \'[]\''),
@@ -81,99 +87,90 @@ class QotdRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Pagination<Qotd>
+     * A cursor keeps the next page stable while voted QOTD leave the list.
+     *
+     * @return CursorPagination<Qotd>
      */
-    public function findForHomepageNotVoted(UserInterface $user): Pagination
+    public function findForHomepageNotVoted(UserInterface $user): CursorPagination
     {
-        // A cursor would keep the next page stable while the user votes, but
-        // UX Pagination does not support a DATE column as cursor field yet.
-        $qb = $this->createQueryBuilder('q')
-            ->where('COALESCE(JSON_GET_TEXT(q.voterIds, :userId), :notVoted) = :notVoted')
-            ->setParameter('userId', $user->getUserIdentifier())
-            ->setParameter('notVoted', QotdVote::Null->value)
-            ->addOrderBy('q.date', \SortDirection::Descending)
-            ->addOrderBy('q.id', \SortDirection::Descending)
-        ;
-
         return $this->paginator
-            ->query($qb)
+            ->cursor($this->createNotVotedQueryBuilder($user))
+            ->orderBy(['date', 'id'], 'DESC')
             ->perPage(self::MAX_PER_PAGE)
             ->paginate()
         ;
     }
 
-    public function search(string $query): array
+    public function countNotVoted(UserInterface $user): int
     {
-        if (!$query) {
-            return [];
-        }
+        return (int) $this
+            ->createNotVotedQueryBuilder($user)
+            ->select('count(q.id)')
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
+
+    public function paginateSearch(string $query): PaginationBuilder
+    {
+        $searchQuery = $this->createSearchQuery($query);
 
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addRootEntityFromClassMetadata(Qotd::class, 'q');
 
-        $select = $rsm->generateSelectClause();
-
         $sql = <<<EOSQL
-                SELECT {$select}
+                SELECT {$rsm->generateSelectClause()}
                 FROM qotd AS q
-                WHERE message_ts @@ websearch_to_tsquery(:query)
-                ORDER BY ts_rank(message_ts, websearch_to_tsquery(:query)) DESC
-                LIMIT 15
+                WHERE {$searchQuery->whereSql}
+                ORDER BY {$searchQuery->orderBySql}
+                LIMIT :limit OFFSET :offset
             EOSQL;
 
-        $results = $this
-            ->getEntityManager()
-            ->createNativeQuery($sql, $rsm)
-            ->execute([
-                'query' => $query,
-            ])
+        return $this->paginator
+            ->fromCallbacks(
+                fn (int $offset, int $limit): array => $this
+                    ->getEntityManager()
+                    ->createNativeQuery($sql, $rsm)
+                    ->execute([
+                        'query' => $searchQuery->query,
+                        'limit' => $limit,
+                        'offset' => $offset,
+                    ]),
+                fn (): int => $this->countSearch($searchQuery),
+            )
+            ->perPage(self::SEARCH_MAX_PER_PAGE)
         ;
+    }
 
-        if ($results) {
-            return $results;
-        }
+    /**
+     * @return iterable<array{date: string, username: string, vote: int, message: string}>
+     */
+    public function iterateSearch(string $query): iterable
+    {
+        $searchQuery = $this->createSearchQuery($query);
 
         $sql = <<<EOSQL
-                SELECT {$select}, word_similarity(message, :query) AS sml
+                SELECT date, username, vote, message
                 FROM qotd AS q
-                WHERE q.message ~~* :query2
-                ORDER BY sml DESC, date DESC
-                LIMIT 15
+                WHERE {$searchQuery->whereSql}
+                ORDER BY {$searchQuery->orderBySql}
             EOSQL;
 
         return $this
             ->getEntityManager()
-            ->createNativeQuery($sql, $rsm)
-            ->execute([
-                'query' => $query,
-                'query2' => "%{$query}%",
-            ])
+            ->getConnection()
+            ->iterateAssociative($sql, ['query' => $searchQuery->query])
         ;
     }
 
     public function countMostQuotedUsers(): array
     {
         $sql = <<<'EOSQL'
-                WITH
-                    most_quoted_users AS (
-                        SELECT username, COUNT(username) AS count
-                        FROM qotd
-                        GROUP BY username
-                        ORDER BY count DESC, username ASC
-                        LIMIT 9
-                    ),
-                    others AS (
-                        SELECT 'other' AS username, COUNT(id) AS count
-                        FROM qotd q
-                            LEFT JOIN most_quoted_users m ON m.username = q.username
-                        WHERE m.username IS NULL
-                    )
-                SELECT *
-                FROM most_quoted_users
-                UNION
-                    SELECT *
-                    FROM others
+                SELECT username, COUNT(username) AS count
+                FROM qotd
+                GROUP BY username
                 ORDER BY count DESC, username ASC
+                LIMIT 10
             EOSQL;
 
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
@@ -190,26 +187,11 @@ class QotdRepository extends ServiceEntityRepository
     public function countMostUpVotedUsers(): array
     {
         $sql = <<<'EOSQL'
-                WITH
-                    most_up_voted_users AS (
-                        SELECT username, SUM(vote) AS vote
-                        FROM qotd
-                        GROUP BY username
-                        ORDER BY vote DESC, username ASC
-                        LIMIT 9
-                    ),
-                    others AS (
-                        SELECT 'other' AS username, SUM(q.vote) AS vote
-                        FROM qotd q
-                            LEFT JOIN most_up_voted_users m ON m.username = q.username
-                        WHERE m.username IS NULL
-                    )
-                SELECT *
-                FROM most_up_voted_users
-                UNION
-                    SELECT *
-                    FROM others
+                SELECT username, SUM(vote) AS vote
+                FROM qotd
+                GROUP BY username
                 ORDER BY vote DESC, username ASC
+                LIMIT 10
             EOSQL;
 
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
@@ -226,29 +208,12 @@ class QotdRepository extends ServiceEntityRepository
     public function countBiggestVotingUsers(): array
     {
         $sql = <<<'EOSQL'
-                WITH
-                    biggest_voter_users AS (
-                        SELECT
-                            jsonb_object_keys(voter_ids) as voter_username,
-                            count(username) as vote
-                        FROM qotd
-                        WHERE voter_ids IS NOT NULL
-                        GROUP BY voter_username
-                        ORDER BY vote DESC, voter_username ASC
-                        LIMIT 9
-                    ),
-                    others AS (
-                        SELECT 'other' AS voter_username, SUM(q.vote) AS vote
-                        FROM qotd q
-                            LEFT JOIN biggest_voter_users b ON b.voter_username = q.username
-                        WHERE b.voter_username IS NULL
-                    )
-                SELECT *
-                FROM biggest_voter_users
-                UNION
-                    SELECT *
-                    FROM others
+                SELECT jsonb_object_keys(voter_ids) AS voter_username, COUNT(username) AS vote
+                FROM qotd
+                WHERE voter_ids IS NOT NULL
+                GROUP BY voter_username
                 ORDER BY vote DESC, voter_username ASC
+                LIMIT 10
             EOSQL;
 
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
@@ -265,11 +230,15 @@ class QotdRepository extends ServiceEntityRepository
     public function countOver(string $period): array
     {
         $sql = <<<'EOSQL'
-                SELECT date_trunc(:period, date) AS period, COUNT(id) AS count, SUM(vote) AS vote
-                FROM qotd
-                GROUP BY period
+                SELECT *
+                FROM (
+                    SELECT date_trunc(:period, date) AS period, COUNT(id) AS count, SUM(vote) AS vote
+                    FROM qotd
+                    GROUP BY period
+                    ORDER BY period DESC
+                    LIMIT 100
+                ) AS latest_periods
                 ORDER BY period
-                limit 100
             EOSQL;
 
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
@@ -431,33 +400,17 @@ class QotdRepository extends ServiceEntityRepository
     /**
      * @return list<string>
      */
-    public function searchAuthors(string $query, int $limit, int $offset): array
+    public function getFavoriteAuthors(UserInterface $user): array
     {
         return $this->createQueryBuilder('q')
             ->select('q.username', 'count(q.username) as HIDDEN count')
-            ->where('LOWER(q.username) LIKE :query')
-            ->setParameter('query', '%' . addcslashes(mb_strtolower($query), '%_\\') . '%')
+            ->where('JSON_GET_TEXT(q.voterIds, :userId) = :up')
+            ->setParameter('userId', $user->getUserIdentifier())
+            ->setParameter('up', QotdVote::Up->value)
             ->addOrderBy('count', \SortDirection::Descending)
             ->addOrderBy('q.username', \SortDirection::Ascending)
             ->groupBy('q.username')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery()
-            ->getResult(Query::HYDRATE_SCALAR_COLUMN)
-        ;
-    }
-
-    /**
-     * @param list<string> $authors
-     *
-     * @return list<string> The given authors that exist
-     */
-    public function filterAuthors(array $authors): array
-    {
-        return $this->createQueryBuilder('q')
-            ->select('DISTINCT q.username')
-            ->where('q.username IN (:authors)')
-            ->setParameter('authors', $authors)
+            ->setMaxResults(self::MAX_FAVORITE_AUTHORS)
             ->getQuery()
             ->getResult(Query::HYDRATE_SCALAR_COLUMN)
         ;
@@ -484,6 +437,46 @@ class QotdRepository extends ServiceEntityRepository
             ->addOrderBy('q.id', \SortDirection::Ascending)
             ->getQuery()
             ->getSingleResult()
+        ;
+    }
+
+    /**
+     * A full text search, or a substring search when it finds nothing.
+     */
+    private function createSearchQuery(string $query): QotdSearchQuery
+    {
+        $fullTextQuery = new QotdSearchQuery(
+            $query,
+            'message_ts @@ websearch_to_tsquery(:query)',
+            'ts_rank(message_ts, websearch_to_tsquery(:query)) DESC, date DESC, id DESC',
+        );
+
+        if ($this->countSearch($fullTextQuery)) {
+            return $fullTextQuery;
+        }
+
+        return new QotdSearchQuery(
+            $query,
+            "message ~~* ('%' || :query || '%')",
+            'word_similarity(message, :query) DESC, date DESC, id DESC',
+        );
+    }
+
+    private function countSearch(QotdSearchQuery $searchQuery): int
+    {
+        return (int) $this
+            ->getEntityManager()
+            ->getConnection()
+            ->fetchOne("SELECT count(*) FROM qotd AS q WHERE {$searchQuery->whereSql}", ['query' => $searchQuery->query])
+        ;
+    }
+
+    private function createNotVotedQueryBuilder(UserInterface $user): QueryBuilder
+    {
+        return $this->createQueryBuilder('q')
+            ->where('COALESCE(JSON_GET_TEXT(q.voterIds, :userId), :notVoted) = :notVoted')
+            ->setParameter('userId', $user->getUserIdentifier())
+            ->setParameter('notVoted', QotdVote::Null->value)
         ;
     }
 }

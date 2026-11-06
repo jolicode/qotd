@@ -2,8 +2,8 @@
 
 {% set active = 'search' %}
 
-{% block title %}Search a QOTD{% endblock %}
+{% block title %}{{ 'Search a QOTD'|trans }}{% endblock %}
 
 {% block body %}
-    {{ component('search') }}
+    {{ component('search', {paginationRoute: 'qotd_search'}) }}
 {% endblock %}

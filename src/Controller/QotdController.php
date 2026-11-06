@@ -5,7 +5,8 @@ namespace App\Controller;
 use App\Entity\Qotd;
 use App\Form\Model\QotdFilters;
 use App\Form\Type\QotdFiltersType;
-use App\Form\Type\QotdType;
+use App\Form\Type\QotdImagesType;
+use App\Qotd\QotdImageUploader;
 use App\Repository\Model\QotdDirection;
 use App\Repository\QotdRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,7 +23,6 @@ class QotdController extends AbstractController
 {
     public function __construct(
         private readonly QotdRepository $qotdRepository,
-        private readonly EntityManagerInterface $em,
     ) {
     }
 
@@ -78,24 +78,34 @@ class QotdController extends AbstractController
         return $this->render('qotd/search.html.twig');
     }
 
-    #[Route('/qotd/{id}/edit', name: 'qotd_show_edit', methods: ['GET', 'POST'], options: ['expose' => true])]
-    public function edit(
+    #[Route('/qotd/{id}/edit', name: 'qotd_show_edit', methods: ['GET'], options: ['expose' => true])]
+    #[Template('qotd/edit.html.twig')]
+    public function edit(#[MapEntity()] Qotd $qotd): void
+    {
+    }
+
+    #[Route('/qotd/{id}/images', name: 'qotd_show_images', methods: ['GET', 'POST'], options: ['expose' => true])]
+    public function images(
         Request $request,
         #[MapEntity()] Qotd $qotd,
+        QotdImageUploader $imageUploader,
+        EntityManagerInterface $em,
     ): Response {
-        $form = $this->createForm(QotdType::class, $qotd, [
-            'action' => $this->generateUrl('qotd_show_edit', ['id' => $qotd->id]),
-        ]);
+        $form = $this->createForm(QotdImagesType::class);
 
         if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
-            $this->em->flush();
+            foreach ($form->get('images')->getData() as $image) {
+                $imageUploader->upload($qotd, $image);
+            }
 
-            $this->addFlash('success', 'Your changes have been saved!');
+            $em->flush();
+
+            $this->addFlash('success', 'Your images have been added!');
 
             return $this->redirectToRoute('qotd_show', ['id' => $qotd->id]);
         }
 
-        return $this->render('qotd/edit.html.twig', [
+        return $this->render('qotd/images.html.twig', [
             'form' => $form,
             'qotd' => $qotd,
         ]);

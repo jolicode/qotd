@@ -1,6 +1,6 @@
 {% extends 'base_with_frame.html.twig' %}
 
-{% block title 'Keyboard shortcuts' %}
+{% block title 'Keyboard shortcuts'|trans %}
 
 {% block body %}
     <table class="table table-sm align-middle mb-0">
@@ -9,10 +9,10 @@
                 <tr {{ tt('keyboard-shortcut') }}>
                     <td class="text-nowrap">
                         {% for key in shortcut.value|split(' ') %}
-                            {{ not loop.first ? 'then' }} <kbd>{{ key }}</kbd>
+                            {{ not loop.first ? 'then'|trans }} <kbd>{{ key }}</kbd>
                         {% endfor %}
                     </td>
-                    <td>{{ shortcut.description }}</td>
+                    <td>{{ shortcut.description|trans }}</td>
                 </tr>
             {% endfor %}
         </tbody>

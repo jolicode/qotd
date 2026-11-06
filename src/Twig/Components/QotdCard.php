@@ -2,16 +2,23 @@
 
 namespace App\Twig\Components;
 
+use App\Entity\MyTop;
 use App\Entity\Qotd;
+use App\Qotd\Exception\MyTopFullException;
+use App\Qotd\LiveUpdates;
 use App\Repository\Model\QotdDirection;
 use App\Repository\Model\QotdVote;
+use App\Repository\MyTopRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
+use Symfony\UX\LiveComponent\ComponentToolsTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\LiveComponent\LiveResponse;
 use Symfony\UX\TwigComponent\Attribute\PostMount;
@@ -19,7 +26,11 @@ use Symfony\UX\TwigComponent\Attribute\PostMount;
 #[AsLiveComponent]
 final class QotdCard
 {
+    use ComponentToolsTrait;
     use DefaultActionTrait;
+
+    public const string MY_TOP_CHANGED_EVENT = 'qotd:my-top-changed';
+    public const string VOTED_EVENT = 'qotd:voted';
 
     #[LiveProp]
     public Qotd $qotd;
@@ -27,6 +38,14 @@ final class QotdCard
     /** The list the card is displayed in, if any. */
     #[LiveProp]
     public ?QotdDirection $direction = null;
+
+    public function __construct(
+        private readonly LiveUpdates $liveUpdates,
+        private readonly LoggerInterface $logger,
+        private readonly MyTopRepository $myTopRepository,
+        private readonly Security $security,
+    ) {
+    }
 
     /**
      * Turbo Streams replace the card by this id, e.g. after an edit.
@@ -53,12 +72,42 @@ final class QotdCard
 
         $em->flush();
 
+        $this->emit(self::VOTED_EVENT);
+        $this->liveUpdates->publishVote($this->qotd);
+
         // A voted QOTD leaves the list of QOTD not voted yet
         if (QotdDirection::NotVoted === $this->direction && QotdVote::Null !== $this->qotd->getVote($user)) {
             return LiveResponse::remove();
         }
 
         return null;
+    }
+
+    public function getMyTop(): MyTop
+    {
+        $user = $this->security->getUser() ?? throw new \LogicException('The top requires a user.');
+
+        return $this->myTopRepository->getForUser($user);
+    }
+
+    #[LiveAction]
+    public function toggleMyTop(EntityManagerInterface $em): void
+    {
+        $myTop = $this->getMyTop();
+
+        try {
+            $myTop->toggle($this->qotd);
+        } catch (MyTopFullException $e) {
+            // The page was rendered before the top got full, e.g. in another tab: the re-render disables the button
+            $this->logger->warning('Unable to add a QOTD to a top.', ['exception' => $e]);
+
+            return;
+        }
+
+        $em->persist($myTop);
+        $em->flush();
+
+        $this->emit(self::MY_TOP_CHANGED_EVENT);
     }
 
     /**
@@ -70,5 +119,8 @@ final class QotdCard
         $this->qotd->applyVote(QotdVote::Null, $user);
 
         $em->flush();
+
+        $this->emit(self::VOTED_EVENT);
+        $this->liveUpdates->publishVote($this->qotd);
     }
 }

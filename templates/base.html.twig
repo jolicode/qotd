@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ app.request.locale }}">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="view-transition">
+        {{ turbo_refreshes_with(method: 'morph', scroll: 'preserve') }}
         <title>{% block title %}QOTD{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
         {% block stylesheets %}
@@ -27,41 +28,47 @@
             {% endfor %}
             <div {{ stimulus_controller('hide-votes') }} class="container">
                 {% block menu %}
-                    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
+                    <nav class="navbar navbar-expand-xxl navbar-light bg-light mb-2">
                         <div class="container-fluid">
                             <a class="navbar-brand" href="{{ url('qotd_index') }}" {{ tt('brand') }}>QOTD</a>
                             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                                 <span class="navbar-toggler-icon"></span>
                             </button>
                             {% set active = active ?? null %}
-                            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <div class="collapse navbar-collapse text-nowrap" id="navbarSupportedContent">
+                                <ul class="navbar-nav me-auto mb-2 mb-xxl-0">
                                     <li class="nav-item">
-                                        <a class="nav-link {{ 'qotd_top' == active ? 'active' }}" href="{{ url('qotd_index_top') }}">👍 Top</a>
+                                        <a class="nav-link {{ 'qotd_top' == active ? 'active' }}" href="{{ url('qotd_index_top') }}">👍 {{ 'Top'|trans }}</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ 'qotd_flop' == active ? 'active' }}" href="{{ url('qotd_index_flop') }}">👎 Flop</a>
+                                        <a class="nav-link {{ 'qotd_flop' == active ? 'active' }}" href="{{ url('qotd_index_flop') }}">👎 {{ 'Flop'|trans }}</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ 'qotd_not_voted' == active ? 'active' }}" href="{{ url('qotd_index_not_voted') }}">🗳 Not voted yet</a>
+                                        <a class="nav-link {{ 'qotd_not_voted' == active ? 'active' }}" href="{{ url('qotd_index_not_voted') }}">🗳 {{ 'Not voted yet'|trans }} <twig:NotVotedCounter /></a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ 'search' == active ? 'active' }}" href="{{ url('qotd_search') }}">🔍 Search</a>
+                                        <a class="nav-link {{ 'my_top' == active ? 'active' }}" href="{{ url('my_top') }}">⭐ {{ 'My top'|trans }}</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ 'random' == active ? 'active' }}" href="{{ url('random') }}">🤷 Random</a>
+                                        <a class="nav-link {{ 'search' == active ? 'active' }}" href="{{ url('qotd_search') }}">🔍 {{ 'Search'|trans }}</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ 'hall_of_fame' == active ? 'active' }}" href="{{ url('hall_of_fame') }}">📆 Hall Of Fame</a>
+                                        <a class="nav-link {{ 'random' == active ? 'active' }}" href="{{ url('random') }}">🤷 {{ 'Random'|trans }}</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ 'awards' == active ? 'active' }}" href="{{ url('awards') }}">🏅 Awards</a>
+                                        <a class="nav-link {{ 'hall_of_fame' == active ? 'active' }}" href="{{ url('hall_of_fame') }}">📆 {{ 'Hall Of Fame'|trans }}</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ 'stats' == active ? 'active' }}" href="{{ url('stats') }}">📈 Stats</a>
+                                        <a class="nav-link {{ 'awards' == active ? 'active' }}" href="{{ url('awards') }}">🏅 {{ 'Awards'|trans }}</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ 'stats' == active ? 'active' }}" href="{{ url('stats') }}">📈 {{ 'Stats'|trans }}</a>
                                     </li>
                                 </ul>
-                                <a href="{{ path('keyboard_shortcuts') }}" class="nav-link me-3" data-turbo-frame="modal" title="Keyboard shortcuts (h)">⌨️</a>
+                                <a href="{{ path('keyboard_shortcuts') }}" class="nav-link me-3" data-turbo-frame="modal" title="{{ 'Keyboard shortcuts'|trans }} (h)">⌨️</a>
+                                {% for locale in app.enabled_locales|filter(locale => locale != app.request.locale) %}
+                                    <a href="{{ path('locale_switch', {locale: locale}) }}" class="nav-link me-3 text-uppercase" data-turbo="false">{{ locale }}</a>
+                                {% endfor %}
                                 <div class="form-check form-switch">
                                     <input
                                         class="form-check-input" type="checkbox" role="switch" id="hideVotesSwitch"
@@ -69,7 +76,7 @@
                                         {{ stimulus_action('hide-votes', 'toggle', 'change') }}
                                     >
                                     <label class="form-check-label" for="hideVotesSwitch">
-                                        Hide votes
+                                        {{ 'Hide votes'|trans }}
                                     </label>
                                 </div>
                             </div>
@@ -80,7 +87,7 @@
                 {% block body %}{% endblock %}
             </div>
         </main>
-        <div {{ stimulus_controller('modal') }}>
+        <div {{ stimulus_controller('modal') }} {{ stimulus_action('modal', 'visit', 'modal:visit@window') }}>
             <turbo-frame id="modal" {{ stimulus_target('modal', 'frame') }}></turbo-frame>
             <template {{ stimulus_target('modal', 'loadingTemplate') }}>
                 <twig:LoadingModal />
@@ -93,5 +100,18 @@
             <turbo-frame id="toasts">
             </turbo-frame>
         </div>
+        {% if live_updates_enabled() %}
+            {% set live_updates_votes_topic = constant('App\\Qotd\\LiveUpdates::VOTES_TOPIC') %}
+            {% set live_updates_topics = live_updates_topics ?? [live_updates_votes_topic] %}
+            {# "subscribe": one cookie grants the topics of every tab, whatever the last page rendered listens to #}
+            <twig:Turbo:Stream:From
+                :topics="live_updates_topics"
+                :subscribe="[live_updates_votes_topic, constant('App\\Qotd\\LiveUpdates::LATEST_TOPIC')]"
+                private
+                :id="'private-' ~ live_updates_topics|join('-')|replace({':': '-'}) ~ '-stream'"
+                data-turbo-permanent
+            />
+            {{ stream_notifications([constant('App\\Qotd\\LiveUpdates::NOTIFICATIONS_TOPIC')]) }}
+        {% endif %}
     </body>
 </html>

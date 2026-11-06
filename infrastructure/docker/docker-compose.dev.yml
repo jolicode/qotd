@@ -1,4 +1,57 @@
 services:
+    frontend:
+        environment:
+            - MERCURE_PUBLIC_URL=https://${PROJECT_ROOT_DOMAIN}:${PROJECT_HTTPS_PORT:-443}/.well-known/mercure
+            - UX_IMAGE_DSN=ipx://${PROJECT_ROOT_DOMAIN}:${PROJECT_HTTPS_PORT:-443}/_ipx
+
+    worker_messenger:
+        environment:
+            # The audience of the tokens the worker publishes with
+            - MERCURE_PUBLIC_URL=https://${PROJECT_ROOT_DOMAIN}:${PROJECT_HTTPS_PORT:-443}/.well-known/mercure
+
+    ipx:
+        image: node:26-alpine
+        command: npx --yes ipx@4 serve
+        environment:
+            - IPX_ALLOWED_MODIFIERS=width,height,resize,fit,format,quality
+            - IPX_FS_DIR=/srv/public
+        volumes:
+            - "../../public:/srv/public:ro"
+        profiles:
+            - default
+        labels:
+            - "traefik.enable=true"
+            - "project-name=${PROJECT_NAME}"
+            - "traefik.http.middlewares.${PROJECT_NAME}-ipx.stripprefix.prefixes=/_ipx"
+            - "traefik.http.routers.${PROJECT_NAME}-ipx.middlewares=${PROJECT_NAME}-ipx"
+            - "traefik.http.routers.${PROJECT_NAME}-ipx.rule=Host(${PROJECT_DOMAINS}) && PathPrefix(`/_ipx`)"
+            - "traefik.http.routers.${PROJECT_NAME}-ipx.tls=true"
+            - "traefik.http.services.${PROJECT_NAME}-ipx.loadbalancer.server.port=3000"
+
+    mercure:
+        image: dunglas/mercure
+        environment:
+            # Keep in sync with .env.dev
+            - MERCURE_PUBLISHER_JWT_KEY=!ChangeThisMercureHubJWTSecretKey!
+            - MERCURE_SUBSCRIBER_JWT_KEY=!ChangeThisMercureHubJWTSecretKey!
+            - MERCURE_TRUSTED_ISSUERS=https://localhost
+            - SERVER_NAME=:80
+            # "anonymous": the notifications of UX Notify have no token.
+            # "cookie_name": in debug, MercureBundle does not use the default name of the hub.
+            # "resource_identifier": behind Traefik, the hub would see itself in HTTP, and refuse the audience of the tokens
+            - |
+                MERCURE_EXTRA_DIRECTIVES=anonymous
+                cookie_name mercure_access_token
+                resource_identifier https://${PROJECT_ROOT_DOMAIN}:${PROJECT_HTTPS_PORT:-443}/.well-known/mercure
+        profiles:
+            - default
+        labels:
+            - "traefik.enable=true"
+            - "project-name=${PROJECT_NAME}"
+            - "traefik.http.routers.${PROJECT_NAME}-mercure.rule=Host(${PROJECT_DOMAINS}) && PathPrefix(`/.well-known/mercure`)"
+            - "traefik.http.routers.${PROJECT_NAME}-mercure.tls=true"
+            - "traefik.http.services.${PROJECT_NAME}-mercure.loadbalancer.server.port=80"
+
     router:
         build: services/router
         volumes:

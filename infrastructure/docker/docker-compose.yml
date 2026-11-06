@@ -61,9 +61,9 @@ services:
             # Comment the next line to be able to access frontend via HTTP instead of HTTPS
             - "traefik.http.routers.${PROJECT_NAME}-frontend-unsecure.middlewares=redirect-to-https@file"
 
-    # worker_messenger:
-    #     <<: *worker_base
-    #     command: php -d memory_limit=1G /var/www/bin/console messenger:consume async --memory-limit=128M
+    worker_messenger:
+        <<: *worker_base
+        command: php -d memory_limit=1G /var/www/bin/console messenger:consume async --memory-limit=128M
 
     builder:
         build:
