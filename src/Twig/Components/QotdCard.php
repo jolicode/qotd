@@ -12,6 +12,7 @@ use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
+use Symfony\UX\LiveComponent\ComponentToolsTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\LiveComponent\LiveResponse;
 use Symfony\UX\TwigComponent\Attribute\PostMount;
@@ -19,7 +20,10 @@ use Symfony\UX\TwigComponent\Attribute\PostMount;
 #[AsLiveComponent]
 final class QotdCard
 {
+    use ComponentToolsTrait;
     use DefaultActionTrait;
+
+    public const string VOTED_EVENT = 'qotd:voted';
 
     #[LiveProp]
     public Qotd $qotd;
@@ -53,6 +57,8 @@ final class QotdCard
 
         $em->flush();
 
+        $this->emit(self::VOTED_EVENT);
+
         // A voted QOTD leaves the list of QOTD not voted yet
         if (QotdDirection::NotVoted === $this->direction && QotdVote::Null !== $this->qotd->getVote($user)) {
             return LiveResponse::remove();
@@ -70,5 +76,7 @@ final class QotdCard
         $this->qotd->applyVote(QotdVote::Null, $user);
 
         $em->flush();
+
+        $this->emit(self::VOTED_EVENT);
     }
 }

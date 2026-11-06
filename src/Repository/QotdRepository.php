@@ -10,6 +10,7 @@ use App\Repository\Model\QotdVote;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\UX\Pagination\CursorPagination;
@@ -91,17 +92,21 @@ class QotdRepository extends ServiceEntityRepository
      */
     public function findForHomepageNotVoted(UserInterface $user): CursorPagination
     {
-        $qb = $this->createQueryBuilder('q')
-            ->where('COALESCE(JSON_GET_TEXT(q.voterIds, :userId), :notVoted) = :notVoted')
-            ->setParameter('userId', $user->getUserIdentifier())
-            ->setParameter('notVoted', QotdVote::Null->value)
-        ;
-
         return $this->paginator
-            ->cursor($qb)
+            ->cursor($this->createNotVotedQueryBuilder($user))
             ->orderBy(['date', 'id'], 'DESC')
             ->perPage(self::MAX_PER_PAGE)
             ->paginate()
+        ;
+    }
+
+    public function countNotVoted(UserInterface $user): int
+    {
+        return (int) $this
+            ->createNotVotedQueryBuilder($user)
+            ->select('count(q.id)')
+            ->getQuery()
+            ->getSingleScalarResult()
         ;
     }
 
@@ -521,6 +526,15 @@ class QotdRepository extends ServiceEntityRepository
             ->getEntityManager()
             ->getConnection()
             ->fetchOne("SELECT count(*) FROM qotd AS q WHERE {$searchQuery->whereSql}", ['query' => $searchQuery->query])
+        ;
+    }
+
+    private function createNotVotedQueryBuilder(UserInterface $user): QueryBuilder
+    {
+        return $this->createQueryBuilder('q')
+            ->where('COALESCE(JSON_GET_TEXT(q.voterIds, :userId), :notVoted) = :notVoted')
+            ->setParameter('userId', $user->getUserIdentifier())
+            ->setParameter('notVoted', QotdVote::Null->value)
         ;
     }
 }
