@@ -44,6 +44,12 @@ turbo-frame [aria-busy="true"] {
     opacity: 0.5;
 }
 
+.dropzone-container .dropzone-preview-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
 .qotd-image-preview {
     width: 8rem;
     height: 8rem;
