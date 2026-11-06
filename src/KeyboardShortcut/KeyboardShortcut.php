@@ -17,6 +17,7 @@ enum KeyboardShortcut: string
     case GoToTop = 'g t';
     case GoToFlop = 'g f';
     case GoToNotVoted = 'g n';
+    case GoToMyTop = 'g m';
     case GoToRandom = 'g r';
     case GoToHallOfFame = 'g h';
     case GoToAwards = 'g a';
@@ -38,6 +39,7 @@ enum KeyboardShortcut: string
             self::GoToTop => 'Go to the top QOTD',
             self::GoToFlop => 'Go to the worst QOTD',
             self::GoToNotVoted => 'Go to the QOTD not voted yet',
+            self::GoToMyTop => 'Go to my top',
             self::GoToRandom => 'Go to a random QOTD',
             self::GoToHallOfFame => 'Go to the Hall of Fame',
             self::GoToAwards => 'Go to the awards',
@@ -68,6 +70,7 @@ enum KeyboardShortcut: string
             self::GoToTop => ['route' => 'qotd_index_top'],
             self::GoToFlop => ['route' => 'qotd_index_flop'],
             self::GoToNotVoted => ['route' => 'qotd_index_not_voted'],
+            self::GoToMyTop => ['route' => 'my_top'],
             self::GoToRandom => ['route' => 'random'],
             self::GoToHallOfFame => ['route' => 'hall_of_fame'],
             self::GoToAwards => ['route' => 'awards'],

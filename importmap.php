@@ -48,4 +48,5 @@ return [
     'swiper/bundle' => ['version' => '14.4.0'],
     'swiper/swiper-bundle.min.css' => ['version' => '14.4.0', 'type' => 'css'],
     'chart.js' => ['version' => '4.6.1'],
+    'sortablejs' => ['version' => '1.15.7'],
 ];

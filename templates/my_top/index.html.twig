@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% set active = 'my_top' %}
+
+{% block title %}My top{% endblock %}
+
+{% block body %}
+    <h2 class="text-center">My top</h2>
+
+    <twig:MyTopList />
+{% endblock %}

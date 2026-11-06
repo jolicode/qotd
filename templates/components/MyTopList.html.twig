@@ -1,0 +1,21 @@
+<div {{ attributes }}>
+    {% set qotds = this.qotds %}
+    {% if qotds %}
+        <ol class="ps-4" {{ stimulus_controller('ui--sortable', {handle: '[data-handle]', csrfToken: csrf_token('my-top')}) }} {{ tt('my-top') }}>
+            {% for qotd in qotds %}
+                <li id="my-top-{{ qotd.id }}" data-sortable-update-url="{{ path('my_top_move', {id: qotd.id}) }}">
+                    <div class="d-flex align-items-start gap-2">
+                        <span data-handle class="my-top-handle pt-2" title="Drag to reorder"><twig:ux:icon name="bi:grip-vertical" /></span>
+                        <div class="flex-grow-1"><twig:QotdCard :qotd /></div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        <div class="card mb-2">
+            <div class="card-body">
+                Your top is empty: use the ⭐ of a QOTD to add it.
+            </div>
+        </div>
+    {% endif %}
+</div>
