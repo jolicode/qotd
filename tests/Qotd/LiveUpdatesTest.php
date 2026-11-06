@@ -39,7 +39,10 @@ class LiveUpdatesTest extends TestCase
         $liveUpdates->publishVote($qotd);
         $liveUpdates->publishElection();
 
-        self::assertEquals([new QotdVoted($qotd->id), new QotdElected()], $messages);
+        self::assertCount(2, $messages);
+        self::assertInstanceOf(QotdVoted::class, $messages[0]);
+        self::assertSame($qotd->id, $messages[0]->qotdId);
+        self::assertInstanceOf(QotdElected::class, $messages[1]);
     }
 
     private static function createQotd(): Qotd

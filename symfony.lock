@@ -410,6 +410,20 @@
     "symfony/ux-toolkit": {
         "version": "v3.7.0"
     },
+    "symfony/ux-translator": {
+        "version": "3.7",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.7",
+            "ref": "19f7d619b8a020da57cf6ea1f1d79e14179892b3"
+        },
+        "files": [
+            "assets/translator.js",
+            "config/packages/ux_translator.yaml",
+            "var/translations/index.js"
+        ]
+    },
     "symfony/ux-turbo": {
         "version": "3.6",
         "recipe": {

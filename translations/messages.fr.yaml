@@ -1,0 +1,102 @@
+'%count% characters left': '%count% caractères restants'
+'%date% by %author%': '%date% par %author%'
+Add: Ajouter
+Add images: Ajouter des images
+'Add images to QOTD #%id%': 'Ajouter des images à la QOTD #%id%'
+Add to my top: Ajouter à mon top
+Any: Tous
+Author: Auteur
+Authors: Auteurs
+Awards: Récompenses
+Biggest Voting Users: Plus gros votants
+Close: Fermer
+Context: Contexte
+Copy the QOTD: Copier la QOTD
+Date: Date
+Day: Jour
+Drag to reorder: Glisser pour réordonner
+Drop up to %count% images here, or browse: Déposez jusqu'à %count% images ici, ou parcourez
+'Edit QOTD #%id%': 'Modifier la QOTD #%id%'
+Edit the selected QOTD: Modifier la QOTD sélectionnée
+Export as CSV: Exporter en CSV
+Filters: Filtres
+Flop: Flop
+Go to a random QOTD: Aller à une QOTD au hasard
+Go to my top: Aller à mon top
+Go to the Hall of Fame: Aller au panthéon
+Go to the QOTD not voted yet: Aller aux QOTD pas encore votées
+Go to the awards: Aller aux récompenses
+Go to the latest QOTD: Aller aux dernières QOTD
+Go to the stats: Aller aux stats
+Go to the top QOTD: Aller aux meilleures QOTD
+Go to the worst QOTD: Aller aux pires QOTD
+Hall Of Fame: Panthéon
+Hide votes: Masquer les votes
+Images: Images
+Keyboard shortcuts: Raccourcis clavier
+Latest QOTD: Dernières QOTD
+Loading...: Chargement…
+Message: Message
+Monthly: Mensuel
+Month: Mois
+Most Quoted Users: Utilisateurs les plus cités
+Most Up-Voted Users: Utilisateurs les mieux votés
+My top: Mon top
+No: Non
+No QOTD for this period.: Aucune QOTD pour cette période.
+No QOTD found.: Aucune QOTD trouvée.
+No awards found.: Aucune récompense trouvée.
+None: Aucune
+Not voted yet: Pas encore voté
+Number of QOTD Vote over a period: Nombre de QOTD et de votes sur une période
+Open the selected QOTD: Ouvrir la QOTD sélectionnée
+Permalink (on slack): Permalien (sur Slack)
+Permalink (on this app): Permalien (sur cette application)
+Please, type something to search: Saisissez quelque chose à rechercher
+QOTD not voted yet: QOTD pas encore votées
+QOTD of the month: QOTD du mois
+QOTD of the week: QOTD de la semaine
+QOTD of the year: QOTD de l'année
+Random: Au hasard
+Random QOTD: QOTD au hasard
+Ranks: Rangs
+Raw Context: Contexte brut
+Raw Message: Message brut
+Raw Message Renderer: Rendu du message brut
+Remove: Retirer
+Remove from my top: Retirer de mon top
+Save: Enregistrer
+Score: Score
+Search: Rechercher
+Search a QOTD: Rechercher une QOTD
+Select the next QOTD: Sélectionner la QOTD suivante
+Select the previous QOTD: Sélectionner la QOTD précédente
+Show the details of the selected QOTD: Afficher les détails de la QOTD sélectionnée
+Show this help: Afficher cette aide
+Stats: Stats
+This query did not match any QOTD: Cette recherche ne correspond à aucune QOTD
+Top: Top
+Top QOTD: Meilleures QOTD
+Username: Nom d'utilisateur
+Videos: Vidéos
+view in Slack: voir sur Slack
+Vote: Vote
+'Vote 👍 for the selected QOTD': 'Voter 👍 pour la QOTD sélectionnée'
+'Vote 👎 for the selected QOTD': 'Voter 👎 pour la QOTD sélectionnée'
+Voters: Votants
+Week: Semaine
+Weekly: Hebdomadaire
+With image: Avec image
+With video: Avec vidéo
+Worst QOTD: Pires QOTD
+Year: Année
+Yearly: Annuel
+Yes: Oui
+Your changes have been saved!: Vos modifications ont été enregistrées !
+Your images have been added!: Vos images ont été ajoutées !
+'Your top is empty: use the ⭐ of a QOTD to add it.': 'Votre top est vide : utilisez le ⭐ d''une QOTD pour l''ajouter.'
+then: puis
+week_pattern: "'Semaine' ww 'de' y"
+'# Qotd': '# QOTD'
+'# Votes': '# Votes'
+'✅ Saved!': '✅ Enregistré !'

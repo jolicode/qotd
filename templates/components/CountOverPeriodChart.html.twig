@@ -1,5 +1,5 @@
 <div {{ attributes }}>
-    <h2 class="text-center">Number of QOTD Vote over a period</h2>
+    <h2 class="text-center">{{ 'Number of QOTD Vote over a period'|trans }}</h2>
 
     <ul class="nav nav-tabs mb-3">
         {% for statsPeriod in enum_cases('App\\Stats\\StatsPeriod') %}
@@ -8,7 +8,7 @@
                     type="button"
                     class="{{ html_classes('nav-link', {active: statsPeriod == period}) }}"
                     {{ live_action('showPeriod', {period: statsPeriod.value}) }}
-                >{{ statsPeriod.label }}</button>
+                >{{ statsPeriod.label|trans }}</button>
             </li>
         {% endfor %}
     </ul>

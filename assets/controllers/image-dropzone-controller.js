@@ -1,5 +1,6 @@
 /* stimulusFetch: 'lazy' */
 import { Controller } from '@hotwired/stimulus';
+import { trans } from '../translator.js';
 
 const MAX_DIMENSION = 1600;
 
@@ -15,7 +16,7 @@ export default class extends Controller {
     explainRejection({ detail: { files, reason } }) {
         const names = files.map((file) => file.name).join(', ');
 
-        this.messageTarget.textContent = 'accept' === reason ? `Not an image: ${names}` : `Too many images: ${names}`;
+        this.messageTarget.textContent = trans('accept' === reason ? 'Not an image: {names}' : 'Too many images: {names}', { names }, 'js');
         this.messageTarget.hidden = false;
     }
 

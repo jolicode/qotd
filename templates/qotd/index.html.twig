@@ -7,19 +7,19 @@
 {% set active = direction.toTwigActiveSection %}
 {% set live_updates_topics = [constant('App\\Qotd\\LiveUpdates::VOTES_TOPIC'), constant('App\\Qotd\\LiveUpdates::LATEST_TOPIC')] %}
 
-{% block title %}{{ direction.toTitle }}{% endblock %}
+{% block title %}{{ direction.toTitle|trans }}{% endblock %}
 
 {% block body %}
     <div id="qotd-latest-banner"></div>
 
     {% if form ?? false %}
         <details {{ valid ? 'open' }}>
-            <summary>Filters</summary>
+            <summary>{{ 'Filters'|trans }}</summary>
             {# Permanent: morphing would remove the DOM added by Tom Select #}
             <div id="qotd-filters-container" class="mb-3" data-turbo-permanent {{ stimulus_controller('form-auto-submit') }}>
                 {{ form(form, {attr: {id: 'qotd-filters', 'data-turbo-action': 'replace'}}) }}
                 <noscript>
-                    <button type="submit" class="btn btn-primary" form="qotd-filters">Filters</button>
+                    <button type="submit" class="btn btn-primary" form="qotd-filters">{{ 'Filters'|trans }}</button>
                 </noscript>
             </div>
         </details>
@@ -30,7 +30,7 @@
     {% else %}
         <div class="card mb-2">
             <div class="card-body">
-                No QOTD found.
+                {{ 'No QOTD found.'|trans }}
             </div>
         </div>
     {% endfor %}
