@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[HasLifecycleCallbacks]
 class Qotd
 {
+    public const int CONTEXT_MAX_LENGTH = 2048;
+
     #[Groups(['qotd:read'])]
     #[ORM\Id]
     #[ORM\Column(type: Types::GUID)]
@@ -36,7 +38,7 @@ class Qotd
     #[ORM\Column(type: Types::JSON, options: ['jsonb' => true])]
     public array $videos = [];
 
-    #[Assert\Length(max: 2048)]
+    #[Assert\Length(max: self::CONTEXT_MAX_LENGTH)]
     #[ORM\Column(type: Types::TEXT)]
     public string $context = '';
 
