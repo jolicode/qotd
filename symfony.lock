@@ -335,6 +335,9 @@
             "var/routes/index.js"
         ]
     },
+    "symfony/ux-toolkit": {
+        "version": "v3.7.0"
+    },
     "symfony/ux-turbo": {
         "version": "3.6",
         "recipe": {

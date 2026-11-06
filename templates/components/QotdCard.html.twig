@@ -1,7 +1,7 @@
 {% import 'macros/qotd/message.html.twig' as qotd_macro %}
 
-<div {{ attributes.defaults({class: 'card mb-2 qotd-card'}) }} data-qotd-id="{{ qotd.id }}" {{ tt('quote') }}>
-    <div class="card-body">
+<div {{ attributes.defaults({class: 'card mb-2 qotd-card', 'data-controller': 'ui--clipboard'}) }} data-qotd-id="{{ qotd.id }}" {{ tt('quote') }}>
+    <div class="card-body" {{ stimulus_target('ui--clipboard', 'source') }}>
         {{ qotd_macro.message(qotd) }}
         {% for imageUrl in qotd.imageUrls %}
             <img class="mw-100" src="{{ asset(imageUrl) }}" alt="" />
@@ -18,6 +18,12 @@
                 <a href="{{ url('qotd_show', {id: qotd.id}) }}" class="text-reset">
                     {{ qotd.date|date('Y-m-d') }} by {{ qotd.username }}
                 </a>
+            </div>
+            <div class="mx-1">
+                <button type="button" class="btn btn-link btn-sm p-0 text-reset" title="Copy the QOTD" {{ stimulus_action('ui--clipboard', 'copy') }} {{ tt('copy') }}>
+                    <span {{ stimulus_target('ui--clipboard', 'idle') }}><twig:ux:icon name="bi:clipboard" /></span>
+                    <span {{ stimulus_target('ui--clipboard', 'success') }}><twig:ux:icon name="bi:clipboard-check" /></span>
+                </button>
             </div>
             <div class="mx-1">
                 <a href="{{ url('qotd_show_details', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><twig:ux:icon name="bi:info-circle" /></a>

@@ -10,18 +10,22 @@
     <turbo-frame id="{{ get_turbo_frame() }}">
         {% if 'modal' == get_turbo_frame() %}
             {% block modal %}
-                {% component Modal with {...(modal_attributes ?? {})} %}
-                    {% block title %}
-                        {{ block(outerBlocks.title) }}
-                    {% endblock %}
+                {% set modal_title %}{{ block('title') }}{% endset %}
+                {% set modal_body %}{{ block('body') }}{% endset %}
+                {% set modal_footer_pre %}{{ block('modal_footer_pre') }}{% endset %}
+                {% set modal_footer_post %}{{ block('modal_footer_post') }}{% endset %}
+                {# do NOT use fade here, it mess up JS (race concurrence, 💥) #}
+                {% component 'ui:Modal' with {id: 'qotd-modal', size: 'lg', fade: false, 'data-modal-target': 'bsModal', ...(modal_attributes ?? {})} %}
                     {% block content %}
-                        {{ block(outerBlocks.body) }}
-                    {% endblock %}
-                    {% block footer_pre %}
-                        {{ block(outerBlocks.modal_footer_pre) }}
-                    {% endblock %}
-                    {% block footer_post %}
-                        {{ block(outerBlocks.modal_footer_post) }}
+                        <twig:ui:Modal:Header>
+                            <twig:ui:Modal:Title>{{ modal_title }}</twig:ui:Modal:Title>
+                        </twig:ui:Modal:Header>
+                        <twig:ui:Modal:Body>{{ modal_body }}</twig:ui:Modal:Body>
+                        <twig:ui:Modal:Footer>
+                            {{ modal_footer_pre }}
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            {{ modal_footer_post }}
+                        </twig:ui:Modal:Footer>
                     {% endblock %}
                 {% endcomponent %}
             {% endblock %}
@@ -33,9 +37,10 @@
             {% for flash in app.flashes('success') %}
                 <turbo-stream action="append" target="toasts">
                     <template>
-                        <twig:Notification title="✅ Saved!">
-                            {{ flash }}
-                        </twig:Notification>
+                        <twig:ui:Toast :show="false" role="alert" live="assertive" data-controller="toast">
+                            <twig:ui:Toast:Header title="✅ Saved!" />
+                            <twig:ui:Toast:Body>{{ flash }}</twig:ui:Toast:Body>
+                        </twig:ui:Toast>
                     </template>
                 </turbo-stream>
             {% endfor %}

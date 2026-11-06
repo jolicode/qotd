@@ -1,0 +1,6 @@
+when@dev:
+    ux_toolkit:
+        components:
+            subdirectory: 'ui'
+        controllers:
+            subdirectory: 'ui'

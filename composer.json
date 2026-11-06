@@ -67,6 +67,7 @@
         "symfony/phpunit-bridge": "^8.1.9",
         "symfony/stopwatch": "^8.1",
         "symfony/ux-inspector": "^3.7",
+        "symfony/ux-toolkit": "^3.7",
         "symfony/web-profiler-bundle": "^8.1.11"
     },
     "replace": {
