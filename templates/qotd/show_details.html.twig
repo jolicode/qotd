@@ -49,7 +49,7 @@
                 {% for image in qotd.imageUrls %}
                     {% set url = asset(image) %}
                     <a href="{{ url }}" target="_blank">
-                        <img src="{{ url }}" alt="" style="max-width: 100px; max-height: 100px;">
+                        <twig:ux:image :src="url" alt="" width="100" height="100" fit="contain" />
                     </a>
                 {% else %}
                     None

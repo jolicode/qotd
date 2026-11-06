@@ -4,7 +4,7 @@
     <div class="card-body" {{ stimulus_target('ui--clipboard', 'source') }}>
         {{ qotd_macro.message(qotd) }}
         {% for imageUrl in qotd.imageUrls %}
-            <img class="mw-100" src="{{ asset(imageUrl) }}" alt="" />
+            <twig:ux:image :src="asset(imageUrl)" alt="" width="1000" />
         {% endfor %}
         {% for videoUrl in qotd.videoUrls %}
             <video class="mw-100" controls>
