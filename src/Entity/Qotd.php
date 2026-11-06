@@ -70,6 +70,11 @@ class Qotd
         $this->updatedAt = new \DateTimeImmutable();
     }
 
+    public function addImage(string $imageName): void
+    {
+        $this->images[] = $imageName;
+    }
+
     public function applyVote(QotdVote $vote, UserInterface $user): void
     {
         if (null === $this->voterIds) {

@@ -5,8 +5,11 @@ namespace App\Controller;
 use App\Entity\Qotd;
 use App\Form\Model\QotdFilters;
 use App\Form\Type\QotdFiltersType;
+use App\Form\Type\QotdImagesType;
+use App\Qotd\QotdImageUploader;
 use App\Repository\Model\QotdDirection;
 use App\Repository\QotdRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -79,6 +82,33 @@ class QotdController extends AbstractController
     #[Template('qotd/edit.html.twig')]
     public function edit(#[MapEntity()] Qotd $qotd): void
     {
+    }
+
+    #[Route('/qotd/{id}/images', name: 'qotd_show_images', methods: ['GET', 'POST'], options: ['expose' => true])]
+    public function images(
+        Request $request,
+        #[MapEntity()] Qotd $qotd,
+        QotdImageUploader $imageUploader,
+        EntityManagerInterface $em,
+    ): Response {
+        $form = $this->createForm(QotdImagesType::class);
+
+        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
+            foreach ($form->get('images')->getData() as $image) {
+                $imageUploader->upload($qotd, $image);
+            }
+
+            $em->flush();
+
+            $this->addFlash('success', 'Your images have been added!');
+
+            return $this->redirectToRoute('qotd_show', ['id' => $qotd->id]);
+        }
+
+        return $this->render('qotd/images.html.twig', [
+            'form' => $form,
+            'qotd' => $qotd,
+        ]);
     }
 
     #[Route('/qotd/{id}', name: 'qotd_show', methods: ['GET'], options: ['expose' => true])]

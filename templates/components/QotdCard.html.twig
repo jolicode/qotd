@@ -32,6 +32,9 @@
                 <a href="{{ url('qotd_show_edit', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal"><twig:ux:icon name="bi:pencil" /></a>
             </div>
             <div class="mx-1">
+                <a href="{{ url('qotd_show_images', {id: qotd.id}) }}" class="text-reset" data-turbo-frame="modal" title="Add images"><twig:ux:icon name="bi:image" /></a>
+            </div>
+            <div class="mx-1">
                 <a href="{{ qotd.permalink }}" class="btn btn-sm btn-outline-secondary">🔗 view in Slack</a>
             </div>
             <button
