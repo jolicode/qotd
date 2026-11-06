@@ -58,6 +58,23 @@ class QotdCardTest extends KernelTestCase
         }
     }
 
+    public function testTheCopiedFeedbackStaysHiddenAfterARender(): void
+    {
+        $qotd = self::getQotd();
+        $card = $this
+            ->createLiveComponent('QotdCard', ['qotd' => $qotd])
+            ->actingAs(new OAuthUser('test-user', ['ROLE_USER', 'ROLE_OAUTH_USER']))
+        ;
+
+        try {
+            $card->call('vote', ['vote' => 'up']);
+
+            self::assertCount(1, $card->render()->crawler()->filter('[data-ui--clipboard-target=success][hidden]'));
+        } finally {
+            self::resetVotes($qotd->id);
+        }
+    }
+
     private static function getQotd(): Qotd
     {
         $qotd = self::getContainer()->get(QotdRepository::class)->findOneBy(['username' => 'old@example.com']);

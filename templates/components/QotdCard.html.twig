@@ -34,7 +34,8 @@
             <div class="mx-1">
                 <button type="button" class="btn btn-link btn-sm p-0 text-reset" title="{{ 'Copy the QOTD'|trans }}" {{ stimulus_action('ui--clipboard', 'copy') }} {{ tt('copy') }}>
                     <span {{ stimulus_target('ui--clipboard', 'idle') }}><twig:ux:icon name="bi:clipboard" /></span>
-                    <span {{ stimulus_target('ui--clipboard', 'success') }}><twig:ux:icon name="bi:clipboard-check" /></span>
+                    {# "hidden" in the HTML: the controller only sets it on connect, a Live re-render would remove it #}
+                    <span {{ stimulus_target('ui--clipboard', 'success') }} hidden><twig:ux:icon name="bi:clipboard-check" /></span>
                 </button>
             </div>
             <div class="mx-1">
