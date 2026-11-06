@@ -81,7 +81,7 @@
             </div>
         </main>
         <div {{ stimulus_controller('modal') }}>
-            <turbo-frame id="modal" {{ stimulus_target('modal', 'frame') }} />
+            <turbo-frame id="modal" {{ stimulus_target('modal', 'frame') }}></turbo-frame>
             <template {{ stimulus_target('modal', 'loadingTemplate') }}>
                 <twig:LoadingModal />
             </template>
