@@ -55,3 +55,7 @@ turbo-frame [aria-busy="true"] {
     height: 8rem;
     object-fit: cover;
 }
+
+.my-top-handle {
+    cursor: grab;
+}

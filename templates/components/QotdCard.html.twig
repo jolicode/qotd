@@ -20,6 +20,18 @@
                 </a>
             </div>
             <div class="mx-1">
+                {% set in_my_top = this.myTop.has(qotd) %}
+                <button
+                    type="button"
+                    class="btn btn-link btn-sm p-0 text-reset"
+                    title="{{ in_my_top ? 'Remove from my top' : 'Add to my top' }}"
+                    {{ live_action('toggleMyTop') }}
+                    {# data-loading removes the "disabled" attribute once loaded, they cannot be used together #}
+                    {% if not in_my_top and this.myTop.full %}disabled{% else %}data-loading="addAttribute(disabled)"{% endif %}
+                    {{ tt('my-top-toggle') }}
+                ><twig:ux:icon :name="in_my_top ? 'bi:star-fill' : 'bi:star'" /></button>
+            </div>
+            <div class="mx-1">
                 <button type="button" class="btn btn-link btn-sm p-0 text-reset" title="Copy the QOTD" {{ stimulus_action('ui--clipboard', 'copy') }} {{ tt('copy') }}>
                     <span {{ stimulus_target('ui--clipboard', 'idle') }}><twig:ux:icon name="bi:clipboard" /></span>
                     {# "hidden" in the HTML: the controller only sets it on connect, a Live re-render would remove it #}

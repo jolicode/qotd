@@ -47,6 +47,9 @@
                                         <a class="nav-link {{ 'qotd_not_voted' == active ? 'active' }}" href="{{ url('qotd_index_not_voted') }}">🗳 Not voted yet <twig:NotVotedCounter /></a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="nav-link {{ 'my_top' == active ? 'active' }}" href="{{ url('my_top') }}">⭐ My top</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="nav-link {{ 'search' == active ? 'active' }}" href="{{ url('qotd_search') }}">🔍 Search</a>
                                     </li>
                                     <li class="nav-item">
