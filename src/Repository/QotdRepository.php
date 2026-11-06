@@ -28,6 +28,9 @@ use Symfony\UX\Pagination\PaginatorInterface;
  */
 class QotdRepository extends ServiceEntityRepository
 {
+    /** The slice of the users outside of the ones a stat lists. */
+    public const string OTHER_USERS_LABEL = 'other';
+
     private const int MAX_PER_PAGE = 7;
     private const int SEARCH_MAX_PER_PAGE = 15;
 
@@ -174,7 +177,7 @@ class QotdRepository extends ServiceEntityRepository
                         LIMIT 9
                     ),
                     others AS (
-                        SELECT 'other' AS username, COUNT(id) AS count
+                        SELECT CAST(:other AS text) AS username, COUNT(id) AS count
                         FROM qotd q
                             LEFT JOIN most_quoted_users m ON m.username = q.username
                         WHERE m.username IS NULL
@@ -194,6 +197,7 @@ class QotdRepository extends ServiceEntityRepository
         return $this
             ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
+            ->setParameters(['other' => self::OTHER_USERS_LABEL])
             ->getResult()
         ;
     }
@@ -210,7 +214,7 @@ class QotdRepository extends ServiceEntityRepository
                         LIMIT 9
                     ),
                     others AS (
-                        SELECT 'other' AS username, SUM(q.vote) AS vote
+                        SELECT CAST(:other AS text) AS username, SUM(q.vote) AS vote
                         FROM qotd q
                             LEFT JOIN most_up_voted_users m ON m.username = q.username
                         WHERE m.username IS NULL
@@ -230,6 +234,7 @@ class QotdRepository extends ServiceEntityRepository
         return $this
             ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
+            ->setParameters(['other' => self::OTHER_USERS_LABEL])
             ->getResult()
         ;
     }
@@ -249,7 +254,7 @@ class QotdRepository extends ServiceEntityRepository
                         LIMIT 9
                     ),
                     others AS (
-                        SELECT 'other' AS voter_username, SUM(q.vote) AS vote
+                        SELECT CAST(:other AS text) AS voter_username, SUM(q.vote) AS vote
                         FROM qotd q
                             LEFT JOIN biggest_voter_users b ON b.voter_username = q.username
                         WHERE b.voter_username IS NULL
@@ -269,6 +274,7 @@ class QotdRepository extends ServiceEntityRepository
         return $this
             ->getEntityManager()
             ->createNativeQuery($sql, $rsm)
+            ->setParameters(['other' => self::OTHER_USERS_LABEL])
             ->getResult()
         ;
     }
