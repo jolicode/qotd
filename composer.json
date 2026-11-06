@@ -41,6 +41,7 @@
         "symfony/twig-bundle": "^8.1.9",
         "symfony/ux-autocomplete": "^3.7",
         "symfony/ux-chartjs": "^3.7",
+        "symfony/ux-icons": "^3.7",
         "symfony/ux-live-component": "^3.7",
         "symfony/ux-pagination": "^3.7",
         "symfony/ux-router": "^3.7",
