@@ -14,7 +14,11 @@
 
     {% if form ?? false %}
         <details {{ valid ? 'open' }}>
-            <summary>{{ 'Filters'|trans }}</summary>
+            <summary class="qotd-filters-toggle btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-2 mb-2">
+                <twig:ux:icon name="bi:funnel" />
+                {{ 'Filters'|trans }}
+                <twig:ux:icon name="bi:chevron-down" class="qotd-filters-chevron" />
+            </summary>
             {# Permanent: morphing would remove the DOM added by Tom Select #}
             <div id="qotd-filters-container" class="mb-3" data-turbo-permanent {{ stimulus_controller('form-auto-submit') }}>
                 {{ form(form, {attr: {id: 'qotd-filters', 'data-turbo-action': 'replace'}}) }}

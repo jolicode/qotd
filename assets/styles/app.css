@@ -36,6 +36,20 @@ turbo-frame [aria-busy="true"] {
     translate: 2rem 0;
 }
 
+details[open] > .qotd-filters-toggle {
+    border-color: var(--bs-btn-active-border-color);
+    background-color: var(--bs-btn-active-bg);
+    color: var(--bs-btn-active-color);
+}
+
+.qotd-filters-chevron {
+    transition: rotate 150ms;
+}
+
+details[open] > .qotd-filters-toggle .qotd-filters-chevron {
+    rotate: 180deg;
+}
+
 .dropzone-container[data-state="dragging"] {
     border-color: var(--bs-primary);
 }
