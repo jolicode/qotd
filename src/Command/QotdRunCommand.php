@@ -9,12 +9,10 @@ use App\Slack\MessageFetcher;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -26,50 +24,44 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
     name: 'qotd:run',
     description: 'Search and Update Quotes of the Day',
 )]
-class QotdRunCommand extends Command
+final readonly class QotdRunCommand
 {
     public function __construct(
         #[Target('slack.bot.client')]
-        private readonly HttpClientInterface $botClient,
+        private HttpClientInterface $botClient,
         #[Target('slack.user.client')]
-        private readonly HttpClientInterface $userClient,
-        private readonly MessageFetcher $messageFetcher,
+        private HttpClientInterface $userClient,
+        private MessageFetcher $messageFetcher,
         #[Autowire('%env(SLACK_CHANNEL_ID_FOR_SUMMARY)%')]
-        private readonly string $channelIdForSummary,
+        private string $channelIdForSummary,
         #[Autowire('%env(SLACK_REACTION_TO_SEARCH)%')]
-        private readonly string $reactionToSearch,
-        private readonly QotdRepository $qotdRepository,
-        private readonly QotdCreator $qotdCreator,
-        private readonly UrlGeneratorInterface $router,
-        private readonly EntityManagerInterface $em,
-        private readonly LiveUpdates $liveUpdates,
-        private readonly LoggerInterface $logger = new NullLogger(),
+        private string $reactionToSearch,
+        private QotdRepository $qotdRepository,
+        private QotdCreator $qotdCreator,
+        private UrlGeneratorInterface $router,
+        private EntityManagerInterface $em,
+        private LiveUpdates $liveUpdates,
+        private LoggerInterface $logger = new NullLogger(),
     ) {
-        parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this
-            ->addArgument('date', InputArgument::OPTIONAL, 'date', 'yesterday')
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Do not update the database, and do not post.')
-            ->addOption('force', null, InputOption::VALUE_NONE)
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-        $dryRun = $input->getOption('dry-run');
-
-        $date = new \DateTimeImmutable($input->getArgument('date'));
-        $lowerDate = $date->setTime(0, 0, 0);
-        $upperDate = $date->setTime(23, 59, 59);
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Argument('date')]
+        string $date = 'yesterday',
+        #[Option('Do not update the database, and do not post.')]
+        bool $dryRun = false,
+        #[Option]
+        bool $force = false,
+    ): int {
+        $day = new \DateTimeImmutable($date);
+        $lowerDate = $day->setTime(0, 0, 0);
+        $upperDate = $day->setTime(23, 59, 59);
 
         $io->comment(\sprintf('Looking between %s and %s', $lowerDate->format('Y-m-d H:i:s'), $upperDate->format('Y-m-d H:i:s')));
-        $previousQotd = $this->qotdRepository->findOneBy(['date' => $date]);
-        if (!$dryRun && !$input->getOption('force') && $previousQotd) {
-            $io->error(\sprintf('Qotd for %s already exists', $date->format('Y-m-d')));
+        $previousQotd = $this->qotdRepository->findOneBy(['date' => $day]);
+        if (!$dryRun && !$force && $previousQotd) {
+            $io->error(\sprintf('Qotd for %s already exists', $day->format('Y-m-d')));
 
             return Command::FAILURE;
         }
@@ -140,7 +132,7 @@ class QotdRunCommand extends Command
                 }
             }
 
-            $this->qotdCreator->createQotd($bestMessage, $date);
+            $this->qotdCreator->createQotd($bestMessage, $day);
             $this->liveUpdates->publishElection();
 
             $this->botClient->request('POST', 'chat.postMessage', [
@@ -148,7 +140,7 @@ class QotdRunCommand extends Command
                     'channel' => $this->channelIdForSummary,
                     'text' => \sprintf(
                         "%s's QOTD was: %s\nYou can vote for it on %s",
-                        ucfirst((string) $input->getArgument('date')),
+                        ucfirst($date),
                         $bestMessage['permalink'],
                         $this->router->generate('qotd_index_not_voted', [], UrlGeneratorInterface::ABSOLUTE_URL),
                     ),

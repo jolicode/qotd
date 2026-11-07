@@ -6,7 +6,3 @@ framework:
                 retry_strategy:
                     # A vote count is outdated at the next vote anyway
                     max_retries: 1
-
-        routing:
-            App\Message\QotdElected: async
-            App\Message\QotdVoted: async

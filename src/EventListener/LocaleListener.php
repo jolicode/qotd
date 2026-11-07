@@ -1,16 +1,15 @@
 <?php
 
-namespace App\EventSubscriber;
+namespace App\EventListener;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * The locale chosen by the user wins over the one of the browser.
  */
-final readonly class LocaleSubscriber implements EventSubscriberInterface
+final readonly class LocaleListener
 {
     public const string COOKIE_NAME = 'locale';
 
@@ -23,14 +22,8 @@ final readonly class LocaleSubscriber implements EventSubscriberInterface
     ) {
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            // Before the LocaleListener of the framework, which reads "_locale"
-            KernelEvents::REQUEST => ['setLocale', 20],
-        ];
-    }
-
+    // Before the LocaleListener of the framework, which reads "_locale"
+    #[AsEventListener(priority: 20)]
     public function setLocale(RequestEvent $event): void
     {
         $request = $event->getRequest();

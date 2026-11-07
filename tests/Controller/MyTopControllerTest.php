@@ -67,6 +67,70 @@ class MyTopControllerTest extends WebTestCase
         }
     }
 
+    public function testMoveChangesThePosition(): void
+    {
+        $client = self::createClientAndLogin();
+        [$first, $second] = self::getQotds();
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $myTop = new MyTop('test-user');
+        $myTop->toggle($first);
+        $myTop->toggle($second);
+        $em->persist($myTop);
+        $em->flush();
+
+        try {
+            $client->request('POST', "/my-top/{$second->id}/position", ['position' => 1, '_token' => self::getCsrfToken($client)]);
+
+            self::assertResponseStatusCodeSame(204);
+            $em->clear();
+            self::assertSame([$second->id, $first->id], $em->find(MyTop::class, 'test-user')?->getQotdIds());
+        } finally {
+            self::removeMyTop();
+        }
+    }
+
+    /**
+     * @dataProvider provideMoveRefusesAnInvalidPositionCases
+     */
+    public function testMoveRefusesAnInvalidPosition(string $position): void
+    {
+        $client = self::createClientAndLogin();
+        [$first, $second] = self::getQotds();
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $myTop = new MyTop('test-user');
+        $myTop->toggle($first);
+        $myTop->toggle($second);
+        $em->persist($myTop);
+        $em->flush();
+
+        try {
+            $client->request('POST', "/my-top/{$second->id}/position", ['position' => $position, '_token' => self::getCsrfToken($client)]);
+
+            self::assertResponseStatusCodeSame(400);
+            $em->clear();
+            self::assertSame([$first->id, $second->id], $em->find(MyTop::class, 'test-user')?->getQotdIds());
+        } finally {
+            self::removeMyTop();
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideMoveRefusesAnInvalidPositionCases(): iterable
+    {
+        yield 'zero' => ['0'];
+        yield 'negative' => ['-1'];
+        yield 'not a number' => ['not-a-number'];
+    }
+
+    private static function getCsrfToken(KernelBrowser $client): string
+    {
+        $crawler = $client->request('GET', '/my-top');
+
+        return (string) $crawler->filter('[data-ui--sortable-csrf-token-value]')->attr('data-ui--sortable-csrf-token-value');
+    }
+
     /**
      * @return list<Qotd>
      */

@@ -29,10 +29,11 @@ class QotdController extends AbstractController
     #[Route('/', name: 'qotd_index', defaults: ['direction' => QotdDirection::Latest->value], options: ['expose' => true])]
     #[Route('/top', name: 'qotd_index_top', defaults: ['direction' => QotdDirection::Top->value], options: ['expose' => true])]
     #[Route('/flop', name: 'qotd_index_flop', defaults: ['direction' => QotdDirection::Flop->value], options: ['expose' => true])]
+    #[Template('qotd/index.html.twig')]
     public function index(
         Request $request,
         QotdDirection $direction,
-    ): Response {
+    ): array {
         $valid = false;
         $filters = new QotdFilters();
         $form = $this->createForm(QotdFiltersType::class, $filters);
@@ -50,32 +51,33 @@ class QotdController extends AbstractController
             ->findForHomepage($direction, $filters)
         ;
 
-        return $this->render('qotd/index.html.twig', [
+        return [
             'pagination' => $pagination,
             'direction' => $direction,
             'form' => $form,
             'valid' => $valid,
-        ]);
+        ];
     }
 
     #[Route('/not-voted', name: 'qotd_index_not_voted', options: ['expose' => true])]
-    public function notVoted(#[CurrentUser] UserInterface $user): Response
+    #[Template('qotd/index.html.twig')]
+    public function notVoted(#[CurrentUser] UserInterface $user): array
     {
         $pagination = $this
             ->qotdRepository
             ->findForHomepageNotVoted($user)
         ;
 
-        return $this->render('qotd/index.html.twig', [
+        return [
             'pagination' => $pagination,
             'direction' => QotdDirection::NotVoted,
-        ]);
+        ];
     }
 
     #[Route('/search', name: 'qotd_search', methods: ['GET'], options: ['expose' => true])]
-    public function search(): Response
+    #[Template('qotd/search.html.twig')]
+    public function search(): void
     {
-        return $this->render('qotd/search.html.twig');
     }
 
     #[Route('/qotd/{id}/edit', name: 'qotd_show_edit', methods: ['GET'], options: ['expose' => true])]
@@ -85,12 +87,13 @@ class QotdController extends AbstractController
     }
 
     #[Route('/qotd/{id}/images', name: 'qotd_show_images', methods: ['GET', 'POST'], options: ['expose' => true])]
+    #[Template('qotd/images.html.twig')]
     public function images(
         Request $request,
         #[MapEntity()] Qotd $qotd,
         QotdImageUploader $imageUploader,
         EntityManagerInterface $em,
-    ): Response {
+    ): array|Response {
         $form = $this->createForm(QotdImagesType::class);
 
         if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
@@ -105,10 +108,10 @@ class QotdController extends AbstractController
             return $this->redirectToRoute('qotd_show', ['id' => $qotd->id]);
         }
 
-        return $this->render('qotd/images.html.twig', [
+        return [
             'form' => $form,
             'qotd' => $qotd,
-        ]);
+        ];
     }
 
     #[Route('/qotd/{id}', name: 'qotd_show', methods: ['GET'], options: ['expose' => true])]

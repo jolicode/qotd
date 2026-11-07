@@ -4,8 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Qotd;
 use App\Repository\QotdRepository;
+use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class RandomController extends AbstractController
@@ -16,7 +16,8 @@ class RandomController extends AbstractController
     }
 
     #[Route('/random', name: 'random', options: ['expose' => true])]
-    public function index(): Response
+    #[Template('random/index.html.twig')]
+    public function index(): array
     {
         $qotd = $this->qotdRepository->findRandom();
 
@@ -24,8 +25,8 @@ class RandomController extends AbstractController
             throw $this->createNotFoundException('No QOTD found.');
         }
 
-        return $this->render('random/index.html.twig', [
+        return [
             'qotd' => $qotd,
-        ]);
+        ];
     }
 }

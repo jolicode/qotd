@@ -6,11 +6,10 @@ use App\Qotd\LiveUpdates;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Emoji\EmojiTransliterator;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
-use Twig\TwigFunction;
+use Twig\Attribute\AsTwigFilter;
+use Twig\Attribute\AsTwigFunction;
 
-class AppExtension extends AbstractExtension
+final class AppExtension
 {
     private static EmojiTransliterator $emojiTransliterator;
 
@@ -22,19 +21,7 @@ class AppExtension extends AbstractExtension
     ) {
     }
 
-    public function getFunctions(): iterable
-    {
-        yield new TwigFunction('tt', $this->whenTest(...));
-        yield new TwigFunction('get_turbo_frame', $this->getTurboFrame(...));
-        yield new TwigFunction('live_updates_enabled', $this->liveUpdates->isEnabled(...));
-    }
-
-    public function getFilters(): iterable
-    {
-        yield new TwigFilter('replace_emoji', $this->replaceEmoji(...));
-        yield new TwigFilter('replace_username', $this->replaceUsername(...));
-    }
-
+    #[AsTwigFilter('replace_emoji')]
     public function replaceEmoji(string $string): string
     {
         $tr = self::$emojiTransliterator ??= EmojiTransliterator::create('emoji-slack', EmojiTransliterator::REVERSE);
@@ -42,11 +29,13 @@ class AppExtension extends AbstractExtension
         return (string) $tr->transliterate($string);
     }
 
+    #[AsTwigFilter('replace_username')]
     public function replaceUsername(string $string): string
     {
         return (string) preg_replace('{<@([A-Z0-9]+)\|(\w+)>}', '@$2', $string);
     }
 
+    #[AsTwigFunction('tt')]
     public function whenTest(string $name): string
     {
         if ('test' !== $this->env) {
@@ -56,10 +45,17 @@ class AppExtension extends AbstractExtension
         return \sprintf('data-test=%s', $name);
     }
 
+    #[AsTwigFunction('get_turbo_frame')]
     public function getTurboFrame(): ?string
     {
         $request = $this->requestStack->getCurrentRequest();
 
         return $request?->headers->get('Turbo-Frame') ?? null;
+    }
+
+    #[AsTwigFunction('live_updates_enabled')]
+    public function isLiveUpdatesEnabled(): bool
+    {
+        return $this->liveUpdates->isEnabled();
     }
 }
