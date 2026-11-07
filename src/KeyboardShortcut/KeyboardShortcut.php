@@ -12,6 +12,7 @@ namespace App\KeyboardShortcut;
 enum KeyboardShortcut: string
 {
     case Help = 'h';
+    case HelpWithQuestionMark = '?';
     case Search = '/';
     case GoToLatest = 'g l';
     case GoToTop = 'g t';
@@ -33,7 +34,7 @@ enum KeyboardShortcut: string
     public function getDescription(): string
     {
         return match ($this) {
-            self::Help => 'Show this help',
+            self::Help, self::HelpWithQuestionMark => 'Show this help',
             self::Search => 'Search a QOTD',
             self::GoToLatest => 'Go to the latest QOTD',
             self::GoToTop => 'Go to the top QOTD',
@@ -64,7 +65,7 @@ enum KeyboardShortcut: string
     public function toStimulus(): array
     {
         return ['keys' => $this->value] + match ($this) {
-            self::Help => ['route' => 'keyboard_shortcuts', 'frame' => 'modal'],
+            self::Help, self::HelpWithQuestionMark => ['route' => 'keyboard_shortcuts', 'frame' => 'modal'],
             self::Search => ['route' => 'qotd_search'],
             self::GoToLatest => ['route' => 'qotd_index'],
             self::GoToTop => ['route' => 'qotd_index_top'],

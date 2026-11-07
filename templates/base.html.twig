@@ -65,7 +65,7 @@
                                         <a class="nav-link {{ 'stats' == active ? 'active' }}" href="{{ url('stats') }}">📈 {{ 'Stats'|trans }}</a>
                                     </li>
                                 </ul>
-                                <a href="{{ path('keyboard_shortcuts') }}" class="nav-link me-3" data-turbo-frame="modal" title="{{ 'Keyboard shortcuts'|trans }} (h)">⌨️</a>
+                                <a href="{{ path('keyboard_shortcuts') }}" class="nav-link me-3" data-turbo-frame="modal" title="{{ 'Keyboard shortcuts'|trans }} (h, ?)">⌨️</a>
                                 {% for locale in app.enabled_locales|filter(locale => locale != app.request.locale) %}
                                     <a href="{{ path('locale_switch', {locale: locale}) }}" class="nav-link me-3 text-uppercase" data-turbo="false">{{ locale }}</a>
                                 {% endfor %}
