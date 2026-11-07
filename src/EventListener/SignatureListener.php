@@ -1,20 +1,21 @@
 <?php
 
-namespace App\EventSubscriber;
+namespace App\EventListener;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
-class SignatureSubscriber implements EventSubscriberInterface
+final readonly class SignatureListener
 {
     public function __construct(
         #[Autowire('%env(SLACK_SIGNING_SECRET)%')]
-        private readonly string $signinSecret,
+        private string $signinSecret,
     ) {
     }
 
+    #[AsEventListener(priority: 32 - 1)]
     public function verifySignature(RequestEvent $event): void
     {
         if (!$this->signinSecret) {
@@ -42,12 +43,5 @@ class SignatureSubscriber implements EventSubscriberInterface
         if ($signatureTmp !== $signature) {
             $event->setResponse(new Response('You are not slack', 401));
         }
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            RequestEvent::class => ['verifySignature', 32 - 1],
-        ];
     }
 }

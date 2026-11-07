@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Repository\QotdRepository;
+use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class AwardsController extends AbstractController
@@ -15,10 +15,11 @@ class AwardsController extends AbstractController
     }
 
     #[Route('/awards', name: 'awards', options: ['expose' => true])]
-    public function index(): Response
+    #[Template('awards/index.html.twig')]
+    public function index(): array
     {
-        return $this->render('awards/index.html.twig', [
+        return [
             'awards' => $this->qotdRepository->computeAwards(),
-        ]);
+        ];
     }
 }

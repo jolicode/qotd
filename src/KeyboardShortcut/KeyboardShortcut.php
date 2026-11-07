@@ -12,11 +12,13 @@ namespace App\KeyboardShortcut;
 enum KeyboardShortcut: string
 {
     case Help = 'h';
+    case HelpWithQuestionMark = '?';
     case Search = '/';
     case GoToLatest = 'g l';
     case GoToTop = 'g t';
     case GoToFlop = 'g f';
     case GoToNotVoted = 'g n';
+    case GoToMyTop = 'g m';
     case GoToRandom = 'g r';
     case GoToHallOfFame = 'g h';
     case GoToAwards = 'g a';
@@ -32,12 +34,13 @@ enum KeyboardShortcut: string
     public function getDescription(): string
     {
         return match ($this) {
-            self::Help => 'Show this help',
+            self::Help, self::HelpWithQuestionMark => 'Show this help',
             self::Search => 'Search a QOTD',
             self::GoToLatest => 'Go to the latest QOTD',
             self::GoToTop => 'Go to the top QOTD',
             self::GoToFlop => 'Go to the worst QOTD',
             self::GoToNotVoted => 'Go to the QOTD not voted yet',
+            self::GoToMyTop => 'Go to my top',
             self::GoToRandom => 'Go to a random QOTD',
             self::GoToHallOfFame => 'Go to the Hall of Fame',
             self::GoToAwards => 'Go to the awards',
@@ -62,12 +65,13 @@ enum KeyboardShortcut: string
     public function toStimulus(): array
     {
         return ['keys' => $this->value] + match ($this) {
-            self::Help => ['route' => 'keyboard_shortcuts', 'frame' => 'modal'],
+            self::Help, self::HelpWithQuestionMark => ['route' => 'keyboard_shortcuts', 'frame' => 'modal'],
             self::Search => ['route' => 'qotd_search'],
             self::GoToLatest => ['route' => 'qotd_index'],
             self::GoToTop => ['route' => 'qotd_index_top'],
             self::GoToFlop => ['route' => 'qotd_index_flop'],
             self::GoToNotVoted => ['route' => 'qotd_index_not_voted'],
+            self::GoToMyTop => ['route' => 'my_top'],
             self::GoToRandom => ['route' => 'random'],
             self::GoToHallOfFame => ['route' => 'hall_of_fame'],
             self::GoToAwards => ['route' => 'awards'],

@@ -1,0 +1,9 @@
+{% block dropzone_preview_item_template %}
+    <template data-symfony--ux-dropzone--dropzone-target="previewItemTemplate">
+        <li class="position-relative">
+            <img data-dropzone-slot="image" class="img-thumbnail qotd-image-preview" alt="">
+            <span data-dropzone-slot="filename" class="visually-hidden"></span>
+            <button type="button" data-dropzone-slot="remove" class="btn-close position-absolute top-0 end-0 m-1 bg-white"></button>
+        </li>
+    </template>
+{% endblock %}

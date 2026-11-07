@@ -1,8 +1,8 @@
 <?php
 
-namespace App\EventSubscriber;
+namespace App\EventListener;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
@@ -11,8 +11,9 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
  *
  * @see https://api.slack.com/events/url_verification
  */
-class ChallengeSubscriber implements EventSubscriberInterface
+final readonly class ChallengeListener
 {
+    #[AsEventListener(priority: 1024)]
     public function verifyChallenge(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {
@@ -28,12 +29,5 @@ class ChallengeSubscriber implements EventSubscriberInterface
         if ('url_verification' === $payload['type']) {
             $event->setResponse(new Response($payload['challenge']));
         }
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            RequestEvent::class => ['verifyChallenge', 1024],
-        ];
     }
 }

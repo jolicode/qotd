@@ -32,7 +32,7 @@ Docker / workers:
 ```bash
 castor docker:build [--service=service]
 castor docker:up [--service=service]
-castor start-workers                         # start workers (worker profile, currently unused — see Stack)
+castor start-workers                         # start workers (worker profile, see Stack)
 castor stop-workers
 ```
 
@@ -56,8 +56,14 @@ Without option, the `default` context applies.
 - nginx + php-fpm (service `frontend`), Traefik router, HTTPS on `<root_domain>` (see `castor.php`)
 - `cron` service for scheduled tasks (e.g. posting the daily quote)
 - Symfony AssetMapper for JS/CSS (`importmap.php`) — no Node/yarn build step
-- A Messenger `worker` service is defined in `infrastructure/docker/docker-compose.yml` but
-  currently commented out (no async transport in use yet)
+- Live updates (votes in every tab, new QOTD banner and notification): a Messenger worker publishes
+  on a Mercure hub. Enabled by `LIVE_UPDATES_ENABLED`, in `.env.dev` only. The `mercure` service
+  and the Doctrine transport are dev only: production needs a hub and a worker to enable them
+- UX Image: the `ipx` service resizes the images in dev. `UX_IMAGE_DSN` is `null://null` elsewhere,
+  which renders the originals
+- The components and controllers of the UX Toolkit live in `templates/components/ui/` and
+  `assets/controllers/ui/`. After changing `config/packages/ux_toolkit.yaml`, clear the cache
+  before `ux:install`
 - Production ships as two images (`php` and `nginx`), built from the "Production stages" of
   `infrastructure/docker/services/php/Dockerfile` and pushed by `.github/workflows/build-push.yml`.
   php-fpm and nginx configuration (`services/php/php/`, `services/php/nginx/`) is shared with

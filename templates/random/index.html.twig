@@ -2,14 +2,14 @@
 
 {% set active = 'random' %}
 
-{% block title %}Random{% endblock %}
+{% block title %}{{ 'Random'|trans }}{% endblock %}
 
 {% block body %}
     <div class="mb-4">
-        <h2 class="text-center">Random QOTD</h2>
+        <h2 class="text-center">{{ 'Random QOTD'|trans }}</h2>
         <div class="card mb-2">
             <div class="card-body">
-                <twig:QotdCard :qotd="qotd" />
+                <twig:QotdCard :qotd />
             </div>
         </div>
     </div>

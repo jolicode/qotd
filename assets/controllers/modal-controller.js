@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { visit } from '@hotwired/turbo';
 import { Modal } from 'bootstrap';
 
 export default class extends Controller {
@@ -20,6 +21,20 @@ export default class extends Controller {
 
     disconnect() {
         this.close();
+    }
+
+    /**
+     * Follows a LiveAction, which cannot redirect a Turbo Frame: the response
+     * replaces the modal, or the page when the action does not come from a modal.
+     */
+    visit({ detail: { url } }) {
+        if (this.modal) {
+            this.frameTarget.src = url;
+
+            return;
+        }
+
+        visit(url);
     }
 
     bsModalTargetDisconnected() {

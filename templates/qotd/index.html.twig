@@ -5,28 +5,36 @@
 {% endif %}
 
 {% set active = direction.toTwigActiveSection %}
+{% set live_updates_topics = [constant('App\\Qotd\\LiveUpdates::VOTES_TOPIC'), constant('App\\Qotd\\LiveUpdates::LATEST_TOPIC')] %}
 
-{% block title %}{{ direction.toTitle }}{% endblock %}
+{% block title %}{{ direction.toTitle|trans }}{% endblock %}
 
 {% block body %}
+    <div id="qotd-latest-banner"></div>
+
     {% if form ?? false %}
         <details {{ valid ? 'open' }}>
-            <summary>Filters</summary>
-            <div class="mb-3" {{ stimulus_controller('form-auto-submit') }}>
-                {{ form(form, {attr: {id: 'qotd-filters'}}) }}
+            <summary class="qotd-filters-toggle btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-2 mb-2">
+                <twig:ux:icon name="bi:funnel" />
+                {{ 'Filters'|trans }}
+                <twig:ux:icon name="bi:chevron-down" class="qotd-filters-chevron" />
+            </summary>
+            {# Permanent: morphing would remove the DOM added by Tom Select #}
+            <div id="qotd-filters-container" class="mb-3" data-turbo-permanent {{ stimulus_controller('form-auto-submit') }}>
+                {{ form(form, {attr: {id: 'qotd-filters', 'data-turbo-action': 'replace'}}) }}
                 <noscript>
-                    <button type="submit" class="btn btn-primary" form="qotd-filters">Filters</button>
+                    <button type="submit" class="btn btn-primary" form="qotd-filters">{{ 'Filters'|trans }}</button>
                 </noscript>
             </div>
         </details>
     {% endif %}
 
     {% for qotd in pagination %}
-        <twig:QotdCard :qotd="qotd" :direction="direction" />
+        <twig:QotdCard :qotd :direction />
     {% else %}
         <div class="card mb-2">
             <div class="card-body">
-                No QOTD found.
+                {{ 'No QOTD found.'|trans }}
             </div>
         </div>
     {% endfor %}
