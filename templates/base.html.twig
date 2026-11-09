@@ -28,7 +28,7 @@
             {% endfor %}
             <div {{ stimulus_controller('hide-votes') }} class="container">
                 {% block menu %}
-                    <nav class="navbar navbar-expand-xxl navbar-light bg-light mb-2">
+                    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
                         <div class="container-fluid">
                             <a class="navbar-brand" href="{{ url('qotd_index') }}" {{ tt('brand') }}>QOTD</a>
                             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,18 +36,9 @@
                             </button>
                             {% set active = active ?? null %}
                             <div class="collapse navbar-collapse text-nowrap" id="navbarSupportedContent">
-                                <ul class="navbar-nav me-auto mb-2 mb-xxl-0">
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ 'qotd_top' == active ? 'active' }}" href="{{ url('qotd_index_top') }}">👍 {{ 'Top'|trans }}</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ 'qotd_flop' == active ? 'active' }}" href="{{ url('qotd_index_flop') }}">👎 {{ 'Flop'|trans }}</a>
-                                    </li>
+                                <ul class="navbar-nav me-auto">
                                     <li class="nav-item">
                                         <a class="nav-link {{ 'qotd_not_voted' == active ? 'active' }}" href="{{ url('qotd_index_not_voted') }}">🗳 {{ 'Not voted yet'|trans }} <twig:NotVotedCounter /></a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ 'my_top' == active ? 'active' }}" href="{{ url('my_top') }}">⭐ {{ 'My top'|trans }}</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ 'search' == active ? 'active' }}" href="{{ url('qotd_search') }}">🔍 {{ 'Search'|trans }}</a>
@@ -55,30 +46,47 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ 'random' == active ? 'active' }}" href="{{ url('random') }}">🤷 {{ 'Random'|trans }}</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ 'hall_of_fame' == active ? 'active' }}" href="{{ url('hall_of_fame') }}">📆 {{ 'Hall Of Fame'|trans }}</a>
+                                    <li class="nav-item dropdown">
+                                        <button class="nav-link dropdown-toggle {{ active in ['my_top', 'qotd_flop', 'qotd_top'] ? 'active' }}" type="button" data-bs-toggle="dropdown" aria-expanded="false">🔝 {{ 'Rankings'|trans }}</button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item {{ 'qotd_top' == active ? 'active' }}" href="{{ url('qotd_index_top') }}">👍 {{ 'Top'|trans }}</a></li>
+                                            <li><a class="dropdown-item {{ 'qotd_flop' == active ? 'active' }}" href="{{ url('qotd_index_flop') }}">👎 {{ 'Flop'|trans }}</a></li>
+                                            <li><a class="dropdown-item {{ 'my_top' == active ? 'active' }}" href="{{ url('my_top') }}">⭐ {{ 'My top'|trans }}</a></li>
+                                        </ul>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ 'awards' == active ? 'active' }}" href="{{ url('awards') }}">🏅 {{ 'Awards'|trans }}</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ 'stats' == active ? 'active' }}" href="{{ url('stats') }}">📈 {{ 'Stats'|trans }}</a>
+                                    <li class="nav-item dropdown">
+                                        <button class="nav-link dropdown-toggle {{ active in ['awards', 'hall_of_fame', 'stats'] ? 'active' }}" type="button" data-bs-toggle="dropdown" aria-expanded="false">🏆 {{ 'Records'|trans }}</button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item {{ 'hall_of_fame' == active ? 'active' }}" href="{{ url('hall_of_fame') }}">📆 {{ 'Hall Of Fame'|trans }}</a></li>
+                                            <li><a class="dropdown-item {{ 'awards' == active ? 'active' }}" href="{{ url('awards') }}">🏅 {{ 'Awards'|trans }}</a></li>
+                                            <li><a class="dropdown-item {{ 'stats' == active ? 'active' }}" href="{{ url('stats') }}">📈 {{ 'Stats'|trans }}</a></li>
+                                        </ul>
                                     </li>
                                 </ul>
-                                <a href="{{ path('keyboard_shortcuts') }}" class="nav-link me-3" data-turbo-frame="modal" title="{{ 'Keyboard shortcuts'|trans }} (h, ?)">⌨️</a>
-                                {% for locale in app.enabled_locales|filter(locale => locale != app.request.locale) %}
-                                    <a href="{{ path('locale_switch', {locale: locale}) }}" class="nav-link me-3 text-uppercase" data-turbo="false">{{ locale }}</a>
-                                {% endfor %}
-                                <div class="form-check form-switch">
-                                    <input
-                                        class="form-check-input" type="checkbox" role="switch" id="hideVotesSwitch"
-                                        {{ stimulus_target('hide-votes', 'switch') }}
-                                        {{ stimulus_action('hide-votes', 'toggle', 'change') }}
-                                    >
-                                    <label class="form-check-label" for="hideVotesSwitch">
-                                        {{ 'Hide votes'|trans }}
-                                    </label>
-                                </div>
+                                <ul class="navbar-nav">
+                                    <li class="nav-item dropdown">
+                                        <button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="{{ 'Settings'|trans }}">⚙️</button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="{{ path('keyboard_shortcuts') }}" data-turbo-frame="modal" title="h, ?">⌨️ {{ 'Keyboard shortcuts'|trans }}</a></li>
+                                            {% for locale in app.enabled_locales|filter(locale => locale != app.request.locale) %}
+                                                <li><a class="dropdown-item text-uppercase" href="{{ path('locale_switch', {locale: locale}) }}" data-turbo="false">🌐 {{ locale }}</a></li>
+                                            {% endfor %}
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li class="px-3">
+                                                <div class="form-check form-switch mb-0">
+                                                    <input
+                                                        class="form-check-input" type="checkbox" role="switch" id="hideVotesSwitch"
+                                                        {{ stimulus_target('hide-votes', 'switch') }}
+                                                        {{ stimulus_action('hide-votes', 'toggle', 'change') }}
+                                                    >
+                                                    <label class="form-check-label" for="hideVotesSwitch">
+                                                        {{ 'Hide votes'|trans }}
+                                                    </label>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </nav>

@@ -61,12 +61,17 @@ class QotdController extends AbstractController
 
     #[Route('/not-voted', name: 'qotd_index_not_voted', options: ['expose' => true])]
     #[Template('qotd/index.html.twig')]
-    public function notVoted(#[CurrentUser] UserInterface $user): array
+    public function notVoted(#[CurrentUser] UserInterface $user): array|Response
     {
         $pagination = $this
             ->qotdRepository
             ->findForHomepageNotVoted($user)
         ;
+
+        // The QOTD on the other side of the cursor may all have been voted since the link was rendered
+        if ($pagination->isEmpty() && null !== $pagination->getCursor()) {
+            return $this->redirectToRoute('qotd_index_not_voted');
+        }
 
         return [
             'pagination' => $pagination,

@@ -29,15 +29,17 @@
         </details>
     {% endif %}
 
-    {% for qotd in pagination %}
-        <twig:QotdCard :qotd :direction />
-    {% else %}
-        <div class="card mb-2">
-            <div class="card-body">
-                {{ 'No QOTD found.'|trans }}
+    <div {{ 'qotd_not_voted' == active ? stimulus_controller('not-voted-list', {url: path('qotd_index_not_voted')}) }}>
+        {% for qotd in pagination %}
+            <twig:QotdCard :qotd :direction />
+        {% else %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    {{ 'No QOTD found.'|trans }}
+                </div>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
 
     <div class="navigation">
         {{ ux_pagination(pagination) }}
