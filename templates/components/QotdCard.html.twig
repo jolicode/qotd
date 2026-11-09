@@ -1,6 +1,6 @@
 {% import 'macros/qotd/message.html.twig' as qotd_macro %}
 
-<div {{ attributes.defaults({class: 'card mb-2 qotd-card', 'data-controller': 'ui--clipboard'}) }} data-qotd-id="{{ qotd.id }}" {{ tt('quote') }}>
+<div {{ attributes.defaults({class: 'card mb-2 qotd-card', 'data-controller': 'ui--clipboard'}) }} data-qotd-id="{{ qotd.id }}" {{ stimulus_target('not-voted-list', 'card') }} {{ tt('quote') }}>
     <div class="card-body" {{ stimulus_target('ui--clipboard', 'source') }}>
         {{ qotd_macro.message(qotd) }}
         {% for imageUrl in qotd.imageUrls %}

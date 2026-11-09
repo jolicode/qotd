@@ -83,6 +83,7 @@ class QotdControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('title', 'QOTD not voted yet');
         self::assertCount(7, $crawler->filter('[data-test=quote]'));
+        self::assertCount(7, $crawler->filter('[data-controller~=not-voted-list] [data-not-voted-list-target=card]'));
     }
 
     public function testNotVotedYetNextPage(): void
@@ -109,16 +110,34 @@ class QotdControllerTest extends WebTestCase
         $nextPageLink = $crawler->filter('a[rel=next]')->link();
         $nextPageIds = self::getQuoteIds($client->click($nextPageLink));
 
-        $connection = self::getContainer()->get(Connection::class);
-        $vote = 'UPDATE qotd SET voter_ids = :voterIds WHERE id IN (:ids)';
-        $types = ['ids' => ArrayParameterType::STRING];
-
         try {
-            $connection->executeStatement($vote, ['voterIds' => '{"test-user":"up"}', 'ids' => $firstPageIds], $types);
+            self::setVoterIds($firstPageIds, '{"test-user":"up"}');
 
             self::assertSame($nextPageIds, self::getQuoteIds($client->click($nextPageLink)));
         } finally {
-            $connection->executeStatement($vote, ['voterIds' => null, 'ids' => $firstPageIds], $types);
+            self::setVoterIds($firstPageIds, null);
+        }
+    }
+
+    public function testNotVotedYetRedirectsToTheFirstPageWhenThePreviousOneIsEmpty(): void
+    {
+        $client = self::createClientAndLogin();
+
+        $crawler = $client->request('GET', '/not-voted');
+        $firstPageIds = self::getQuoteIds($crawler);
+        $crawler = $client->click($crawler->filter('a[rel=next]')->link());
+        $nextPageIds = self::getQuoteIds($crawler);
+        $previousPageLink = $crawler->filter('a[rel=prev]')->link();
+
+        try {
+            self::setVoterIds($firstPageIds, '{"test-user":"up"}');
+
+            $client->click($previousPageLink);
+
+            self::assertResponseRedirects('/not-voted');
+            self::assertSame($nextPageIds, self::getQuoteIds($client->followRedirect()));
+        } finally {
+            self::setVoterIds($firstPageIds, null);
         }
     }
 
@@ -161,6 +180,18 @@ class QotdControllerTest extends WebTestCase
             ->filter('[data-test=quote]')
             ->each(static fn (Crawler $quote): string => str_replace('qotd-', '', (string) $quote->attr('id')))
         ;
+    }
+
+    /**
+     * @param list<string> $ids
+     */
+    private static function setVoterIds(array $ids, ?string $voterIds): void
+    {
+        self::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE qotd SET voter_ids = :voterIds WHERE id IN (:ids)',
+            ['voterIds' => $voterIds, 'ids' => $ids],
+            ['ids' => ArrayParameterType::STRING],
+        );
     }
 
     private function createClientAndLogin(): KernelBrowser
