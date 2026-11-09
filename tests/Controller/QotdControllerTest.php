@@ -166,6 +166,33 @@ class QotdControllerTest extends WebTestCase
         self::assertSame(0, (int) $crawler->filter('[data-test=quote-vote]')->text());
     }
 
+    /**
+     * @dataProvider provideMenuHighlightsTheGroupOfTheCurrentPageCases
+     */
+    public function testMenuHighlightsTheGroupOfTheCurrentPage(string $url, string $group): void
+    {
+        $client = self::createClientAndLogin();
+
+        $client->request('GET', $url);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(1, '.navbar-nav .dropdown-item.active');
+        self::assertSelectorTextContains('.navbar-nav .dropdown-toggle.active', $group);
+    }
+
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public static function provideMenuHighlightsTheGroupOfTheCurrentPageCases(): iterable
+    {
+        yield ['/top', 'Rankings'];
+        yield ['/flop', 'Rankings'];
+        yield ['/my-top', 'Rankings'];
+        yield ['/hall-of-fame', 'Records'];
+        yield ['/awards', 'Records'];
+        yield ['/stats', 'Records'];
+    }
+
     public static function assertTestSelectorTextContains(string $selector, string $text, string $message = ''): void
     {
         self::assertSelectorTextContains(\sprintf('[data-test=%s]', $selector), $text, $message);
