@@ -5,6 +5,12 @@ name: Build and push production images
         branches: ["main"]
         tags: ["*"]
 
+# One build at a time per branch or tag, the newer push cancelling the older one: "latest"
+# follows the order of the pushes, not of the end of the builds
+concurrency:
+    group: build-push-${{ github.ref }}
+    cancel-in-progress: true
+
 permissions:
     contents: read
     packages: write
