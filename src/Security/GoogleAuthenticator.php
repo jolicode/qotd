@@ -48,7 +48,10 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
                 $explodedEmail = explode('@', (string) $googleUser->getEmail(), 2);
                 $domain = array_pop($explodedEmail);
 
-                if (!\in_array($domain, $this->allowedDomains, true)) {
+                // The domain of the email is not enough: whoever receives the emails of one of our addresses
+                // (alias, "+" suffix...) can create a personal Google account with it, that nobody can
+                // offboard. Google only gives a hosted domain to the accounts of a Workspace organization.
+                if (null === $googleUser->getHostedDomain() || !\in_array($domain, $this->allowedDomains, true)) {
                     throw new AuthenticationException('You are not allowed to create an account.');
                 }
 
