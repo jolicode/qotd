@@ -139,6 +139,7 @@ In slack you have one commands
 
 * `/qotd [a date]` to find the QOTD of the day or of the given date;
 
-## Credits
-
-Thanks JoliCode for sponsoring this project.
+<br><br>
+<div align="center">
+<a href="https://jolicode.com/"><img src="https://jolicode.com/media/original/oss/footer-github.png?v4" alt="JoliCode is sponsoring this project"></a>
+</div>
